@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
    // registerForm: FormGroup;
-    errorMessage = 'xi 9lwa';
+    errorMessage = 'gha dahkin ... ';
     successMessage = '';
     loading = false;
 
