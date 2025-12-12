@@ -1,14 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- register.component.html -->
+<div class="register-container">
+  <h2>Create Account</h2>
+  
+  <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+    
+    <!-- First Name -->
+    <div class="form-group">
+      <label for="firstName">First Name *</label>
+      <input 
+        type="text" 
+        id="firstName"
+        name="firstName"
+        [(ngModel)]="user.firstName"
+        [class.invalid]="isFieldInvalid(user.firstName)"
+        required
+      >
+      <span class="error" *ngIf="isFieldInvalid(user.firstName)">
+        First name is required
+      </span>
+    </div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>01Blog</title>
-</head>
+    <!-- Last Name -->
+    <div class="form-group">
+      <label for="lastName">Last Name *</label>
+      <input 
+        type="text" 
+        id="lastName"
+        name="lastName"
+        [(ngModel)]="user.lastName"
+        [class.invalid]="isFieldInvalid(user.lastName)"
+        required
+      >
+      <span class="error" *ngIf="isFieldInvalid(user.lastName)">
+        Last name is required
+      </span>
+    </div>
 
-<body>
-    <h1>{{errorMessage}}</h1>
-</body>
+    <!-- Email -->
+    <div class="form-group">
+      <label for="email">Email *</label>
+      <input 
+        type="email" 
+        id="email"
+        name="email"
+        [(ngModel)]="user.email"
+        [class.invalid]="isFieldInvalid(user.email)"
+        required
+      >
+      <span class="error" *ngIf="isFieldInvalid(user.email)">
+        Email is required
+      </span>
+    </div>
 
-</html>
+    <!-- Password -->
+    <div class="form-group">
+      <label for="password">Password *</label>
+      <input 
+        type="password" 
+        id="password"
+        name="password"
+        [(ngModel)]="user.password"
+        [class.invalid]="isFieldInvalid(user.password)"
+        required
+      >
+      <span class="error" *ngIf="isFieldInvalid(user.password)">
+        Password is required
+      </span>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password *</label>
+      <input 
+        type="password" 
+        id="confirmPassword"
+        name="confirmPassword"
+        [(ngModel)]="user.confirmPassword"
+        [class.invalid]="isFieldInvalid(user.confirmPassword) || passwordMismatch"
+        required
+      >
+      <span class="error" *ngIf="isFieldInvalid(user.confirmPassword)">
+        Please confirm your password
+      </span>
+      <span class="error" *ngIf="passwordMismatch">
+        Passwords do not match
+      </span>
+    </div>
+
+    <!-- Buttons -->
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">Register</button>
+      <button type="button" class="btn-secondary" (click)="resetForm()">Clear</button>
+    </div>
+
+    <!-- Display form data (for learning purposes) -->
+    <div class="debug-info">
+      <h4>Form Data (Debug):</h4>
+      <pre>{{ user | json }}</pre>
+    </div>
+
+  </form>
+</div>
