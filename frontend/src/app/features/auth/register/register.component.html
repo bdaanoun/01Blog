@@ -1,52 +1,33 @@
-<!-- register.component.html -->
 <div class="register-container">
   <h2>Create Account</h2>
-  
+
+  <!-- Success Message -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div class="alert alert-error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
   <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
-    
+
     <!-- First Name -->
     <div class="form-group">
-      <label for="firstName">First Name *</label>
-      <input 
-        type="text" 
-        id="firstName"
-        name="firstName"
-        [(ngModel)]="user.firstName"
-        [class.invalid]="isFieldInvalid(user.firstName)"
-        required
-      >
-      <span class="error" *ngIf="isFieldInvalid(user.firstName)">
-        First name is required
-      </span>
-    </div>
-
-    <!-- Last Name -->
-    <div class="form-group">
-      <label for="lastName">Last Name *</label>
-      <input 
-        type="text" 
-        id="lastName"
-        name="lastName"
-        [(ngModel)]="user.lastName"
-        [class.invalid]="isFieldInvalid(user.lastName)"
-        required
-      >
-      <span class="error" *ngIf="isFieldInvalid(user.lastName)">
-        Last name is required
+      <label for="username">Username *</label>
+      <input type="text" id="username" name="username" [(ngModel)]="user.username"
+        [class.invalid]="isFieldInvalid(user.username)" [disabled]="isLoading" required>
+      <span class="error" *ngIf="isFieldInvalid(user.username)">
+        Username name is required
       </span>
     </div>
 
     <!-- Email -->
     <div class="form-group">
       <label for="email">Email *</label>
-      <input 
-        type="email" 
-        id="email"
-        name="email"
-        [(ngModel)]="user.email"
-        [class.invalid]="isFieldInvalid(user.email)"
-        required
-      >
+      <input type="email" id="email" name="email" [(ngModel)]="user.email" [class.invalid]="isFieldInvalid(user.email)"
+        [disabled]="isLoading" required>
       <span class="error" *ngIf="isFieldInvalid(user.email)">
         Email is required
       </span>
@@ -55,14 +36,8 @@
     <!-- Password -->
     <div class="form-group">
       <label for="password">Password *</label>
-      <input 
-        type="password" 
-        id="password"
-        name="password"
-        [(ngModel)]="user.password"
-        [class.invalid]="isFieldInvalid(user.password)"
-        required
-      >
+      <input type="password" id="password" name="password" [(ngModel)]="user.password"
+        [class.invalid]="isFieldInvalid(user.password)" [disabled]="isLoading" required>
       <span class="error" *ngIf="isFieldInvalid(user.password)">
         Password is required
       </span>
@@ -71,14 +46,8 @@
     <!-- Confirm Password -->
     <div class="form-group">
       <label for="confirmPassword">Confirm Password *</label>
-      <input 
-        type="password" 
-        id="confirmPassword"
-        name="confirmPassword"
-        [(ngModel)]="user.confirmPassword"
-        [class.invalid]="isFieldInvalid(user.confirmPassword) || passwordMismatch"
-        required
-      >
+      <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="user.confirmPassword"
+        [class.invalid]="isFieldInvalid(user.confirmPassword) || passwordMismatch" [disabled]="isLoading" required>
       <span class="error" *ngIf="isFieldInvalid(user.confirmPassword)">
         Please confirm your password
       </span>
@@ -89,15 +58,19 @@
 
     <!-- Buttons -->
     <div class="form-actions">
-      <button type="submit" class="btn-primary">Register</button>
-      <button type="button" class="btn-secondary" (click)="resetForm()">Clear</button>
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Register</span>
+        <span *ngIf="isLoading">Registering...</span>
+      </button>
+      <button type="button" class="btn-secondary" (click)="resetForm()" [disabled]="isLoading">
+        Clear
+      </button>
     </div>
 
-    <!-- Display form data (for learning purposes) -->
-    <div class="debug-info">
-      <h4>Form Data (Debug):</h4>
-      <pre>{{ user | json }}</pre>
-    </div>
+    <p class="login-link">
+      Already have an account?
+      <a routerLink="/login">Login here</a>
+    </p>
 
   </form>
 </div>
