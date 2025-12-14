@@ -1,37 +1,41 @@
-// register.component.ts (STANDALONE VERSION)
+// src/app/features/auth/register/register.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService, RegisterRequest } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
-  standalone: true,  // 👈 Makes it standalone
-  imports: [         // 👈 Component imports what it needs directly
-    CommonModule,    // Provides *ngIf, *ngFor, etc.
-    FormsModule      // Provides ngModel
-  ],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  // Form data model
   user = {
-    firstName: '',
-    lastName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   };
 
-  // Form state
   submitted = false;
   passwordMismatch = false;
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
 
-  // Handle form submission
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) { }
+
   onSubmit() {
     this.submitted = true;
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    // Check if passwords match
     if (this.user.password !== this.user.confirmPassword) {
       this.passwordMismatch = true;
       return;
@@ -39,28 +43,62 @@ export class RegisterComponent {
 
     this.passwordMismatch = false;
 
-    // Log the user data (in real app, send to backend)
-    console.log('Registration data:', this.user);
-    alert('Registration successful!');
+    if (!this.user.username ||
+      !this.user.email || !this.user.password) {
+      this.errorMessage = 'Please fill in all fields';
+      return;
+    }
 
-    // Reset form
-    this.resetForm();
+    const registerData: RegisterRequest = {
+      username: this.user.username,
+      email: this.user.email,
+      password: this.user.password
+    };
+
+    this.isLoading = true;
+
+    this.authService.register(registerData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.successMessage = 'Registration successful!';
+
+        if (response.token) {
+          this.authService.saveToken(response.token);
+        }
+
+        setTimeout(() => {
+          this.router.navigate(['/auth/login']);
+        }, 2000);
+      },
+      error: (error) => {
+        this.isLoading = false;
+
+        if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+        } else if (error.status === 0) {
+          this.errorMessage = 'Cannot connect to server. Please try again later.';
+        } else {
+          this.errorMessage = 'Registration failed. Please try again.';
+        }
+
+        console.error('Registration error:', error);
+      }
+    });
   }
 
-  // Reset form data
   resetForm() {
     this.user = {
-      firstName: '',
-      lastName: '',
+      username: '',
       email: '',
       password: '',
       confirmPassword: ''
     };
     this.submitted = false;
     this.passwordMismatch = false;
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
-  // Check if field is valid
   isFieldInvalid(fieldValue: string): boolean {
     return this.submitted && !fieldValue;
   }
