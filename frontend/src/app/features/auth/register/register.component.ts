@@ -1,4 +1,3 @@
-// src/app/features/auth/register/register.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -67,7 +66,7 @@ export class RegisterComponent {
         }
 
         setTimeout(() => {
-          this.router.navigate(['/auth/login']);
+          this.router.navigate(['/login']);
         }, 2000);
       },
       error: (error) => {

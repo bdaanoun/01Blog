@@ -1,203 +1,217 @@
 /* src/app/pages/landing/landing.component.css */
 
-.landing-container {
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.landing-page {
   min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 }
 
-/* Hero Section */
-.hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 100px 20px;
-  text-align: center;
-}
-
-.hero-content {
-  max-width: 800px;
+.container {
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
-.hero-title {
-  font-size: 3rem;
-  font-weight: bold;
-  margin-bottom: 20px;
-  animation: fadeInUp 0.8s ease-out;
+/* Header Navigation */
+.header {
+  background-color: #ffffff;
+  padding: 20px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.hero-subtitle {
-  font-size: 1.3rem;
-  margin-bottom: 40px;
-  opacity: 0.95;
-  animation: fadeInUp 0.8s ease-out 0.2s backwards;
-}
-
-.hero-buttons {
+.nav {
   display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  animation: fadeInUp 0.8s ease-out 0.4s backwards;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+}
+
+/* .logo-text {
+  color: #000;
+}
+
+.logo-icon {
+  font-size: 20px;
+  margin: 0 2px;
+} */
+
+.nav-buttons {
+  display: flex;
+  gap: 15px;
 }
 
 /* Buttons */
 .btn {
-  padding: 15px 40px;
-  border-radius: 50px;
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 600;
+  padding: 10px 25px;
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
   transition: all 0.3s ease;
-  display: inline-block;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.btn-outline:hover {
+  background-color: #000;
+  color: #fff;
+}
+.getstarted:hover{
+  background-color: #000;
+  color: #f5f5f5;
 }
 
 .btn-primary {
-  background: white;
-  color: #667eea;
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #000;
 }
 
 .btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  background-color: #333;
+  border-color: #333;
 }
 
-.btn-secondary {
-  background: transparent;
-  color: white;
-  border: 2px solid white;
+.btn-cta {
+  background-color: #000;
+  color: #fff;
+  padding: 15px 35px;
+  font-size: 18px;
+  margin-top: 30px;
 }
 
-.btn-secondary:hover {
-  background: white;
-  color: #667eea;
-  transform: translateY(-3px);
+.btn-cta:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.btn-large {
-  padding: 18px 50px;
-  font-size: 1.2rem;
+/* Hero Section */
+.hero {
+  padding: 100px 0;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
 }
 
-/* Features Section */
-.features {
-  padding: 80px 20px;
-  background: #f8f9fa;
+.hero-content {
+  max-width: 800px;
 }
 
-.section-title {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 60px;
+.hero-title {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30px;
+}
+
+.title-small {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #000;
+  line-height: 1.2;
+}
+
+.title-large {
+  font-size: 80px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  color: #000;
+  line-height: 1;
+  margin: 10px 0;
+}
+
+.hero-subtitle {
+  font-size: 22px;
   color: #333;
+  font-weight: 400;
+  /* margin-top: 20px; */
+}
+.getstarted{
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  border: #000 solid 1px;
+  border-radius: 15px;
+  padding: 15px;
 }
 
-.features-grid {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 40px;
+.buttomContainer{
+  display: flex;
+  /* flex-direction: row; */
+  justify-content: space-between;
+  align-items: center;
 }
 
-.feature-card {
-  background: white;
-  padding: 40px 30px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-}
-
-.feature-icon {
-  font-size: 4rem;
-  margin-bottom: 20px;
-}
-
-.feature-title {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-  color: #333;
-}
-
-.feature-description {
-  color: #666;
-  line-height: 1.6;
-}
-
-/* CTA Section */
-.cta {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 80px 20px;
-  text-align: center;
-}
-
-.cta h2 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-}
-
-.cta p {
-  font-size: 1.2rem;
-  margin-bottom: 40px;
-  opacity: 0.95;
-}
-
-.cta .btn {
-  background: white;
-  color: #667eea;
-}
-
-.cta .btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem;
+  .title-small {
+    font-size: 24px;
+  }
+
+  .title-large {
+    font-size: 48px;
   }
 
   .hero-subtitle {
-    font-size: 1.1rem;
+    font-size: 18px;
   }
 
-  .hero-buttons {
-    flex-direction: column;
-    align-items: center;
+  .nav-buttons {
+    gap: 10px;
   }
 
   .btn {
-    width: 100%;
-    max-width: 300px;
+    padding: 8px 20px;
+    font-size: 14px;
   }
 
-  .section-title {
-    font-size: 2rem;
+  .hero {
+    padding: 50px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 20px;
   }
 
-  .features-grid {
-    grid-template-columns: 1fr;
+  .title-small {
+    font-size: 20px;
   }
 
-  .cta h2 {
-    font-size: 2rem;
+  .title-large {
+    font-size: 36px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+  }
+
+  .btn-cta {
+    font-size: 16px;
+    padding: 12px 25px;
   }
 }

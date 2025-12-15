@@ -38,15 +38,15 @@ export interface LoginResponse {
 })
 export class AuthService {
 
-    private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) { }
 
   // Register new user
   register(userData: RegisterRequest): Observable<RegisterResponse> {
-        
+
     const url = `${this.apiUrl}/register`;
-    
+
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
@@ -57,7 +57,7 @@ export class AuthService {
   // Login user
   login(credentials: LoginRequest): Observable<LoginResponse> {
     const url = `${this.apiUrl}/login`;
-    
+
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
