@@ -11,21 +11,5 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./landing.component.css']
 })
 export class LandingComponent {
-  features = [
-    {
-      icon: '🚀',
-      title: 'Fast & Modern',
-      description: 'Built with the latest Angular standalone components'
-    },
-    {
-      icon: '🔒',
-      title: 'Secure',
-      description: 'Industry-standard authentication and security practices'
-    },
-    {
-      icon: '💡',
-      title: 'Easy to Use',
-      description: 'Intuitive interface designed for the best user experience'
-    }
-  ];
+  
 }
