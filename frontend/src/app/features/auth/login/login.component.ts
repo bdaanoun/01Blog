@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService, LoginRequest } from '../../services/auth.service';
+import { AuthService, LoginRequest } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +13,7 @@ import { AuthService, LoginRequest } from '../../services/auth.service';
 })
 export class LoginComponent {
   credentials = {
-    username: '',
+    identifier: '',
     password: ''
   };
 
@@ -28,7 +28,7 @@ export class LoginComponent {
   onSubmit() {
     this.errorMessage = '';
 
-    if (!this.credentials.username || !this.credentials.password) {
+    if (!this.credentials.identifier || !this.credentials.password) {
       this.errorMessage = 'Please fill in all fields';
       return;
     }
@@ -36,7 +36,7 @@ export class LoginComponent {
     this.isLoading = true;
 
     const loginData: LoginRequest = {
-      username: this.credentials.username,
+      identifier: this.credentials.identifier,
       password: this.credentials.password
     };
 
@@ -44,7 +44,7 @@ export class LoginComponent {
       next: (response) => {
         this.isLoading = false;
         this.authService.saveToken(response.token);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/home']);
       },
       error: (error) => {
         this.isLoading = false;

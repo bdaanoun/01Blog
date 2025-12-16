@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService, RegisterRequest } from '../../services/auth.service';
+import { AuthService, RegisterRequest } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
