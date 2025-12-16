@@ -14,7 +14,7 @@ import com.o1blog._blog.model.User;
 import com.o1blog._blog.service.UserService;
 
 @RestController
-@RequestMapping("/api/register")
+@RequestMapping("/api/users")
 public class UserController {
 
     // @Autowired
