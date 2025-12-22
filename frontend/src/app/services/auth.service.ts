@@ -22,13 +22,13 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  success: boolean;
   token: string;
-  user: {
-    id: string;
-    username: string;
-    email: string;
-  };
+  message: string;
+  // user: {
+  //   id: string;
+  //   identifier: string;
+  //   email: string;
+  // };
 }
 
 @Injectable({
@@ -76,14 +76,12 @@ export class AuthService {
 
     return this.http.post<LoginResponse>(url, credentials, { headers }).pipe(
       tap(response => {
-        // Automatically save token and user info after successful login
-        if (response.success && response.token) {
+        if (response.token) {
           this.saveToken(response.token);
-          this.saveUser(response.user);
           this.isAuthenticatedSubject.next(true);
-          this.currentUserSubject.next(response.user);
         }
       })
+
     );
   }
 
