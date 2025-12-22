@@ -40,8 +40,11 @@ export class LoginComponent {
       password: this.credentials.password
     };
 
-    this.authService.login(loginData).subscribe({
+    this.authService.login(loginData).subscribe({      
       next: (response) => {
+        // console.log("=====> ",response);
+        // if (response.token)
+        
         this.isLoading = false;
         this.authService.saveToken(response.token);
         this.router.navigate(['/home']);
