@@ -1,14 +1,27 @@
-// src/app/app.component.ts
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { HeaderComponent } from './shared/header/header.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
-  template: `<router-outlet></router-outlet>`,
-  styles: []
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    HeaderComponent
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
-export class App {
-  title = 'My Angular App';
+export class AppComponent {
+  showHeader = true;
+
+  constructor(private router: Router) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.showHeader = !['/login', '/register'].includes(event.url);
+      }
+    });
+  }
 }
