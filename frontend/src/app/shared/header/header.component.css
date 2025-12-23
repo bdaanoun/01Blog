@@ -1,0 +1,83 @@
+/* Reset (optional: keep only if header needs it) */
+/* * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+} */
+
+/* Shared container (used by header) */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header Navigation */
+.header {
+  background-color: #ffffff;
+  padding: 20px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+/* Buttons (used in header) */
+.btn {
+  padding: 10px 25px;
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.btn-outline:hover {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Responsive (header only) */
+@media (max-width: 768px) {
+  .nav-buttons {
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 20px;
+  }
+}
