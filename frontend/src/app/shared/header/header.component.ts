@@ -1,11 +1,14 @@
-import { RouterLink } from '@angular/router';
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
+  imports: [RouterModule],
   templateUrl: './header.component.html',
-  imports: [RouterLink],
-
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent { }
+export class HeaderComponent {
+  constructor(public auth: AuthService) {}
+}
