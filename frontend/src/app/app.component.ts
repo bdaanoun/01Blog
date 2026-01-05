@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './shared/header/header.component';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -17,11 +18,18 @@ import { HeaderComponent } from './shared/header/header.component';
 export class AppComponent {
   showHeader = true;
 
-  constructor(private router: Router) {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.showHeader = !['/login', '/register'].includes(event.url);
-      }
-    });
-  }
+  constructor(private router: Router) {}
+
+  // ngOnInit() {
+  //   // Debug: Log to console to verify header visibility
+  //   console.log('AppComponent initialized, showHeader:', this.showHeader);
+
+  //   // Optional: Hide header on specific routes
+  //   this.router.events.pipe(
+  //     filter(event => event instanceof NavigationEnd)
+  //   ).subscribe((event: NavigationEnd) => {
+  //     console.log('Current route:', event.url);
+  //     // this.showHeader = !['/login', '/register', '/home'].includes(event.url);
+  //   });
+  // }
 }

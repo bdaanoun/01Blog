@@ -39,14 +39,28 @@ export class AuthService {
   private apiUrl = 'http://localhost:8080/api';
 
   // Observable to track authentication state
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   // Observable to track current user
-  private currentUserSubject = new BehaviorSubject<any>(this.getStoredUser());
+  private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    // Initialize authentication state on service creation
+    this.checkAuthStatus();
+  }
+
+  // Check authentication status on init
+  private checkAuthStatus(): void {
+    const isAuth = this.hasToken() && this.isAuthenticated();
+    this.isAuthenticatedSubject.next(isAuth);
+    
+    if (isAuth) {
+      const user = this.getStoredUser();
+      this.currentUserSubject.next(user);
+    }
+  }
 
   // Register new user
   register(userData: RegisterRequest): Observable<RegisterResponse> {
@@ -61,6 +75,7 @@ export class AuthService {
         // Optionally auto-login after registration if token is provided
         if (response.token) {
           this.saveToken(response.token);
+          this.isAuthenticatedSubject.next(true);
         }
       })
     );
@@ -81,7 +96,6 @@ export class AuthService {
           this.isAuthenticatedSubject.next(true);
         }
       })
-
     );
   }
 
@@ -106,6 +120,7 @@ export class AuthService {
   // Save user info
   saveUser(user: any): void {
     localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
   }
 
   // Get stored user
