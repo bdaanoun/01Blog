@@ -6,8 +6,18 @@
       </div>
 
       <div class="nav-buttons">
-        <button class="btn btn-outline" routerLink="/login">Login</button>
-        <button class="btn btn-outline" routerLink="/register">Register</button>
+        <!-- Show login/register if NOT logged in -->
+        <ng-container *ngIf="!auth.isAuthenticated()">
+          <button class="btn btn-outline" routerLink="/login">Login</button>
+          <button class="btn btn-outline" routerLink="/register">Register</button>
+        </ng-container>
+
+        <!-- Show logout if logged in -->
+        <ng-container *ngIf="auth.isAuthenticated()">
+          <!-- <span>Welcome, {{ auth.getUserName() }}</span> -->
+          <button class="btn btn-outline" routerLink="/writePost">Write</button>
+          <button class="btn btn-outline" (click)="auth.logout()">Logout</button>
+        </ng-container>
       </div>
     </div>
   </div>
