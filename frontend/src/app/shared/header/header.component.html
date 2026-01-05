@@ -5,20 +5,22 @@
         <img src="/assets/logo.svg" alt="logo">
       </div>
 
-      <div class="nav-buttons">
-        <!-- Show login/register if NOT logged in -->
-        <ng-container *ngIf="!auth.isAuthenticated()">
+      <!-- Buttons when logged in -->
+      <ng-container *ngIf="isLoggedIn$ | async; else loggedOut">
+        <div class="nav-buttons">
+          <button class="btn btn-outline" routerLink="/writePost">Write Post</button>
+          <button class="btn btn-outline" (click)="logout()">Logout</button>
+        </div>
+      </ng-container>
+
+      <!-- Buttons when NOT logged in -->
+      <ng-template #loggedOut>
+        <div class="nav-buttons">
           <button class="btn btn-outline" routerLink="/login">Login</button>
           <button class="btn btn-outline" routerLink="/register">Register</button>
-        </ng-container>
+        </div>
+      </ng-template>
 
-        <!-- Show logout if logged in -->
-        <ng-container *ngIf="auth.isAuthenticated()">
-          <!-- <span>Welcome, {{ auth.getUserName() }}</span> -->
-          <button class="btn btn-outline" routerLink="/writePost">Write</button>
-          <button class="btn btn-outline" (click)="auth.logout()">Logout</button>
-        </ng-container>
-      </div>
     </div>
   </div>
 </header>
