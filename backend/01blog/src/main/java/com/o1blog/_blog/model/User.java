@@ -1,10 +1,18 @@
 package com.o1blog._blog.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
+@Data                   // getters, setters, toString, equals, hashCode
+@NoArgsConstructor      // empty constructor
+@AllArgsConstructor     // constructor with all fields
+@Builder
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,47 +26,31 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    // Constructors
-    public User() {}
+    @Column
+    private String avatar;
 
-    public User(Long id, String username, String email, String password) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
+    @Column(length = 500)
+    private String bio;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private Role role;     // e.g. USER, ADMIN
+
+    @Column(nullable = false)
+    private Status status;   // e.g. ACTIVE, BANNED
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    // Getters
-    public Long getId() {
-        return id;
+    public enum Role {
+        USER, ADMIN
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    // Setters
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public enum Status {
+        ACTIVE, BANNED
     }
 }
