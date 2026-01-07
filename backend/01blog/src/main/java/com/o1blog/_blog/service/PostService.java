@@ -1,10 +1,14 @@
 package com.o1blog._blog.service;
 
+import com.o1blog._blog.dto.PostRequest;
 import com.o1blog._blog.model.Post;
-import com.o1blog._blog.model.User;
 import com.o1blog._blog.model.Post.PostStatus;
+import com.o1blog._blog.model.User;
 import com.o1blog._blog.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,13 +20,20 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    public Post createPost(User user, String title, String content) {
+    public Post createPost(User user, PostRequest request) {
+
+        String safeContent = Jsoup.clean(
+                request.getContent(),
+                Safelist.basic());
+
         Post post = Post.builder()
                 .user(user)
-                .title(title)
-                .content(content)
-                // .status(PostStatus.DRAFT) // default
+                .title(request.getTitle())
+                .content(safeContent)
+                .banner(request.getBanner())
+                .status(PostStatus.PUBLISHED)
                 .build();
+
         return postRepository.save(post);
     }
 

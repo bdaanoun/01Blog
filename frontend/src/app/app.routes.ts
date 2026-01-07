@@ -15,7 +15,7 @@ export const routes: Routes = [
         path: 'home',
         canActivate: [authGuard],
         loadComponent: () => import('./pages/home/home.component')
-        .then(m => m.Home)
+            .then(m => m.Home)
     },
     {
         path: 'register',
@@ -28,6 +28,12 @@ export const routes: Routes = [
         canActivate: [guestGuard],
         loadComponent: () => import('./features/auth/login/login.component')
             .then(m => m.LoginComponent)
+    },
+    {
+        path: 'writePost',
+        canActivate: [authGuard],
+        loadComponent: () => import('./pages/writePost/writePost.component')
+            .then(m => m.WritePostComponent)
     },
     {
         path: '**',

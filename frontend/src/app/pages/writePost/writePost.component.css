@@ -1,0 +1,17 @@
+
+.editor-wrapper {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px;
+  min-height: 200px;
+}
+
+.tiptap-editor {
+  min-height: 180px;
+  outline: none;
+  cursor: text;
+}
+
+.tiptap-editor p {
+  margin: 0.5em 0;
+}
