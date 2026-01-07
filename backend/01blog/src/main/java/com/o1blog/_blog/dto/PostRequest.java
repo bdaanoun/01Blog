@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Size;
 
 @Data
 public class PostRequest {
+    
+    private String banner;
+
     @NotBlank(message = "Title is required")
     @Size(max = 255)
     private String title;

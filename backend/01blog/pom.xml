@@ -35,8 +35,16 @@
     <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+        <!-- Version can be omitted in a Spring Boot project if using a parent POM -->
+        <!-- <version>1.18.30</version> Use a specific version if not using parent POM -->
+        <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.17.2</version>
+    </dependency>
+
     
     <!-- jwt -->
      <dependency>

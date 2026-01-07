@@ -17,7 +17,6 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Link to the user who created the post
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -34,10 +33,11 @@ public class Post {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PostStatus status.PUBLISHED; // e.g. PUBLISHED, DELETED
+    private PostStatus status = PostStatus.PUBLISHED;
 
-    // Automatically set createdAt before saving
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -47,5 +47,4 @@ public class Post {
         PUBLISHED,
         DELETED
     }
-
 }

@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-@Data                   // getters, setters, toString, equals, hashCode
-@NoArgsConstructor      // empty constructor
-@AllArgsConstructor     // constructor with all fields
+@Data // getters, setters, toString, equals, hashCode
+@NoArgsConstructor // empty constructor
+@AllArgsConstructor // constructor with all fields
 @Builder
 public class User {
 
@@ -35,11 +35,14 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Builder.Default
+    // @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;     // e.g. USER, ADMIN
+    private Role role = Role.USER; // e.g. USER, ADMIN
 
+    @Builder.Default
     @Column(nullable = false)
-    private Status status;   // e.g. ACTIVE, BANNED
+    private Status status = Status.ACTIVE; // e.g. ACTIVE, BANNED
 
     @PrePersist
     protected void onCreate() {
