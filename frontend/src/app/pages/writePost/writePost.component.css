@@ -1,17 +1,92 @@
-
 .editor-wrapper {
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  max-width: 700px;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  font-weight: bold;
+}
+
+input[type="text"], input[type="file"] {
   padding: 8px;
+  font-size: 30px;
+  /* border-radius: 5px; */
+  border: none;
+}
+
+.editor-container {
+  /* border: 1px solid #ccc; */
+  border-radius: 5px;
   min-height: 200px;
+  padding: 10px;
+  background-color: #fff;
 }
 
-.tiptap-editor {
-  min-height: 180px;
-  outline: none;
-  cursor: text;
+
+.btn-save {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.tiptap-editor p {
-  margin: 0.5em 0;
+.btn-save:hover {
+  background-color: #4338ca;
+}
+
+
+.image-upload-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  height: 200px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  background-color: #fafafa;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.image-upload-box:hover {
+  border-color: #4f46e5;
+  background-color: #f0f0ff;
+}
+
+.placeholder-text {
+  color: #999;
+  font-size: 16px;
+}
+
+.banner-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+.slash-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  min-width: 120px;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.slash-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.slash-item:hover {
+  background-color: #f0f0ff;
 }

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -19,13 +20,13 @@ public class PostController {
     private final PostService postService;
 
     // CREATE POST (Rich Text)
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<PostResponse> createPost(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody PostRequest request
-    ) {
-        Post post = postService.createPost(user, request);
-
+            @RequestPart("title") String title,
+            @RequestPart("content") String content,
+            @RequestPart(value = "banner", required = false) MultipartFile banner) {
+        Post post = postService.createPost(user, title, content, banner);
         return ResponseEntity.ok(mapToResponse(post));
     }
 
@@ -36,8 +37,7 @@ public class PostController {
                 postService.getAllPosts()
                         .stream()
                         .map(this::mapToResponse)
-                        .toList()
-        );
+                        .toList());
     }
 
     // GET SINGLE POST

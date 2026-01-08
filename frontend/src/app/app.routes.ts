@@ -32,6 +32,7 @@ export const routes: Routes = [
     {
         path: 'writePost',
         canActivate: [authGuard],
+        // component : WritePostComponent
         loadComponent: () => import('./pages/writePost/writePost.component')
             .then(m => m.WritePostComponent)
     },
