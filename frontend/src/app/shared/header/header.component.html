@@ -1,15 +1,42 @@
 <header class="header">
   <div class="container">
     <div class="nav">
-      <div class="logo">
+      <div class="logo" routerLink="/home">
         <img src="/assets/logo.svg" alt="logo">
       </div>
 
       <!-- Buttons when logged in -->
       <ng-container *ngIf="isLoggedIn$ | async; else loggedOut">
-        <div class="nav-buttons">
+        <div class="nav-buttons" style="display: flex; align-items: center; gap: 12px;">
           <button class="btn btn-outline" routerLink="/writePost">Write Post</button>
-          <button class="btn btn-outline" (click)="logout()">Logout</button>
+
+          <!-- Notifications -->
+          <div class="notifications-wrapper">
+            <button class="notifications-btn" (click)="toggleNotifications()">
+              <mat-icon>notifications</mat-icon> <!-- Bell icon from Angular Material -->
+              <span *ngIf="notifications.length > 0" class="badge">{{ notifications.length }}</span>
+            </button>
+
+            <div *ngIf="showNotifications" class="notifications-dropdown">
+              <div *ngFor="let n of notifications" class="notifications-dropdown-item">{{ n.message }}</div>
+              <div *ngIf="notifications.length === 0" class="notifications-dropdown-item">No notifications</div>
+            </div>
+          </div>
+
+
+
+          <!-- Profile avatar -->
+          <div class="avatar-wrapper" (click)="toggleProfileDropdown()" style="position: relative; cursor: pointer;">
+            <img [src]="(currentUser$ | async)?.avatarUrl || '/assets/default-avatar.png'" alt="avatar" class="avatar"
+              style="width: 36px; height: 36px; border-radius: 50%;" />
+
+            <!-- Profile dropdown -->
+            <div *ngIf="showProfileDropdown" class="dropdown"
+              style="position: absolute; right: 0; top: 44px; background: white; border: 1px solid #ccc; border-radius: 6px; padding: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+              <span routerLink="/profile" class="dropdown-item btn btn-outline w-full text-left">Profile</span>
+              <span (click)="logout()" class="dropdown-item btn btn-outline w-full text-left">Logout</span>
+            </div>
+          </div>
         </div>
       </ng-container>
 

@@ -64,13 +64,17 @@ public class AuthService {
                     .orElseGet(() -> userRepository.findByUsername(request.getIdentifier())
                             .orElseThrow(() -> new IllegalArgumentException("User makaynch.")));
 
+            // Check password
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("Invalid email or password");
+            }
+
             String token = jwtUtil.generateToken(user.getEmail());
 
             return ResponseEntity.ok(
                     new AuthResponse(token, "Login successful"));
 
         } catch (Exception e) {
-
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(new AuthResponse(null, "Invalid email or password"));
