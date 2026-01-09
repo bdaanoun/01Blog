@@ -36,6 +36,8 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
   ];
 
   ngAfterViewInit(): void {
+    const token = localStorage.getItem('authToken');
+    
     this.editor = new EditorJS({
       holder: this.editorRef.nativeElement,
       placeholder: 'Write your post content here...',
@@ -57,17 +59,51 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
           class: ImageTool as any,
           inlineToolbar: true,
           config: {
+            endpoints: {
+              byFile: 'http://localhost:8080/api/posts/images/temp'
+            },
+            field: 'image',
+            types: 'image/*',
+            additionalRequestHeaders: {
+              'Authorization': `Bearer ${token}`
+            },
             uploader: {
+              /**
+               * Upload file to the server and return an uploaded image data
+               * @param {File} file - file selected from the device or pasted by drag-n-drop
+               * @return {Promise.<{success, file: {url}}>}
+               */
               uploadByFile: async (file: File) => {
-                // TEMP: local preview
-                const url = URL.createObjectURL(file);
+                const formData = new FormData();
+                formData.append('image', file);
 
-                return {
-                  success: 1,
-                  file: {
-                    url
+                try {
+                  const response = await fetch('http://localhost:8080/api/posts/images/temp', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                  });
+
+                  if (!response.ok) {
+                    throw new Error('Upload failed');
                   }
-                };
+
+                  const data = await response.json();
+                  console.log('Image uploaded:', data);
+                  console.log("image:  ",data);
+                  
+
+                  return data; // Should return { success: 1, file: { url: "..." } }
+                  
+                } catch (error) {
+                  console.error('Error uploading image:', error);
+                  return {
+                    success: 0,
+                    message: 'Upload failed'
+                  };
+                }
               }
             }
           }
@@ -80,7 +116,6 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
       this.checkForSlash(event);
     });
   }
-
 
   // Banner preview
   onBannerSelected(event: Event) {
@@ -100,7 +135,6 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
 
     const text = selection.anchorNode?.textContent;
     if (text && text.endsWith('/')) {
-      // Get cursor coordinates
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
       this.menuX = rect.left;
@@ -108,26 +142,42 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
       this.showSlashMenu = true;
     }
   }
-  // Handle local image selection for editor
+
+  // Handle local image selection for editor (from slash menu)
   onImageSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
+    const token = localStorage.getItem('authToken');
+    
+    // Upload to server instead of creating blob URL
+    const formData = new FormData();
+    formData.append('image', file);
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const url = reader.result as string;
-      const index = this.editor.blocks.getCurrentBlockIndex() + 1;
-      this.editor.blocks.insert('image', { url }, {}, index);
-    };
-    reader.readAsDataURL(file);
+    fetch('http://localhost:8080/api/posts/images/temp', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success === 1) {
+        const index = this.editor.blocks.getCurrentBlockIndex() + 1;
+        this.editor.blocks.insert('image', { 
+          file: { url: data.file.url } 
+        }, {}, index);
+      }
+    })
+    .catch(error => {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image');
+    });
 
-    // Reset so user can add more images
     input.value = '';
   }
-
-
 
   insertSlashBlock(item: { type: string, label: string }) {
     const index = this.editor.blocks.getCurrentBlockIndex() + 1;
@@ -141,7 +191,6 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
         break;
       case 'image':
         this.imageInputRef.nativeElement.click();
-
         break;
     }
 
@@ -149,23 +198,32 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
   }
 
   async saveContent() {
-    if (!this.title.trim()) { alert('Please enter a title.'); return; }
+    if (!this.title.trim()) { 
+      alert('Please enter a title.'); 
+      return; 
+    }
 
     try {
       const editorData = await this.editor.save();
       const formData = new FormData();
-      if (this.bannerFile) formData.append('banner', this.bannerFile);
+      
+      if (this.bannerFile) {
+        formData.append('banner', this.bannerFile);
+      }
+      
       formData.append('title', this.title);
       formData.append('content', JSON.stringify(editorData));
-      // console.log("data:  ", editorData);
-      var token = localStorage.getItem("authToken")
+      
+      console.log("Editor data:", editorData);
+      
+      const token = localStorage.getItem("authToken");
       
       const response = await fetch('http://localhost:8080/api/posts', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-        , body: formData
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
       });
 
       if (response.ok) {

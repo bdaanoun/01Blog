@@ -29,6 +29,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
+        System.out.println("METHOD: " + request.getMethod());
+        System.out.println("URI: " + request.getRequestURI());
+        System.out.println("HEADER: " + request.getHeader("Authorization"));
+
         // Skip JWT validation for public endpoints
         String path = request.getRequestURI();
         if (path.equals("/api/register") || path.equals("/api/login")) {
@@ -49,13 +53,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 logger.error("JWT Token extraction failed", e);
             }
+            System.out.println("jwt: " + jwt);
+            System.out.println("username: " + username);
+
         }
 
         // Validate token and set authentication
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            CustomUserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            System.out.println("UserDetails loaded: " + userDetails);
+            System.out.println("UserDetails username: " + userDetails.getUsername());
+            System.out.println("UserDetails authorities: " + userDetails.getAuthorities());
 
-            if (jwtUtil.validateToken(jwt, userDetails)) {
+            boolean isValid = jwtUtil.validateToken(jwt, userDetails);
+            System.out.println("Token valid: " + isValid);
+
+            if (isValid) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -65,6 +78,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                System.out.println("Authentication set in SecurityContext");
+                System.out.println("Auth details: " + SecurityContextHolder.getContext().getAuthentication());
+            } else {
+                System.out.println("Token validation FAILED");
             }
         }
 

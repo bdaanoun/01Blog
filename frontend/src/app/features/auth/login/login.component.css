@@ -96,6 +96,7 @@ label {
   font-weight: 500;
 }
 
+input[type="username"],
 input[type="email"],
 input[type="password"] {
   width: 100%;
