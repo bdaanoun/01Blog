@@ -18,6 +18,15 @@ export const routes: Routes = [
             .then(m => m.Home)
     },
     {
+
+        path: 'post/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import("./pages/post-detail/post-detail.component")
+            .then(m => m.PostDetailComponent)
+        // component: PostDetailComponent
+
+    },
+    {
         path: 'register',
         canActivate: [guestGuard],
         loadComponent: () => import('./features/auth/register/register.component')

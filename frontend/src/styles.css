@@ -1,10 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
-/* @import 'quill/dist/quill.snow.css'; */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* cursor: pointer; */
+  /* cursor: url("../public/assets/cursor.svg"); */
 }
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

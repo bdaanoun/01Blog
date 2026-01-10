@@ -1,2 +1,86 @@
-<h2>Welcome Home Honey!</h2>
-<p>home works!</p>
+<div class="home-container">
+  <header class="home-header">
+    <!-- <h1>Stories</h1> -->
+    <nav class="nav-tabs">
+      <button class="nav-tab" [class.active]="activeTab === 'feed'" (click)="setActiveTab('feed')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        Feed
+      </button>
+      <button class="nav-tab" [class.active]="activeTab === 'explore'" (click)="setActiveTab('explore')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        Explore
+      </button>
+      <button class="nav-tab" [class.active]="activeTab === 'writers'" (click)="setActiveTab('writers')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+        Writers
+      </button>
+    </nav>
+
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+    <button (click)="loadPosts()" class="retry-btn">Try again</button>
+  </div>
+
+  <!-- Posts -->
+  <div *ngIf="!loading && !error" class="posts-container">
+    <div *ngIf="posts.length === 0" class="no-posts">
+      <p>No stories yet.</p>
+      <a routerLink="/write" class="write-link">Write the first story</a>
+    </div>
+
+    <article *ngFor="let post of posts" class="post-card" [routerLink]="['/post', post.id]">
+      <div class="post-author">
+        <div class="author-avatar">
+          {{ getAuthorInitial(post.authorName) }}
+        </div>
+        <div class="author-meta">
+          <span class="author-name">{{ post.authorName || 'Unknown' }}</span>
+          <span class="post-meta-info">
+            {{ getTimeAgo(post.createdAt) }} · {{ getReadTime(post.content) }} min read
+          </span>
+        </div>
+      </div>
+
+      <div class="post-content" [routerLink]="['/post', post.id]">
+        <div class="post-text">
+          <h2 class="post-title">{{ post.title }}</h2>
+          <p class="post-subtitle">{{ getPlainTextPreview(post.content) }}</p>
+        </div>
+
+        <div class="post-image" *ngIf="post.banner">
+          <img [src]="getBannerUrl(post.banner)" [alt]="post.title">
+        </div>
+      </div>
+
+      <div class="post-footer">
+        <button class="like-button" [class.liked]="post.likedByCurrentUser" (click)="toggleLike(post, $event)"
+          [attr.aria-label]="post.likedByCurrentUser ? 'Unlike' : 'Like'">
+          <svg width="24" height="24" viewBox="0 0 24 24"
+            [attr.fill]="post.likedByCurrentUser ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span class="like-count" *ngIf="post.likesCount > 0">{{ post.likesCount }}</span>
+        </button>
+      </div>
+    </article>
+  </div>
+</div>
