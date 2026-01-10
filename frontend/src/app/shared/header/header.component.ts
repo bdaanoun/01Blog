@@ -20,7 +20,6 @@ export class HeaderComponent {
   showProfileDropdown = false;
   showNotifications = false;
 
-  // Example notifications
   notifications = [
     { id: 1, message: 'New comment on your post' },
     { id: 2, message: 'User X liked your post' },
@@ -56,6 +55,10 @@ export class HeaderComponent {
     this.currentUser$ = this.authService.currentUser$;
 
   }
+
+  // getAuthorInitial(authorName: string | undefined): string {
+  //   return authorName ? authorName.charAt(0).toUpperCase() : 'U';
+  // }
 
   logout() {
     this.authService.logout();

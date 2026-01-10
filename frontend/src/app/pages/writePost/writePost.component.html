@@ -1,8 +1,8 @@
 <div class="editor-wrapper">
 
   <!-- Banner Upload Box -->
-  <label class="image-upload-box" (click)="fileInput.click()">
-    <input #fileInput type="file" (change)="onBannerSelected($event)" hidden />
+  <label class="image-upload-box">
+    <input #fileInput type="file" accept="image/*" (change)="onBannerSelected($event)" hidden />
 
     <!-- Show preview if bannerFile exists -->
     <ng-container *ngIf="bannerPreview; else placeholder">

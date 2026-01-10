@@ -16,4 +16,7 @@ public class PostResponse {
     private String status;
     private LocalDateTime createdAt;
     private Long userId;
+    private String authorName;
+    private Long likesCount;
+    private Boolean likedByCurrentUser;
 }
