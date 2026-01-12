@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -58,8 +57,9 @@ public class JwtUtil {
     }
 
     // Generate token for user
-    public String generateToken(String username) {
+    public String generateToken(String username, long id) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("id", id);
         return createToken(claims, username);
     }
 
@@ -77,8 +77,8 @@ public class JwtUtil {
     // Validate token
     public boolean validateToken(String token, CustomUserDetails userDetails) {
         final String username = extractUsername(token);
-        boolean isValid = (username.equals(userDetails.getEmail()) && !isTokenExpired(token));
-        System.out.println("Validating token for: " + username + " against: " + userDetails.getEmail());
+        boolean isValid = (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        System.out.println("Validating token for: " + username + " against: " + userDetails.getUsername());
         System.out.println("Is expired: " + isTokenExpired(token));
         System.out.println("Validation result: " + isValid);
         return isValid;

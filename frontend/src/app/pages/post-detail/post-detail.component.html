@@ -18,7 +18,7 @@
 
       <div class="post-meta">
         <div class="author-info">
-          <div class="author-avatar">
+          <div class="author-avatar" [routerLink]="['/profile', post.userId]">
             {{ getAuthorInitial(post.authorName) }}
           </div>
           <div class="author-details">

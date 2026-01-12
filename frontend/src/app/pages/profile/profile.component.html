@@ -1,0 +1,141 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+    <button routerLink="/home" class="back-btn">Back to Home</button>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading && !error && user" class="profile-content">
+    <!-- Profile Header Section -->
+    <div class="profile-header-section">
+      <div class="profile-main-info">
+        <div class="profile-avatar-large">
+          {{ getUserInitial(user.username) }}
+        </div>
+
+        <div class="profile-text-info">
+          <h1 class="username-title">{{ user.username }}</h1>
+
+          <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
+          <p class="user-bio text-muted" *ngIf="!user.bio">No bio yet</p>
+
+          <div class="user-meta">
+            <span class="meta-item" *ngIf="user.email">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              {{ user.email }}
+            </span>
+          </div>
+
+          <div class="profile-stats-row">
+            <div class="stat-item">
+              <span class="stat-value">{{ userPosts.length }}</span>
+              <span class="stat-name">Posts</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ user.followersCount || 0 }}</span>
+              <span class="stat-name">Followers</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ user.followingCount || 0 }}</span>
+              <span class="stat-name">Following</span>
+            </div>
+          </div>
+
+          <div class="profile-action-buttons">
+            <button *ngIf="!isOwnProfile" class="action-button follow-button" [class.is-following]="user.isFollowing"
+              (click)="toggleFollow()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path *ngIf="!user.isFollowing" d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle *ngIf="!user.isFollowing" cx="8.5" cy="7" r="4" />
+                <line *ngIf="!user.isFollowing" x1="20" y1="8" x2="20" y2="14" />
+                <line *ngIf="!user.isFollowing" x1="23" y1="11" x2="17" y2="11" />
+                <path *ngIf="user.isFollowing" d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle *ngIf="user.isFollowing" cx="8.5" cy="7" r="4" />
+                <polyline *ngIf="user.isFollowing" points="17 11 19 13 23 9" />
+              </svg>
+              {{ user.isFollowing ? 'Following' : 'Follow' }}
+            </button>
+
+            <button *ngIf="isOwnProfile" class="action-button edit-button" routerLink="/settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              Edit Profile
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="section-divider"></div>
+
+    <!-- Posts Section -->
+    <div class="posts-section">
+      <h2 class="section-title">
+        {{ isOwnProfile ? 'My Posts' : 'Posts by ' + user.username }}
+        <span class="posts-count">({{ userPosts.length }})</span>
+      </h2>
+
+      <div *ngIf="userPosts.length === 0" class="empty-posts-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+        <p>{{ isOwnProfile ? "You haven't written any posts yet" : "This user hasn't written any posts yet" }}</p>
+        <button *ngIf="isOwnProfile" routerLink="/create" class="create-post-btn">
+          Create Your First Post
+        </button>
+      </div>
+
+      <div class="posts-list" *ngIf="userPosts.length > 0">
+        <article *ngFor="let post of userPosts" class="post-item" [routerLink]="['/post', post.id]">
+          <div class="post-item-content">
+            <h3 class="post-item-title">{{ post.title }}</h3>
+            <p class="post-item-excerpt">{{ getPlainTextPreview(post.content, 200) }}</p>
+
+            <div class="post-item-footer">
+              <div class="post-item-meta">
+                <span class="post-date">{{ getTimeAgo(post.createdAt) }}</span>
+                <span class="meta-dot">·</span>
+                <span class="read-time">{{ getReadTime(post.content) }} min read</span>
+              </div>
+
+              <div class="post-item-actions">
+                <!-- <button 
+                  class="post-like-btn" 
+                  [class.is-liked]="post.likedByCurrentUser"
+                  (click)="toggleLike(post, $event)">
+                  <svg width="20" height="20" viewBox="0 0 24 24" 
+                    [attr.fill]="post.likedByCurrentUser ? 'currentColor' : 'none'" 
+                    stroke="currentColor" 
+                    stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  <span class="like-count">{{ post.likesCount }}</span>
+                </button> -->
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="post.banner" class="post-item-thumbnail">
+            <img [src]="getBannerUrl(post.banner)" [alt]="post.title">
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</div>

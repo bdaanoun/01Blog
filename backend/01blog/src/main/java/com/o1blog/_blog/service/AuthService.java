@@ -51,7 +51,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getUsername(), user.getId());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -69,7 +69,7 @@ public class AuthService {
                 throw new IllegalArgumentException("Invalid email or password");
             }
 
-            String token = jwtUtil.generateToken(user.getEmail());
+            String token = jwtUtil.generateToken(user.getUsername(), user.getId());
 
             return ResponseEntity.ok(
                     new AuthResponse(token, "Login successful"));
@@ -77,7 +77,7 @@ public class AuthService {
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(new AuthResponse(null, "Invalid email or password"));
+                    .body(new AuthResponse(null, "Invalid " + e));
         }
     }
 }

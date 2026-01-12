@@ -36,11 +36,12 @@ public class User {
     private LocalDateTime createdAt;
 
     @Builder.Default
-    // @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER; // e.g. USER, ADMIN
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.ACTIVE; // e.g. ACTIVE, BANNED
 

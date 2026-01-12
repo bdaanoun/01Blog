@@ -31,7 +31,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        // Return email because that's what's in your JWT token
         return username;
     }
 

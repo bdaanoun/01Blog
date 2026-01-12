@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,9 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println("METHOD: " + request.getMethod());
-        System.out.println("URI: " + request.getRequestURI());
-        System.out.println("HEADER: " + request.getHeader("Authorization"));
+        // System.out.println("METHOD: " + request.getMethod());
+        // System.out.println("URI: " + request.getRequestURI());
+        // System.out.println("HEADER: " + request.getHeader("Authorization"));
 
         // Skip JWT validation for public endpoints
         String path = request.getRequestURI();
@@ -53,20 +52,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 logger.error("JWT Token extraction failed", e);
             }
-            System.out.println("jwt: " + jwt);
-            System.out.println("username: " + username);
+            // System.out.println("jwt: " + jwt);
+            // System.out.println("username: " + username);
 
         }
 
         // Validate token and set authentication
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             CustomUserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            System.out.println("UserDetails loaded: " + userDetails);
-            System.out.println("UserDetails username: " + userDetails.getUsername());
-            System.out.println("UserDetails authorities: " + userDetails.getAuthorities());
+            // System.out.println("UserDetails loaded: " + userDetails);
+            // System.out.println("UserDetails username: " + userDetails.getUsername());
+            // System.out.println("UserDetails authorities: " + userDetails.getAuthorities());
 
             boolean isValid = jwtUtil.validateToken(jwt, userDetails);
-            System.out.println("Token valid: " + isValid);
+            // System.out.println("Token valid: " + isValid);
 
             if (isValid) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
