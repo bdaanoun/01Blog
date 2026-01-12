@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import com.o1blog._blog.model.Post;
+
 @Data
 @Builder
 public class PostResponse {
@@ -19,4 +21,19 @@ public class PostResponse {
     private String authorName;
     private Long likesCount;
     private Boolean likedByCurrentUser;
+
+    public static PostResponse from(Post post, boolean likedByCurrentUser) {
+        return PostResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .banner(post.getBanner())
+                .createdAt(post.getCreatedAt())
+                .userId(post.getUser().getId())
+                .authorName(post.getUser().getUsername())
+                .likesCount(post.getId())
+                .likedByCurrentUser(likedByCurrentUser)
+                .build();
+    }
+
 }

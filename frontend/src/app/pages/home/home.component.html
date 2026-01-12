@@ -1,6 +1,5 @@
 <div class="home-container">
   <header class="home-header">
-    <!-- <h1>Stories</h1> -->
     <nav class="nav-tabs">
       <button class="nav-tab" [class.active]="activeTab === 'feed'" (click)="setActiveTab('feed')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -25,7 +24,6 @@
         Writers
       </button>
     </nav>
-
   </header>
 
   <!-- Loading State -->
@@ -36,19 +34,19 @@
   <!-- Error State -->
   <div *ngIf="error" class="error">
     <p>{{ error }}</p>
-    <button (click)="loadPosts()" class="retry-btn">Try again</button>
+    <button (click)="loadContent()" class="retry-btn">Try again</button>
   </div>
 
-  <!-- Posts -->
-  <div *ngIf="!loading && !error" class="posts-container">
+  <!-- Posts (Feed and Explore) -->
+  <div *ngIf="!loading && !error && activeTab !== 'writers'" class="posts-container">
     <div *ngIf="posts.length === 0" class="no-posts">
       <p>No stories yet.</p>
-      <a routerLink="/write" class="write-link">Write the first story</a>
+      <a routerLink="/writePost" class="write-link">Write the first story</a>
     </div>
 
     <article *ngFor="let post of posts" class="post-card" [routerLink]="['/post', post.id]">
       <div class="post-author">
-        <div class="author-avatar">
+        <div class="author-avatar" [routerLink]="['/profile', post.userId]">
           {{ getAuthorInitial(post.authorName) }}
         </div>
         <div class="author-meta">
@@ -82,5 +80,35 @@
         </button>
       </div>
     </article>
+  </div>
+
+  <!-- Writers -->
+  <div *ngIf="!loading && !error && activeTab === 'writers'" class="writers-container">
+    <div *ngIf="writers.length === 0" class="no-writers">
+      <p>No writers to display.</p>
+    </div>
+
+    <div *ngFor="let writer of writers" class="writer-card">
+      <div class="writer-avatar" [routerLink]="['/profile', writer.id]" (click)="$event.stopPropagation()">
+        <div *ngIf="!writer.avatar" class="avatar-initial">
+          {{ getUserInitial(writer.username) }}
+        </div>
+        <img *ngIf="writer.avatar" [src]="getAvatarUrl(writer.avatar)" [alt]="writer.username">
+      </div>
+      
+      <div class="writer-info" [routerLink]="['/profile', writer.id]" (click)="$event.stopPropagation()">
+        <h3 class="writer-name">{{ writer.username }}</h3>
+        <p class="writer-email">{{ writer.email }}</p>
+        <p *ngIf="writer.bio" class="writer-bio">{{ writer.bio }}</p>
+      </div>
+
+      <button 
+        class="follow-button" 
+        [class.following]="writer.isFollowing"
+        (click)="toggleFollow(writer, $event)"
+        [attr.aria-label]="writer.isFollowing ? 'Unfollow' : 'Follow'">
+        {{ writer.isFollowing ? 'Following' : 'Follow' }}
+      </button>
+    </div>
   </div>
 </div>
