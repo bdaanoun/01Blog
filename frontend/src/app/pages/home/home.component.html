@@ -107,7 +107,7 @@
         [class.following]="writer.isFollowing"
         (click)="toggleFollow(writer, $event)"
         [attr.aria-label]="writer.isFollowing ? 'Unfollow' : 'Follow'">
-        {{ writer.isFollowing ? 'Following' : 'Follow' }}
+        {{ writer.isFollowing ? 'Unfollow' : 'Follow' }}
       </button>
     </div>
   </div>

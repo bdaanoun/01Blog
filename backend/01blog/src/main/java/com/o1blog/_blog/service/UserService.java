@@ -1,6 +1,7 @@
 package com.o1blog._blog.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -36,37 +37,39 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    // public List<UserProfileResponse> getAllUsersWithFollowStatus(Long currentUserId) {
-    //     List<User> users = userRepository.findAll();
+    public List<UserProfileResponse> getAllUsersWithFollowStatus(Long currentUserId) {
+        List<User> users = userRepository.findAll();
 
-    //     return users.stream()
-    //             .map(user -> {
-    //                 // Check if current user is following this user
-    //                 boolean isFollowing = false;
-    //                 if (currentUserId != null && !currentUserId.equals(user.getId())) {
-    //                     User currentUser = userRepository.findById(currentUserId).orElse(null);
-    //                     if (currentUser != null) {
-    //                         isFollowing = followRepository.findByFollowerAndFollowing(currentUser, user).isPresent();
-    //                     }
-    //                 }
+        List<UserProfileResponse> userProfiles = users.stream()
+                .map(user -> {
+                    // Check if current user is following this user
+                    boolean isFollowing = false;
+                    if (currentUserId != null && !currentUserId.equals(user.getId())) {
+                        User currentUser = userRepository.findById(currentUserId).orElse(null);
+                        if (currentUser != null) {
+                            isFollowing = followRepository.findByFollowerAndFollowing(currentUser, user).isPresent();
+                        }
+                    }
 
-    //                 // Get followers and following counts
-    //                 int followersCount = followRepository.countByFollowingId(user.getId());
-    //                 int followingCount = followRepository.countByFollowerId(user.getId());
+                    // Get followers and following counts
+                    int followersCount = followRepository.countByFollowingId(user.getId());
+                    int followingCount = followRepository.countByFollowerId(user.getId());
 
-    //                 return UserProfileResponse.builder()
-    //                         .id(user.getId())
-    //                         .username(user.getUsername())
-    //                         .email(user.getEmail())
-    //                         .bio(user.getBio())
-    //                         .avatar(user.getAvatar())
-    //                         .followersCount(followersCount)
-    //                         .followingCount(followingCount)
-    //                         .isFollowing(isFollowing)
-    //                         .build();
-    //             })
-    //             .collect(java.util.stream.Collectors.toList());
-    // }
+                    return UserProfileResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .email(user.getEmail())
+                            .bio(user.getBio())
+                            .avatar(user.getAvatar())
+                            .followersCount(followersCount)
+                            .followingCount(followingCount)
+                            .isFollowing(isFollowing)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return userProfiles;
+    }
 
     public UserProfileResponse getUserProfile(Long userId, Long currentUserId) {
         User user = userRepository.findById(userId)

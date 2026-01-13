@@ -147,6 +147,7 @@ export class Home implements OnInit {
 
     this.postService.toggleFollow(user.id).subscribe({
       next: (response) => {
+        console.log('Toggle response:', response);
         user.isFollowing = response.isFollowing;
         if (user.followersCount !== undefined) {
           user.followersCount = response.isFollowing
