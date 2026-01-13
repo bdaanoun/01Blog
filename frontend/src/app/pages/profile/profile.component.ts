@@ -92,7 +92,9 @@ export class ProfileComponent implements OnInit {
 
     this.postService.toggleFollow(this.user.id).subscribe({
       next: (response) => {
+        
         if (this.user) {
+          console.log("response:  ", this.user);
           this.user.isFollowing = response.isFollowing;
           if (this.user.followersCount !== undefined) {
             this.user.followersCount = response.isFollowing

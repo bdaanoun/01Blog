@@ -2,6 +2,7 @@ package com.o1blog._blog.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.PostResponse;
+import com.o1blog._blog.dto.UserProfileResponse;
 import com.o1blog._blog.model.User;
 import com.o1blog._blog.service.PostService;
 import com.o1blog._blog.service.UserService;
@@ -31,13 +34,15 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserProfileResponse> getAllUsers() {
+        Long currentUserId = getCurrentUserId();
+        return userService.getAllUsersWithFollowStatus(currentUserId);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public UserProfileResponse getUserById(@PathVariable Long id) {
+        Long currentUserId = getCurrentUserId();
+        return userService.getUserProfile(id, currentUserId);
     }
 
     @DeleteMapping("/{id}")
@@ -51,13 +56,14 @@ public class UserController {
         return postService.getPostsByUser(id, currentUserId);
     }
 
-    @PostMapping("/{id}/follow")
-    public void followUser(@PathVariable Long id) {
+    @PostMapping("/follow/{id}")
+    public ResponseEntity<FollowResponse> followUser(@PathVariable Long id) {
         Long currentUserId = getCurrentUserId();
         if (currentUserId == null) {
             throw new RuntimeException("User not authenticated");
         }
-        userService.toggleFollow(currentUserId, id);
+        FollowResponse response = userService.toggleFollow(currentUserId, id);
+        return ResponseEntity.ok(response);
     }
 
     private Long getCurrentUserId() {

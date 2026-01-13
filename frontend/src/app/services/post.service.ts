@@ -51,8 +51,7 @@ export class PostService {
 
   // Get all writers/users (Writers tab)
   getAllWriters(): Observable<User[]> {
-    console.log("------->",this.usersApiUrl);
-    
+    // console.log("------->",this.usersApiUrl);    
     return this.http.get<User[]>(this.usersApiUrl);
   }
 
@@ -71,8 +70,9 @@ export class PostService {
 
   // Toggle follow on a user
   toggleFollow(userId: number): Observable<FollowResponse> {
+    // console.log("url---->  ", this.usersApiUrl);
     return this.http.post<FollowResponse>(
-      `${this.usersApiUrl}/${userId}/follow`,
+      `${this.usersApiUrl}/follow/${userId}`,
       {}
     );
   }
@@ -87,8 +87,7 @@ export class PostService {
 
   // Get posts by user ID
   getUserPosts(userId: number): Observable<Post[]> {
-    console.log("url:   ", `${this.usersApiUrl}/${userId}/posts`);
-    
+    // console.log("url:   ", `${this.usersApiUrl}/${userId}/posts`);
     return this.http.get<Post[]>(`${this.usersApiUrl}/${userId}/posts`);
   }
 }

@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.o1blog._blog.dto.PostResponse;
+import com.o1blog._blog.model.Follow;
 import com.o1blog._blog.model.Like;
 import com.o1blog._blog.model.Post;
 import com.o1blog._blog.model.User;
+import com.o1blog._blog.repository.FollowRepository;
 import com.o1blog._blog.repository.LikeRepository;
 import com.o1blog._blog.repository.PostRepository;
 import com.o1blog._blog.repository.UserRepository;
@@ -25,16 +27,18 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
     private final FileStorageService fileStorageService;
     private final LikeRepository likeRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public Post createPost(CustomUserDetails userDetails, String title, String content, MultipartFile banner) {
         try {
-            System.out.println("=== CREATE POST START ===");
-            System.out.println("User ID: " + userDetails.getId());
-            System.out.println("Title: " + title);
-            System.out.println("Content length: " + (content != null ? content.length() : "null"));
+            // System.out.println("=== CREATE POST START ===");
+            // System.out.println("User ID: " + userDetails.getId());
+            // System.out.println("Title: " + title);
+            // System.out.println("Content length: " + (content != null ? content.length() :
+            // "null"));
 
             User user = userRepository.findById(userDetails.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -69,6 +73,27 @@ public class PostService {
             e.printStackTrace();
             throw new RuntimeException("Failed to create post: " + e.getMessage(), e);
         }
+    }
+
+    public List<Post> getFollowingPosts(Long currentUserId) {
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Get follow relations
+        List<Follow> follows = followRepository.findAllByFollower(currentUser);
+
+        // Extract followed users
+        List<User> followedUsers = follows.stream()
+                .map(Follow::getFollowing)
+                .toList();
+
+        // (Optional) if user follows nobody
+        if (followedUsers.isEmpty()) {
+            return List.of();
+        }
+
+        // Get posts of followed users
+        return postRepository.findAllByUserIn(followedUsers);
     }
 
     private String processEditorJSImages(String content) {

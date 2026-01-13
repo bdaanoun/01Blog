@@ -1,7 +1,9 @@
 package com.o1blog._blog.security;
 
 import com.o1blog._blog.model.User;
-import lombok.Getter;
+
+import lombok.Data;
+// import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@Getter
+@Data
 public class CustomUserDetails implements UserDetails {
 
     private Long id;

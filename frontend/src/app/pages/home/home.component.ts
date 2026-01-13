@@ -39,7 +39,7 @@ export class Home implements OnInit {
   getCurrentUserId(): number | null {
     const token = localStorage.getItem('authToken');
     if (!token) return null;
-    
+
     try {
       const payload = token.split('.')[1];
       const decodedPayload = JSON.parse(atob(payload));
@@ -89,6 +89,8 @@ export class Home implements OnInit {
   loadFollowingPosts(): void {
     this.postService.getFollowingPosts().subscribe({
       next: (posts) => {
+        console.log("pppppp", posts);
+
         this.posts = posts.reverse();
         this.loading = false;
       },
@@ -139,17 +141,17 @@ export class Home implements OnInit {
     });
   }
 
-  toggleFollow(writer: User, event: Event): void {
+  toggleFollow(user: User, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
-    this.postService.toggleFollow(writer.id).subscribe({
+    this.postService.toggleFollow(user.id).subscribe({
       next: (response) => {
-        writer.isFollowing = response.isFollowing;
-        if (writer.followersCount !== undefined) {
-          writer.followersCount = response.isFollowing
-            ? writer.followersCount + 1
-            : writer.followersCount - 1;
+        user.isFollowing = response.isFollowing;
+        if (user.followersCount !== undefined) {
+          user.followersCount = response.isFollowing
+            ? user.followersCount + 1
+            : user.followersCount - 1;
         }
       },
       error: (err) => {

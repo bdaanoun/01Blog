@@ -91,16 +91,23 @@ public class PostController {
 
         return ResponseEntity.ok(mapToResponse(post, currentUserId));
     }
-    // GET writers
-    // @GetMapping("/{id}")
-    // public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
-    //     Long currentUserId = getCurrentUserId();
 
-    //     Post post = postService.getPostById(id)
-    //             .orElseThrow(() -> new RuntimeException("Post not found"));
+    // GET FOLLOWING POST
+    @GetMapping("/following")
+    public ResponseEntity<List<PostResponse>> getFollowingPosts() {
+        Long currentUserId = getCurrentUserId();
+        // System.out.println("id:  " + currentUserId);
 
-    //     return ResponseEntity.ok(mapToResponse(post, currentUserId));
-    // }
+        List<Post> posts = postService.getFollowingPosts(currentUserId);
+        // System.out.println("posts:  " + posts);
+
+        List<PostResponse> response = posts.stream()
+                .map(post -> mapToResponse(post, currentUserId))
+                .toList();
+        // System.out.println("response:  " + response);
+
+        return ResponseEntity.ok(response);
+    }
 
     // LIKE/UNLIKE POST
     @PostMapping("/{id}/like")
