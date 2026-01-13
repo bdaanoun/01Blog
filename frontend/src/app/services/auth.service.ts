@@ -102,7 +102,7 @@ export class AuthService {
   // Logout user
   logout(): void {
     localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
+    // localStorage.removeItem('currentUser');
     this.isAuthenticatedSubject.next(false);
     this.currentUserSubject.next(null);
   }
