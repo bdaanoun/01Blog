@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FollowResponse {
-    private boolean isFollowing;
-    private int followersCount;
+    private Boolean isFollowing;
+    private Integer followersCount;
 }
