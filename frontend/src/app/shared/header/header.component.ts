@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { userInfo } from 'node:os';
 
 
 @Component({
@@ -53,7 +54,6 @@ export class HeaderComponent {
   constructor(private authService: AuthService, private router: Router) {
     this.isLoggedIn$ = this.authService.isAuthenticated$;
     this.currentUser$ = this.authService.currentUser$;
-
   }
 
   // getAuthorInitial(authorName: string | undefined): string {

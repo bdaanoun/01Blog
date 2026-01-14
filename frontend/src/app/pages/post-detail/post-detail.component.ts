@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { PostService, Post } from '../../services/post.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { CommentService, PostComment } from '../../services/comment.service';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+// import { CommentService, PostComment } from '../comment/comment.component';
 
 @Component({
     selector: 'app-post-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, ReactiveFormsModule], // ✅ MUST be here
     templateUrl: './post-detail.component.html',
     styleUrl: './post-detail.component.css'
 })
@@ -17,9 +20,18 @@ export class PostDetailComponent implements OnInit {
     error: string | null = null;
     renderedContent: any[] = [];
 
+    //comments
+    comments: PostComment[] = [];
+    commentsLoading = false;
+    commentsError: string | null = null;
+
+    newComments = '';
+    submittingComment = false;
+
     constructor(
         private route: ActivatedRoute,
         private postService: PostService,
+        private commentService: CommentService,
         private sanitizer: DomSanitizer
     ) { }
 
@@ -39,6 +51,8 @@ export class PostDetailComponent implements OnInit {
                 this.post = post;
                 this.renderedContent = this.parseEditorJSContent(post.content);
                 this.loading = false;
+
+                this.loadComments(post.id);
             },
             error: (err) => {
                 this.error = 'Failed to load post';
@@ -47,6 +61,53 @@ export class PostDetailComponent implements OnInit {
             }
         });
     }
+
+    loadComments(postId: number): void {
+        this.commentsLoading = true;
+        this.commentsError = null;
+
+        this.commentService.getCommentsByPost(postId).subscribe({
+            next: (comments) => {
+                this.comments = comments || [];
+                this.commentsLoading = false;
+            },
+            error: (err) => {
+                this.commentsError = 'Failed to load comments';
+                this.commentsLoading = false;
+                console.error('Error loading comments:', err);
+            }
+        });
+    }
+    commentControl = new FormControl('', [
+        Validators.required,
+        Validators.maxLength(500)
+    ]);
+
+    newComment = '';
+
+    submitComment(): void {
+        if (!this.post || this.commentControl.invalid) return;
+
+        const content = this.commentControl.value?.trim();
+        if (!content) return;
+
+        this.submittingComment = true;
+
+        this.commentService.addComment(this.post.id, content).subscribe({
+            next: (created) => {
+                this.comments = [created, ...this.comments];
+                this.commentControl.reset();
+                this.submittingComment = false;
+            },
+            error: (err) => {
+                console.error('Error adding comment:', err);
+                this.submittingComment = false;
+            }
+        });
+    }
+
+
+
 
     parseEditorJSContent(content: string): any[] {
         try {

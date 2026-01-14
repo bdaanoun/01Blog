@@ -88,6 +88,15 @@
       </div>
     </div>
 
+    <div class="comment-form">
+      <textarea [formControl]="commentControl" placeholder="Write a comment..." rows="3"></textarea>
+
+      <button class="comment-submit" (click)="submitComment()" [disabled]="submittingComment || commentControl.invalid">
+        {{ submittingComment ? 'Posting...' : 'Post comment' }}
+      </button>
+    </div>
+
+
     <!-- Back Button -->
     <div class="post-footer">
       <button routerLink="/home" class="back-link">

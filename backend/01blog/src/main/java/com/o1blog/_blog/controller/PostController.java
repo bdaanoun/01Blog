@@ -1,14 +1,18 @@
 package com.o1blog._blog.controller;
 
+import com.o1blog._blog.dto.PostRequest;
 import com.o1blog._blog.dto.PostResponse;
 import com.o1blog._blog.model.Post;
 import com.o1blog._blog.repository.LikeRepository;
 import com.o1blog._blog.security.CustomUserDetails;
 import com.o1blog._blog.service.FileStorageService;
 import com.o1blog._blog.service.PostService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,18 +58,15 @@ public class PostController {
     }
 
     // CREATE POST
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping()
     public ResponseEntity<PostResponse> createPost(
-            @RequestPart("title") String title,
-            @RequestPart("content") String content,
+            @Valid @RequestBody PostRequest request,
             @RequestPart(value = "banner", required = false) MultipartFile banner) {
-
+                System.out.println("---> "+request.getTitle().length());
         CustomUserDetails user = (CustomUserDetails) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+                .getContext().getAuthentication().getPrincipal();
 
-        Post post = postService.createPost(user, title, content, banner);
+        Post post = postService.createPost(user, request.getTitle(), request.getContent(), banner);
         return ResponseEntity.ok(mapToResponse(post, user.getId()));
     }
 
@@ -96,15 +97,15 @@ public class PostController {
     @GetMapping("/following")
     public ResponseEntity<List<PostResponse>> getFollowingPosts() {
         Long currentUserId = getCurrentUserId();
-        // System.out.println("id:  " + currentUserId);
+        // System.out.println("id: " + currentUserId);
 
         List<Post> posts = postService.getFollowingPosts(currentUserId);
-        // System.out.println("posts:  " + posts);
+        // System.out.println("posts: " + posts);
 
         List<PostResponse> response = posts.stream()
                 .map(post -> mapToResponse(post, currentUserId))
                 .toList();
-        // System.out.println("response:  " + response);
+        // System.out.println("response: " + response);
 
         return ResponseEntity.ok(response);
     }

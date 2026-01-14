@@ -1,0 +1,55 @@
+<!-- Comments Section -->
+<section class="comments">
+  <div class="comments-header">
+    <h2>Comments</h2>
+    <span class="count" *ngIf="!commentsLoading">{{ comments.length }}</span>
+  </div>
+
+  <!-- Add Comment Form -->
+  <div class="comment-form">
+    <textarea
+      [(ngModel)]="newComment"
+      placeholder="Write a comment..."
+      rows="3"
+    ></textarea>
+
+    <button
+      class="comment-submit"
+      (click)="submitComment()"
+      [disabled]="submittingComment || !newComment.trim()"
+    >
+      {{ submittingComment ? 'Posting...' : 'Post comment' }}
+    </button>
+  </div>
+
+  <!-- Loading / Error -->
+  <div *ngIf="commentsLoading" class="comments-loading">Loading comments...</div>
+  <div *ngIf="commentsError" class="comments-error">{{ commentsError }}</div>
+
+  <!-- Comments List -->
+  <div class="comment-list" *ngIf="!commentsLoading && comments.length > 0">
+    <div class="comment" *ngFor="let c of comments">
+      <div class="comment-avatar" [routerLink]="['/profile', c.authorId]">
+        {{ getAuthorInitial(c.authorName) }}
+      </div>
+
+      <div class="comment-body">
+        <div class="comment-top">
+          <span class="comment-author">{{ c.authorName }}</span>
+          <span class="comment-time">{{ getTimeAgo(c.createdAt) }}</span>
+
+          <!-- optional delete button (only show if you want) -->
+          <!--
+          <button class="comment-delete" (click)="deleteComment(c.id)">Delete</button>
+          -->
+        </div>
+
+        <p class="comment-text">{{ c.content }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!commentsLoading && comments.length === 0" class="no-comments">
+    No comments yet. Be the first 🙂
+  </div>
+</section>
