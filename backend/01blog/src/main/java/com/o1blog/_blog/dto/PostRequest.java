@@ -1,13 +1,16 @@
 package com.o1blog._blog.dto;
 
 import lombok.Data;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Data
 public class PostRequest {
     
-    private String banner;
+    private MultipartFile banner;
 
     @NotBlank(message = "Title is required")
     @Size(max = 255)

@@ -191,6 +191,7 @@
 .post-subtitle {
   font-size: 1rem;
   line-height: 1.5;
+  word-break: break-all;
   color: #6b7280;
   margin: 0;
 }
