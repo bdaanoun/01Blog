@@ -1,5 +1,4 @@
 <div class="register-container">
-  <h2>Create Account</h2>
 
   <!-- Success Message -->
   <div class="alert alert-success" *ngIf="successMessage">
@@ -11,57 +10,93 @@
     {{ errorMessage }}
   </div>
 
-  <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+  <!-- Floating avatar upload (half outside) -->
+  <div class="avatar-float">
+    <label class="avatar-box" (click)="avatarInput.click()">
+      <input #avatarInput type="file" accept="image/*" (change)="onAvatarSelected($event)" hidden />
 
-    <!-- First Name -->
+      <img *ngIf="avatarPreview" [src]="avatarPreview" class="avatar-img" alt="avatar" />
+
+      <div *ngIf="!avatarPreview" class="avatar-placeholder">
+        <mat-icon class="avatar-icon">photo_camera</mat-icon>
+      </div>
+    </label>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="form-content">
+
     <div class="form-group">
-      <label for="username">Username *</label>
-      <input type="text" id="username" name="username" [(ngModel)]="user.username"
-        [class.invalid]="isFieldInvalid(user.username)" [disabled]="isLoading" required>
-      <span class="error" *ngIf="isFieldInvalid(user.username)">
-        Username name is required
-      </span>
+      <label>Username *</label>
+      <input
+        type="text"
+        name="username"
+        [(ngModel)]="user.username"
+        [disabled]="isLoading"
+        [class.invalid]="isFieldInvalid(user.username)"
+        required
+      />
+      <span class="error" *ngIf="isFieldInvalid(user.username)">Username is required</span>
     </div>
 
-    <!-- Email -->
     <div class="form-group">
-      <label for="email">Email *</label>
-      <input type="email" id="email" name="email" [(ngModel)]="user.email" [class.invalid]="isFieldInvalid(user.email)"
-        [disabled]="isLoading" required>
-      <span class="error" *ngIf="isFieldInvalid(user.email)">
-        Email is required
-      </span>
+      <label>Email *</label>
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="user.email"
+        [disabled]="isLoading"
+        [class.invalid]="isFieldInvalid(user.email)"
+        required
+      />
+      <span class="error" *ngIf="isFieldInvalid(user.email)">Email is required</span>
     </div>
 
-    <!-- Password -->
     <div class="form-group">
-      <label for="password">Password *</label>
-      <input type="password" id="password" name="password" [(ngModel)]="user.password"
-        [class.invalid]="isFieldInvalid(user.password)" [disabled]="isLoading" required>
-      <span class="error" *ngIf="isFieldInvalid(user.password)">
-        Password is required
-      </span>
+      <label>Password *</label>
+      <input
+        type="password"
+        name="password"
+        [(ngModel)]="user.password"
+        (ngModelChange)="clearPasswordMismatch()"
+        [disabled]="isLoading"
+        [class.invalid]="isFieldInvalid(user.password)"
+        required
+      />
+      <span class="error" *ngIf="isFieldInvalid(user.password)">Password is required</span>
     </div>
 
-    <!-- Confirm Password -->
     <div class="form-group">
-      <label for="confirmPassword">Confirm Password *</label>
-      <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="user.confirmPassword"
-        [class.invalid]="isFieldInvalid(user.confirmPassword) || passwordMismatch" [disabled]="isLoading" required>
-      <span class="error" *ngIf="isFieldInvalid(user.confirmPassword)">
-        Please confirm your password
-      </span>
-      <span class="error" *ngIf="passwordMismatch">
-        Passwords do not match
-      </span>
+      <label>Confirm Password *</label>
+      <input
+        type="password"
+        name="confirmPassword"
+        [(ngModel)]="user.confirmPassword"
+        (ngModelChange)="clearPasswordMismatch()"
+        [disabled]="isLoading"
+        [class.invalid]="isFieldInvalid(user.confirmPassword) || passwordMismatch"
+        required
+      />
+      <span class="error" *ngIf="isFieldInvalid(user.confirmPassword)">Please confirm your password</span>
+      <span class="error" *ngIf="passwordMismatch">Passwords do not match</span>
     </div>
 
-    <!-- Buttons -->
+    <div class="form-group">
+      <label>Bio</label>
+      <textarea
+        name="bio"
+        [(ngModel)]="user.bio"
+        [disabled]="isLoading"
+        rows="4"
+        maxlength="500"
+      ></textarea>
+    </div>
+
     <div class="form-actions">
       <button type="submit" class="btn-primary" [disabled]="isLoading">
         <span *ngIf="!isLoading">Register</span>
         <span *ngIf="isLoading">Registering...</span>
       </button>
+
       <button type="button" class="btn-secondary" (click)="resetForm()" [disabled]="isLoading">
         Clear
       </button>

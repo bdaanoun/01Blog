@@ -69,8 +69,9 @@
   width: 120px;
   height: 120px;
   min-width: 120px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  /* background: linear-gradient(135deg, #262a3f 0%, #37303f 100%); */
+  background: #1a1a1a;
   color: white;
   display: flex;
   align-items: center;

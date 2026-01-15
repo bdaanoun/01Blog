@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap, BehaviorSubject } from 'rxjs';
 
-// Define your data models
 export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+  avatar?: File;
+  bio?: string;
+
 }
 
 export interface RegisterResponse {
@@ -55,15 +57,16 @@ export class AuthService {
   private checkAuthStatus(): void {
     const isAuth = this.hasToken() && this.isAuthenticated();
     this.isAuthenticatedSubject.next(isAuth);
-    
+
     if (isAuth) {
       const user = this.getStoredUser();
       this.currentUserSubject.next(user);
     }
   }
 
+
   // Register new user
-  register(userData: RegisterRequest): Observable<RegisterResponse> {
+  register(userData: FormData): Observable<RegisterResponse> {
     const url = `${this.apiUrl}/register`;
 
     const headers = new HttpHeaders({
@@ -85,19 +88,16 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     const url = `${this.apiUrl}/login`;
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.post<LoginResponse>(url, credentials, { headers }).pipe(
+    return this.http.post<LoginResponse>(url, credentials).pipe(
       tap(response => {
         if (response.token) {
           this.saveToken(response.token);
           this.isAuthenticatedSubject.next(true);
         }
-      })
+      }),
     );
   }
+
 
   // Logout user
   logout(): void {
@@ -118,10 +118,18 @@ export class AuthService {
   }
 
   // Save user info
-  saveUser(user: any): void {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    this.currentUserSubject.next(user);
-  }
+  // saveUser(user: any): void {
+  //   const safeUser = {
+  //     id: user.id,
+  //     username: user.username,
+  //     email: user.email,
+  //     avatarUrl: user.avatarUrl ?? user.avatar
+  //   };
+
+  //   localStorage.setItem('currentUser', JSON.stringify(safeUser));
+  //   this.currentUserSubject.next(safeUser);
+  // }
+
 
   // Get stored user
   getStoredUser(): any {
@@ -158,20 +166,25 @@ export class AuthService {
       return true;
     }
   }
+  //get username from token
+  getUsernameFromToken(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    const decoded = this.decodeToken(token);
+    return decoded?.sub || null;
+  }
+
 
   // Decode JWT token
   private decodeToken(token: string): any {
     try {
       const payload = token.split('.')[1];
+      // console.log("payload", JSON.parse(atob(payload)));
       return JSON.parse(atob(payload));
     } catch (error) {
       return null;
     }
-  }
-
-  // Get current user
-  getCurrentUser(): any {
-    return this.currentUserSubject.value;
   }
 
   // Get user ID from token
@@ -181,6 +194,7 @@ export class AuthService {
       return null;
     }
     const decoded = this.decodeToken(token);
-    return decoded?.userId || decoded?.sub || null;
+
+    return decoded?.id || decoded?.sub || null;
   }
 }
