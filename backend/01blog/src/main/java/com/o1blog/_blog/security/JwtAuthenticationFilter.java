@@ -77,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                System.out.println("Authentication set in SecurityContext");
+                // System.out.println("Authentication set in SecurityContext");
                 System.out.println("Auth details: " + SecurityContextHolder.getContext().getAuthentication());
             } else {
                 System.out.println("Token validation FAILED");

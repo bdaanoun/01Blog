@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { userInfo } from 'node:os';
+// import { userInfo } from 'node:os';
 
 
 @Component({
@@ -56,16 +56,29 @@ export class HeaderComponent {
     this.currentUser$ = this.authService.currentUser$;
   }
 
-  // getAuthorInitial(authorName: string | undefined): string {
-  //   return authorName ? authorName.charAt(0).toUpperCase() : 'U';
-  // }
+  goToMyProfile() {
+    const id = this.authService.getUserIdFromToken();
+    if (id) {
+      this.router.navigate(['/profile', id]);
+    } else {
+      this.router.navigate(['/login']);
+    }
+    this.showProfileDropdown = false;
+  }
 
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
 
+  getUserInitial(): string {
+    const username = this.authService.getUsernameFromToken();
+    return username ? username.charAt(0).toUpperCase() : 'U';
+  }
+
+
   toggleProfileDropdown() {
+    // console.log("username-->  ", this.getUserInitial());
     this.showProfileDropdown = !this.showProfileDropdown;
   }
 

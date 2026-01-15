@@ -25,18 +25,19 @@
 
 
 
-          <!-- Profile avatar -->
-          <div class="avatar-wrapper" (click)="toggleProfileDropdown()" style="position: relative; cursor: pointer;">
-            <img [src]="(currentUser$ | async)?.avatarUrl || '/assets/default-avatar.png'" alt="avatar" class="avatar"
-              style="width: 36px; height: 36px; border-radius: 50%;" />
-              <!-- <span >User name</span> -->
-            <!-- Profile dropdown -->
-            <div *ngIf="showProfileDropdown" class="dropdown"
-              style="position: absolute; right: 0; top: 44px; background: white; border: 1px solid #ccc; border-radius: 6px; padding: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-              <span routerLink="/profile" class="dropdown-item btn btn-outline w-full text-left">Profile</span>
+          <div class="avatar-wrapper" (click)="toggleProfileDropdown()">
+            <div class="avatar avatar-initial">
+              {{ getUserInitial() }}
+            </div>
+
+            <div *ngIf="showProfileDropdown" class="dropdown">
+              <span class="dropdown-item btn btn-outline w-full text-left" (click)="goToMyProfile()">Profile</span>
               <span (click)="logout()" class="dropdown-item btn btn-outline w-full text-left">Logout</span>
             </div>
           </div>
+
+
+
         </div>
       </ng-container>
 

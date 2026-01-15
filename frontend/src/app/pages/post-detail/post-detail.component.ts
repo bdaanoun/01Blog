@@ -83,7 +83,7 @@ export class PostDetailComponent implements OnInit {
         Validators.maxLength(500)
     ]);
 
-    newComment = '';
+    // newComment = '';
 
     submitComment(): void {
         if (!this.post || this.commentControl.invalid) return;
@@ -105,9 +105,6 @@ export class PostDetailComponent implements OnInit {
             }
         });
     }
-
-
-
 
     parseEditorJSContent(content: string): any[] {
         try {

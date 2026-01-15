@@ -1,17 +1,18 @@
 package com.o1blog._blog.service;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.o1blog._blog.dto.AuthResponse;
 import com.o1blog._blog.dto.LoginRequest;
 import com.o1blog._blog.dto.RegisterRequest;
 import com.o1blog._blog.model.User;
-// import com.o1blog._blog.entity.User;
 import com.o1blog._blog.repository.UserRepository;
 import com.o1blog._blog.security.JwtUtil;
 
@@ -29,32 +30,45 @@ public class AuthService {
 
     // @Autowired
     // private AuthenticationManager authenticationManager;
+    @Autowired
+    private FileStorageService fileStorageService;
 
-    public ResponseEntity<AuthResponse> register(RegisterRequest request) {
-
-        if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
+    public ResponseEntity<AuthResponse> register(
+            String username,
+            String email,
+            String password,
+            String bio,
+            MultipartFile avatar) {
+        if (userRepository.existsByUsername(username)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new AuthResponse(null, "Username already exists"));
         }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
+        if (userRepository.existsByEmail(email)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new AuthResponse(null, "Email already exists"));
         }
 
         User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setBio(bio);
+        user.setPassword(passwordEncoder.encode(password));
+
+        // if (avatar != null && !avatar.isEmpty()) {
+        // try {
+        // String filename = fileStorageService.saveAvatar(avatar);
+        // user.setAvatar(filename);
+        // } catch (IOException e) {
+        // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        // .body(new AuthResponse(null, "Failed to upload avatar"));
+        // }
+        // }
 
         userRepository.save(user);
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getId());
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new AuthResponse(token, "Registration successful"));
     }
 

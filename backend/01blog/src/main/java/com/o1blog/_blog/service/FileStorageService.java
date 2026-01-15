@@ -19,6 +19,7 @@ public class FileStorageService {
 
     private final String TEMP_DIR = "temp";
     private final String PERMANENT_DIR = "posts";
+    private final String AVATAR_DIR = "avatars";
 
     public String saveTemp(MultipartFile file) {
         try {
@@ -38,6 +39,24 @@ public class FileStorageService {
             System.err.println("Failed to save temp file: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to store temporary file", e);
+        }
+    }
+
+    public String saveAvatar(MultipartFile file) {
+        try {
+            String filename = UUID.randomUUID().toString() + "_" +
+                    file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.\\-]", "_");
+
+            Path avatarPath = Paths.get(uploadDir, AVATAR_DIR);
+            Files.createDirectories(avatarPath);
+
+            Path filePath = avatarPath.resolve(filename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return AVATAR_DIR + "/" + filename; // store this in DB
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store avatar", e);
         }
     }
 

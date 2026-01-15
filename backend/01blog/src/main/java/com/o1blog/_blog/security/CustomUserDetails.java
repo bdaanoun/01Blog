@@ -3,7 +3,6 @@ package com.o1blog._blog.security;
 import com.o1blog._blog.model.User;
 
 import lombok.Data;
-// import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +14,7 @@ import java.util.Collections;
 public class CustomUserDetails implements UserDetails {
 
     private Long id;
-    private String username; // This is the actual username field
+    private String username;
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
@@ -31,24 +30,24 @@ public class CustomUserDetails implements UserDetails {
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
-    @Override
-    public String getUsername() {
-        return username;
-    }
+    // @Override
+    // public String getUsername() {
+    // return username;
+    // }
 
-    public String getEmail() {
-        return email;
-    }
+    // public String getEmail() {
+    // return email;
+    // }
 
-    // Add a getter for the actual username if you need it
-    public String getDisplayUsername() {
-        return username;
-    }
+    // // Add a getter for the actual username if you need it
+    // public String getDisplayUsername() {
+    // return username;
+    // }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+    // @Override
+    // public String getPassword() {
+    // return password;
+    // }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
