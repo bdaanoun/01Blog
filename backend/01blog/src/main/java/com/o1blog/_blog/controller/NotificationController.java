@@ -18,10 +18,14 @@ public class NotificationController {
 
     // Get my notifications (newest first)
     @GetMapping
-    public ResponseEntity<List<Notification>> myNotifications(@RequestParam Long myUserId) {
-        List<Notification> notifs = notificationRepository
-                .findByReceiverId(myUserId, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return ResponseEntity.ok(notifs);
+    public List<NotificationResponse> myNotifications() {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null) throw new RuntimeException("User not authenticated");
+
+        return notificationRepository.findByReceiverIdOrderByCreatedAtDesc(currentUserId)
+                .stream()
+                .map(NotificationResponse::from)
+                .toList();
     }
 
     // Count unread
