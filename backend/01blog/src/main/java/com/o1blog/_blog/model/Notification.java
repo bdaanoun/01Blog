@@ -35,6 +35,10 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private NotificationType notifType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private NotificationStatus status;
 
     @PrePersist
@@ -48,5 +52,9 @@ public class Notification {
     public enum NotificationStatus {
         UNREAD,
         READ
+    }
+    public enum NotificationType {
+        FOLLOW,
+        NEW_POST
     }
 }

@@ -56,15 +56,15 @@ public class UserController {
         return postService.getPostsByUser(id, currentUserId);
     }
 
-    @PostMapping("/follow/{id}")
-    public ResponseEntity<FollowResponse> followUser(@PathVariable Long id) {
-        Long currentUserId = getCurrentUserId();
-        if (currentUserId == null) {
-            throw new RuntimeException("User not authenticated");
-        }
-        FollowResponse response = userService.toggleFollow(currentUserId, id);
-        return ResponseEntity.ok(response);
-    }
+    // @PostMapping("/follow/{id}")
+    // public ResponseEntity<FollowResponse> followUser(@PathVariable Long id) {
+    //     Long currentUserId = getCurrentUserId();
+    //     if (currentUserId == null) {
+    //         throw new RuntimeException("User not authenticated");
+    //     }
+    //     FollowResponse response = userService.toggleFollow(currentUserId, id);
+    //     return ResponseEntity.ok(response);
+    // }
 
     private Long getCurrentUserId() {
         var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
