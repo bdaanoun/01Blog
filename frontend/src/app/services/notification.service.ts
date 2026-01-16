@@ -1,0 +1,24 @@
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+
+export interface NotificationDto {
+  id: number;
+  senderId: number;
+  senderUsername: string;
+  content: string;
+  createdAt: string;
+  status: 'UNREAD' | 'READ';
+  notifType: 'FOLLOW' | 'NEW_POST';
+}
+
+
+@Injectable({ providedIn: 'root' })
+export class NotificationService {
+  private apiUrl = 'http://localhost:8080/api/notifications';
+
+  constructor(private http: HttpClient) {}
+
+  getMyNotifications() {
+    return this.http.get<NotificationDto[]>(this.apiUrl);
+  }
+}

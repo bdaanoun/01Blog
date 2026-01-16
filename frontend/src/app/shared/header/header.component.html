@@ -13,14 +13,31 @@
           <!-- Notifications -->
           <div class="notifications-wrapper">
             <button class="notifications-btn" (click)="toggleNotifications()">
-              <mat-icon>notifications</mat-icon> <!-- Bell icon from Angular Material -->
+              <mat-icon>notifications</mat-icon>
               <span *ngIf="notifications.length > 0" class="badge">{{ notifications.length }}</span>
             </button>
 
-            <div *ngIf="showNotifications" class="notifications-dropdown">
+            <!-- <div *ngIf="showNotifications" class="notifications-dropdown">
               <div *ngFor="let n of notifications" class="notifications-dropdown-item">{{ n.message }}</div>
               <div *ngIf="notifications.length === 0" class="notifications-dropdown-item">No notifications</div>
+            </div> -->
+            <div *ngIf="showNotifications" class="notifications-dropdown">
+
+              <div *ngIf="loadingNotifications" class="notifications-dropdown-item">
+                Loading...
+              </div>
+              <ng-container *ngIf="!loadingNotifications">
+                <div *ngFor="let n of notifications" class="notifications-dropdown-item">
+                  <strong>{{ n.senderUsername }}</strong> — {{ n.content }}
+                  <div class="notif-date">{{ n.createdAt | date:'short' }}</div>
+                </div>
+                <div *ngIf="notifications.length === 0" class="notifications-dropdown-item">
+                  No notifications
+                </div>
+              </ng-container>
+
             </div>
+
           </div>
 
 

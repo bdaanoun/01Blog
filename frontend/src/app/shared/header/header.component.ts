@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
-// import { userInfo } from 'node:os';
-
+import { NotificationDto, NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-header',
@@ -21,48 +19,46 @@ export class HeaderComponent {
   showProfileDropdown = false;
   showNotifications = false;
 
-  notifications = [
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-    { id: 1, message: 'New comment on your post' },
-    { id: 2, message: 'User X liked your post' },
-    { id: 3, message: 'New follower' },
-  ];
+  notifications: NotificationDto[] = [];
+  loadingNotifications = false;
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private notificationService: NotificationService
+  ) {
     this.isLoggedIn$ = this.authService.isAuthenticated$;
     this.currentUser$ = this.authService.currentUser$;
   }
 
+  toggleNotifications() {
+    this.showNotifications = !this.showNotifications;
+
+    // load notifications when opening dropdown
+    if (this.showNotifications) {
+      this.fetchNotifications();
+    }
+  }
+
+  private fetchNotifications() {
+    this.loadingNotifications = true;
+
+    this.notificationService.getMyNotifications().subscribe({
+      next: (data) => {
+        this.notifications = data;
+        this.loadingNotifications = false;
+      },
+      error: (err) => {
+        console.error('Failed to load notifications', err);
+        this.loadingNotifications = false;
+      }
+    });
+  }
+
   goToMyProfile() {
     const id = this.authService.getUserIdFromToken();
-    if (id) {
-      this.router.navigate(['/profile', id]);
-    } else {
-      this.router.navigate(['/login']);
-    }
+    if (id) this.router.navigate(['/profile', id]);
+    else this.router.navigate(['/login']);
     this.showProfileDropdown = false;
   }
 
@@ -76,13 +72,7 @@ export class HeaderComponent {
     return username ? username.charAt(0).toUpperCase() : 'U';
   }
 
-
   toggleProfileDropdown() {
-    // console.log("username-->  ", this.getUserInitial());
     this.showProfileDropdown = !this.showProfileDropdown;
-  }
-
-  toggleNotifications() {
-    this.showNotifications = !this.showNotifications;
   }
 }
