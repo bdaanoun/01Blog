@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.o1blog._blog.dto.PostResponse;
 import com.o1blog._blog.model.Follow;
 import com.o1blog._blog.model.Like;
+import com.o1blog._blog.model.Notification;
 import com.o1blog._blog.model.Post;
 import com.o1blog._blog.model.User;
 import com.o1blog._blog.repository.FollowRepository;
 import com.o1blog._blog.repository.LikeRepository;
+import com.o1blog._blog.repository.NotificationRepository;
 import com.o1blog._blog.repository.PostRepository;
 import com.o1blog._blog.repository.UserRepository;
 import com.o1blog._blog.security.CustomUserDetails;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,14 +71,14 @@ public class PostService {
             List<Follow> followers = followRepository.findAllByFollowing(user); // people who follow "user"
             if (!followers.isEmpty()) {
                 List<Notification> notifs = followers.stream()
-                        .map(f -> Notification.builder()
-                                .sender(user) // author
-                                .receiver(f.getFollower()) // each follower
+                        .map((Follow f) -> Notification.builder()
+                                .sender(user)
+                                .receiver(f.getFollower())
                                 .content(user.getUsername() + " created a new post")
-                                .NotifType(Notification.NotificationType.NEW_POST)
+                                .notifType(Notification.NotificationType.NEW_POST)
                                 .status(Notification.NotificationStatus.UNREAD)
                                 .build())
-                        .toList();
+                        .collect(Collectors.toList());
 
                 notificationRepository.saveAll(notifs);
             }
@@ -105,7 +108,7 @@ public class PostService {
                 .map(Follow::getFollowing)
                 .toList();
 
-        // (Optional) if user follows nobody
+        // if user follows nobody
         if (followedUsers.isEmpty()) {
             return List.of();
         }
@@ -116,23 +119,6 @@ public class PostService {
 
     private String processEditorJSImages(String content) {
         try {
-        User currentUser = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Get follow relations
-        List<Follow> follows = followRepository.findAllByFollower(currentUser);
-
-        // Extract followed users
-        List<User> followedUsers = follows.stream()
-                .map(Follow::getFollowing)
-                .toList();
-
-        // (Optional) if user follows nobody
-        if (followedUsers.isEmpty()) {
-            return List.of();
-        }
-
-            System.out.println("=== PROCESS IMAGES START ===");
 
             if (content == null || content.trim().isEmpty()) {
                 System.out.println("Content is empty");
