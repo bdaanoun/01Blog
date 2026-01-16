@@ -46,7 +46,7 @@ public class FollowService {
                 .sender(follower)
                 .receiver(following)
                 .content(follower.getUsername() + " started following you")
-                .NotifType(Notification.NotificationType.FOLLOW)
+                .notifType(Notification.NotificationType.FOLLOW)
                 .status(Notification.NotificationStatus.UNREAD)
                 .build();
 

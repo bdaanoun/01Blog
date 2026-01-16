@@ -1,9 +1,9 @@
 package com.o1blog._blog.controller;
 
+import com.o1blog._blog.dto.NotificationResponse;
 import com.o1blog._blog.model.Notification;
 import com.o1blog._blog.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +20,8 @@ public class NotificationController {
     @GetMapping
     public List<NotificationResponse> myNotifications() {
         Long currentUserId = getCurrentUserId();
-        if (currentUserId == null) throw new RuntimeException("User not authenticated");
+        if (currentUserId == null)
+            throw new RuntimeException("User not authenticated");
 
         return notificationRepository.findByReceiverIdOrderByCreatedAtDesc(currentUserId)
                 .stream()
@@ -30,21 +31,27 @@ public class NotificationController {
 
     // Count unread
     @GetMapping("/unread-count")
-    public ResponseEntity<Long> unreadCount(@RequestParam Long myUserId) {
+    public ResponseEntity<Long> unreadCount() {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null)
+            throw new RuntimeException("User not authenticated");
+
         long count = notificationRepository.countByReceiverIdAndStatus(
-                myUserId, Notification.NotificationStatus.UNREAD
-        );
+                currentUserId, Notification.NotificationStatus.UNREAD);
         return ResponseEntity.ok(count);
     }
 
     // Mark one as read
     @PatchMapping("/{id}/read")
-    public ResponseEntity<Void> markAsRead(@PathVariable Long id, @RequestParam Long myUserId) {
+    public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null)
+            throw new RuntimeException("User not authenticated");
+
         Notification n = notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
 
-        // basic ownership check
-        if (!n.getReceiver().getId().equals(myUserId)) {
+        if (!n.getReceiver().getId().equals(currentUserId)) {
             return ResponseEntity.status(403).build();
         }
 
@@ -55,13 +62,28 @@ public class NotificationController {
 
     // Mark all as read
     @PatchMapping("/read-all")
-    public ResponseEntity<Void> markAllAsRead(@RequestParam Long myUserId) {
+    public ResponseEntity<Void> markAllAsRead() {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null)
+            throw new RuntimeException("User not authenticated");
+
         List<Notification> unread = notificationRepository
-                .findByReceiverIdAndStatus(myUserId, Notification.NotificationStatus.UNREAD);
+                .findByReceiverIdAndStatus(currentUserId, Notification.NotificationStatus.UNREAD);
 
         unread.forEach(n -> n.setStatus(Notification.NotificationStatus.READ));
         notificationRepository.saveAll(unread);
 
         return ResponseEntity.noContent().build();
+    }
+
+    private Long getCurrentUserId() {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated())
+            return null;
+        var principal = auth.getPrincipal();
+        if (principal instanceof com.o1blog._blog.security.CustomUserDetails userDetails) {
+            return userDetails.getId();
+        }
+        return null;
     }
 }

@@ -19,6 +19,8 @@ export class HeaderComponent {
   showProfileDropdown = false;
   showNotifications = false;
 
+  unreadCount = 0;
+
   notifications: NotificationDto[] = [];
   loadingNotifications = false;
 
@@ -46,6 +48,7 @@ export class HeaderComponent {
     this.notificationService.getMyNotifications().subscribe({
       next: (data) => {
         this.notifications = data;
+        this.unreadCount = data.filter(n => n.status === 'UNREAD').length;
         this.loadingNotifications = false;
       },
       error: (err) => {
@@ -74,5 +77,16 @@ export class HeaderComponent {
 
   toggleProfileDropdown() {
     this.showProfileDropdown = !this.showProfileDropdown;
+  }
+  openNotification(n: NotificationDto) {
+    // mark as read (optimistic)
+    if (n.status === 'UNREAD') {
+      n.status = 'READ';
+      this.unreadCount = Math.max(0, this.unreadCount - 1);
+
+      this.notificationService.markAsRead(n.id).subscribe({
+        error: (err) => console.error('markAsRead failed', err)
+      });
+    }
   }
 }
