@@ -30,6 +30,7 @@ public class PostService {
     private final FollowRepository followRepository;
     private final FileStorageService fileStorageService;
     private final LikeRepository likeRepository;
+    private final NotificationRepository notificationRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public Post createPost(CustomUserDetails userDetails, String title, String content, MultipartFile banner) {
@@ -62,6 +63,23 @@ public class PostService {
 
             System.out.println("Saving post to database...");
             Post savedPost = postRepository.save(post);
+
+            // Notify followers that this user created a post
+            List<Follow> followers = followRepository.findAllByFollowing(user); // people who follow "user"
+            if (!followers.isEmpty()) {
+                List<Notification> notifs = followers.stream()
+                        .map(f -> Notification.builder()
+                                .sender(user) // author
+                                .receiver(f.getFollower()) // each follower
+                                .content(user.getUsername() + " created a new post")
+                                .NotifType(Notification.NotificationType.NEW_POST)
+                                .status(Notification.NotificationStatus.UNREAD)
+                                .build())
+                        .toList();
+
+                notificationRepository.saveAll(notifs);
+            }
+
             System.out.println("Post saved successfully with ID: " + savedPost.getId());
             System.out.println("=== CREATE POST END ===");
 
@@ -98,6 +116,22 @@ public class PostService {
 
     private String processEditorJSImages(String content) {
         try {
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Get follow relations
+        List<Follow> follows = followRepository.findAllByFollower(currentUser);
+
+        // Extract followed users
+        List<User> followedUsers = follows.stream()
+                .map(Follow::getFollowing)
+                .toList();
+
+        // (Optional) if user follows nobody
+        if (followedUsers.isEmpty()) {
+            return List.of();
+        }
+
             System.out.println("=== PROCESS IMAGES START ===");
 
             if (content == null || content.trim().isEmpty()) {
