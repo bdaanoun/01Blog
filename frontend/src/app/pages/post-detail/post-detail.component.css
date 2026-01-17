@@ -88,9 +88,10 @@
   gap: 1rem;
 }
 
-.author-avatar {
+.author-avatar , .avatar-initial{
   width: 48px;
   height: 48px;
+  border: solid 1px #000;
   border-radius: 8px;
   background: #1a1a1a;
   color: white;
@@ -100,7 +101,10 @@
   font-size: 1.125rem;
   font-weight: 600;
 }
-
+ /* {
+  font-weight: 600;
+  color: #ccc;
+} */
 .author-details {
   display: flex;
   flex-direction: column;

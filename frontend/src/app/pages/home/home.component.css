@@ -139,17 +139,28 @@
 }
 
 .author-avatar {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
-  background: #1a1a1a;
-  color: white;
+  border: #000 solid 1px;
+}
+
+.avatar-initial {
+  font-weight: 600;
+  color: #ccc;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 500;
+  background: #000;
 }
+
 
 .author-meta {
   display: flex;
@@ -284,34 +295,45 @@
 }
 
 /* Writer Avatar */
+/* transform: translateY(-2px); */
 .writer-avatar {
-  /* transform: translateY(-2px); */
   position: absolute;
   top: -2.5rem;
   left: 50%;
   transform: translateX(-50%);
   width: 80px;
   height: 80px;
-  border: 4px solid white;
-  border-radius: 8px;
-  overflow: hidden;
-  background: white;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.writer-avatar .avatar-initial {
-  width: 100%;
-  height: 100%;
+  border: 2px solid white;
   border-radius: 8px;
   background: #1a1a1a;
+  overflow: hidden;
+  cursor: pointer;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
+}
+/* .writer-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
   font-size: 2rem;
   font-weight: 500;
-}
+} */
+
+/* .avatar-initial {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-weight: 500;
+
+} */
+
+
 
 .writer-avatar img {
   width: 100%;
@@ -342,13 +364,10 @@
 }
 
 .writer-bio {
-  margin: 0;
   font-size: 0.875rem;
   color: #6b7280;
   line-height: 1.5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
+  /* word-break: break-all; */
 }
 
 /* Follow Button */

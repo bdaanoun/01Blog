@@ -16,8 +16,14 @@
     <div class="profile-header-section">
       <div class="profile-main-info">
         <div class="profile-avatar-large">
-          {{ getUserInitial(user.username) }}
+          <img *ngIf="user.avatar; else initial" class="profile-avatar-img" [src]="getAvatarUrl(user.avatar)"
+            alt="avatar" />
+
+          <ng-template #initial>
+            {{ getUserInitial(user.username) }}
+          </ng-template>
         </div>
+
 
         <div class="profile-text-info">
           <h1 class="username-title">{{ user.username }}</h1>
@@ -114,8 +120,8 @@
                 <span class="read-time">{{ getReadTime(post.content) }} min read</span>
               </div>
 
-              <div class="post-item-actions">
-                <!-- <button 
+              <!-- <div class="post-item-actions">
+                 <button 
                   class="post-like-btn" 
                   [class.is-liked]="post.likedByCurrentUser"
                   (click)="toggleLike(post, $event)">
@@ -126,8 +132,8 @@
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
                   <span class="like-count">{{ post.likesCount }}</span>
-                </button> -->
-              </div>
+                </button>
+              </div> -->
             </div>
           </div>
 

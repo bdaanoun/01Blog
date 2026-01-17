@@ -60,6 +60,14 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  getAvatarUrl(path: string | null): string {
+    console.log("avarrrr", path);
+    
+    if (!path) return '';
+    return `http://localhost:8080/uploads/${path}`;
+  }
+
+
   checkIfOwnProfile(): void {
     const currentUserId = this.getCurrentUserId();
     // console.log("checker:  ", currentUserId, "  ", this.user?.id);
@@ -74,7 +82,7 @@ export class ProfileComponent implements OnInit {
 
     const token = localStorage.getItem('authToken');
     if (!token) return null;
-    
+
     try {
       const payload = token.split('.')[1];
       const decodedPayload = JSON.parse(atob(payload));
@@ -92,7 +100,7 @@ export class ProfileComponent implements OnInit {
 
     this.postService.toggleFollow(this.user.id).subscribe({
       next: (response) => {
-        
+
         if (this.user) {
           // console.log("response:  ", this.user);
           this.user.isFollowing = response.isFollowing;

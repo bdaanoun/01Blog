@@ -10,7 +10,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 @Component({
     selector: 'app-post-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule, ReactiveFormsModule], // ✅ MUST be here
+    imports: [CommonModule, RouterModule, ReactiveFormsModule],
     templateUrl: './post-detail.component.html',
     styleUrl: './post-detail.component.css'
 })
@@ -141,6 +141,11 @@ export class PostDetailComponent implements OnInit {
         if (!banner) return '';
         return `http://localhost:8080/uploads/${banner}`;
     }
+    // getAvatarUrl(avatar: string | null): string {
+    //     if (!avatar) return '';
+    //     return `http://localhost:8080/uploads/${avatar}`;
+    // }
+
 
     getTimeAgo(dateString: string): string {
         const date = new Date(dateString);
@@ -166,8 +171,8 @@ export class PostDetailComponent implements OnInit {
         return 'Just now';
     }
 
-    getAuthorInitial(authorName: string | undefined): string {
-        return authorName ? authorName.charAt(0).toUpperCase() : 'U';
+    getUserInitial(username: string | undefined): string {
+        return username ? username.charAt(0).toUpperCase() : 'U';
     }
 
     getReadTime(content: string): number {

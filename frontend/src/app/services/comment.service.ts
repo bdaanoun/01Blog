@@ -7,6 +7,7 @@ export interface PostComment {
     content: string;
     createdAt: string;
     authorName: string;
+    avatar: string;
     authorId: number;
 }
 

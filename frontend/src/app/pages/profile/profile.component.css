@@ -7,7 +7,8 @@
 }
 
 /* Loading & Error States */
-.loading, .error {
+.loading,
+.error {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,8 +27,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error {
@@ -70,7 +76,6 @@
   height: 120px;
   min-width: 120px;
   border-radius: 8px;
-  /* background: linear-gradient(135deg, #262a3f 0%, #37303f 100%); */
   background: #1a1a1a;
   color: white;
   display: flex;
@@ -80,6 +85,16 @@
   font-size: 48px;
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
 }
+
+.profile-avatar-img {
+  width: 99%;
+  height: 99%;
+  object-fit: cover;
+  border: solid 1px #1a1a1a;
+  border-radius: 8%;
+  display: block;
+}
+
 
 .profile-text-info {
   flex: 1;
@@ -407,11 +422,11 @@
     text-align: center;
   }
 
-  .profile-avatar-large {
+  /* .profile-avatar-large {
     width: 100px;
     height: 100px;
     font-size: 40px;
-  }
+  } */
 
   .username-title {
     font-size: 28px;

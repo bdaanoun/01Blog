@@ -12,7 +12,7 @@
 
   <!-- Floating avatar upload (half outside) -->
   <div class="avatar-float">
-    <label class="avatar-box" (click)="avatarInput.click()">
+    <label class="avatar-box">
       <input #avatarInput type="file" accept="image/*" (change)="onAvatarSelected($event)" hidden />
 
       <img *ngIf="avatarPreview" [src]="avatarPreview" class="avatar-img" alt="avatar" />

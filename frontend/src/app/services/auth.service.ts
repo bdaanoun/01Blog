@@ -59,7 +59,8 @@ export class AuthService {
     this.isAuthenticatedSubject.next(isAuth);
 
     if (isAuth) {
-      const user = this.getStoredUser();
+      // const user = this.getStoredUser();
+      const user = this.loadCurrentUser();
       this.currentUserSubject.next(user);
     }
   }
@@ -69,20 +70,17 @@ export class AuthService {
   register(userData: FormData): Observable<RegisterResponse> {
     const url = `${this.apiUrl}/register`;
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.post<RegisterResponse>(url, userData, { headers }).pipe(
+    return this.http.post<RegisterResponse>(url, userData).pipe(
       tap(response => {
-        // Optionally auto-login after registration if token is provided
         if (response.token) {
           this.saveToken(response.token);
           this.isAuthenticatedSubject.next(true);
+          this.loadCurrentUser();
         }
       })
     );
   }
+
 
   // Login user
   login(credentials: LoginRequest): Observable<LoginResponse> {
@@ -93,6 +91,7 @@ export class AuthService {
         if (response.token) {
           this.saveToken(response.token);
           this.isAuthenticatedSubject.next(true);
+          this.loadCurrentUser();
         }
       }),
     );
@@ -132,10 +131,10 @@ export class AuthService {
 
 
   // Get stored user
-  getStoredUser(): any {
-    const userJson = localStorage.getItem('currentUser');
-    return userJson ? JSON.parse(userJson) : null;
-  }
+  // getStoredUser(): any {
+  //   const userJson = localStorage.getItem('currentUser');
+  //   return userJson ? JSON.parse(userJson) : null;
+  // }
 
   // Check if token exists
   private hasToken(): boolean {
@@ -152,6 +151,24 @@ export class AuthService {
     // Optional: Check if token is expired
     return !this.isTokenExpired(token);
   }
+
+  loadCurrentUser(): void {
+    const id = this.getUserIdFromToken();
+    if (!id) {
+      this.currentUserSubject.next(null);
+      return;
+    }
+
+    this.http.get<any>(`${this.apiUrl}/users/${id}`).subscribe({
+      next: (user) => this.currentUserSubject.next(user),
+      error: (err) => {
+        console.error('loadCurrentUser failed', err);
+        this.currentUserSubject.next(null);
+      }
+    });
+  }
+
+
 
   // Check if token is expired
   private isTokenExpired(token: string): boolean {

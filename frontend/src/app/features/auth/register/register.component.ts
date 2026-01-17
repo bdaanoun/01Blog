@@ -128,9 +128,9 @@ export class RegisterComponent {
       confirmPassword: '',
       bio: ''
     };
-
     this.avatarFile = undefined;
     this.avatarPreview = null;
+
 
     this.submitted = false;
     this.passwordMismatch = false;
