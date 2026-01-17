@@ -11,6 +11,7 @@ export interface Post {
   createdAt: string;
   userId: number;
   authorName?: string;
+  authorAvatar?: string;
   likesCount: number;
   likedByCurrentUser: boolean;
 }
@@ -20,6 +21,7 @@ export interface User {
   username: string;
   email?: string;
   bio?: string;
+  avatar?: string;
   followersCount?: number;
   followingCount?: number;
   isFollowing?: boolean;

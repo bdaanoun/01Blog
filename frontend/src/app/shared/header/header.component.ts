@@ -78,6 +78,11 @@ export class HeaderComponent {
   toggleProfileDropdown() {
     this.showProfileDropdown = !this.showProfileDropdown;
   }
+
+  getAvatarUrl(path: string): string {  
+    return `http://localhost:8080/uploads/${path}`;
+  }
+
   openNotification(n: NotificationDto) {
     // mark as read (optimistic)
     if (n.status === 'UNREAD') {

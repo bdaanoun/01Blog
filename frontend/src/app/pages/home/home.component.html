@@ -46,9 +46,21 @@
 
     <article *ngFor="let post of posts" class="post-card" [routerLink]="['/post', post.id]">
       <div class="post-author">
-        <div class="author-avatar" [routerLink]="['/profile', post.userId]">
+        <!-- <div class="author-avatar" [routerLink]="['/profile', post.userId]">
           {{ getAuthorInitial(post.authorName) }}
+        </div> -->
+        <div class="avatar">
+          <ng-container *ngIf="post.authorAvatar; else initial">
+            <img [src]="getBannerUrl(post.authorAvatar)" alt="avatar" class="author-avatar" />
+          </ng-container>
+
+          <ng-template #initial>
+            <div class="avatar-initial">
+              {{ getUserInitial(post.authorName) }}
+            </div>
+          </ng-template>
         </div>
+
         <div class="author-meta">
           <span class="author-name">{{ post.authorName || 'Unknown' }}</span>
           <span class="post-meta-info">
@@ -95,17 +107,16 @@
         </div>
         <img *ngIf="writer.avatar" [src]="getAvatarUrl(writer.avatar)" [alt]="writer.username">
       </div>
-      
+
       <div class="writer-info" [routerLink]="['/profile', writer.id]" (click)="$event.stopPropagation()">
         <h3 class="writer-name">{{ writer.username }}</h3>
         <p class="writer-email">{{ writer.email }}</p>
-        <p *ngIf="writer.bio" class="writer-bio">{{ writer.bio }}</p>
+        <p *ngIf="writer.bio" class="writer-bio">
+          {{ truncate(writer.bio, 10) }}
+        </p>
       </div>
 
-      <button 
-        class="follow-button" 
-        [class.following]="writer.isFollowing"
-        (click)="toggleFollow(writer, $event)"
+      <button class="follow-button" [class.following]="writer.isFollowing" (click)="toggleFollow(writer, $event)"
         [attr.aria-label]="writer.isFollowing ? 'Unfollow' : 'Follow'">
         {{ writer.isFollowing ? 'Unfollow' : 'Follow' }}
       </button>

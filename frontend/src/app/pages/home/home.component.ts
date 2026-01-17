@@ -223,6 +223,8 @@ export class Home implements OnInit {
   }
 
   getAuthorInitial(authorName: string | undefined): string {
+    console.log("useer l flani", this.getAuthorInitial);
+    
     return authorName ? authorName.charAt(0).toUpperCase() : 'U';
   }
 
@@ -243,5 +245,8 @@ export class Home implements OnInit {
     } catch (e) {
       return 1;
     }
+  }
+  truncate(text: string, max: 10) {
+    return text.length > max ? text.slice(0, max) + "..." : text
   }
 }

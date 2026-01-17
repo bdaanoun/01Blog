@@ -43,16 +43,30 @@
 
 
           <div class="avatar-wrapper" (click)="toggleProfileDropdown()">
-            <div class="avatar avatar-initial">
-              {{ getUserInitial() }}
-            </div>
+            <ng-container *ngIf="currentUser$ | async as user; else tokenInitial">
+
+              <img *ngIf="user?.avatar; else userInitial" class="avatar avatar-img" [src]="getAvatarUrl(user.avatar)"
+                alt="avatar" />
+
+              <ng-template #userInitial>
+                <div class="avatar avatar-initial">
+                  {{ user?.username?.charAt(0)?.toUpperCase() || 'U' }}
+                </div>
+              </ng-template>
+
+            </ng-container>
+
+            <ng-template #tokenInitial>
+              <div class="avatar avatar-initial">
+                {{ getUserInitial() }}
+              </div>
+            </ng-template>
 
             <div *ngIf="showProfileDropdown" class="dropdown">
               <span class="dropdown-item btn btn-outline w-full text-left" (click)="goToMyProfile()">Profile</span>
               <span (click)="logout()" class="dropdown-item btn btn-outline w-full text-left">Logout</span>
             </div>
           </div>
-
 
 
         </div>
