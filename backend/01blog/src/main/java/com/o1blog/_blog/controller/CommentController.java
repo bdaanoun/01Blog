@@ -2,7 +2,6 @@ package com.o1blog._blog.controller;
 
 import com.o1blog._blog.dto.CommentRequest;
 import com.o1blog._blog.dto.CommentResponse;
-import com.o1blog._blog.model.User;
 import com.o1blog._blog.security.CustomUserDetails;
 import com.o1blog._blog.service.CommentService;
 import jakarta.validation.Valid;

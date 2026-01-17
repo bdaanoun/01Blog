@@ -1,0 +1,83 @@
+<div class="page">
+  <div class="card">
+    <!-- Avatar box (half outside) -->
+    <div class="avatar-float">
+      <label class="avatar-box" [class.disabled]="!isEditing">
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          (change)="onAvatarSelected($event)"
+          [disabled]="!isEditing"
+          hidden
+        />
+
+        <ng-container *ngIf="avatarPreviewUrl; else emptyAvatar">
+          <img class="avatar-img" [src]="avatarPreviewUrl" alt="Avatar preview" />
+        </ng-container>
+
+        <ng-template #emptyAvatar>
+          <div class="avatar-empty">
+            <mat-icon class="avatar-icon">photo_camera</mat-icon>
+            <span class="avatar-text">Upload</span>
+          </div>
+        </ng-template>
+      </label>
+
+      <button class="mini-btn danger" type="button" (click)="removeAvatar()" *ngIf="isEditing && avatarPreviewUrl">
+        Remove
+      </button>
+    </div>
+
+    <div class="header">
+      <div>
+        <h2>Settings</h2>
+        <p>Edit your profile info</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="button" (click)="startEdit()" *ngIf="!isEditing">
+          Edit
+        </button>
+
+        <button class="btn ghost" type="button" (click)="cancelEdit()" *ngIf="isEditing">
+          Cancel
+        </button>
+
+        <button class="btn primary" type="button" (click)="save()" [disabled]="isSaving" *ngIf="isEditing">
+          {{ isSaving ? "Saving..." : "Save" }}
+        </button>
+      </div>
+    </div>
+
+    <div class="state" *ngIf="isLoading">Loading profile...</div>
+
+    <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
+
+    <form class="form" [formGroup]="form" *ngIf="!isLoading">
+      <div class="row">
+        <label>Username *</label>
+        <input type="text" formControlName="username" placeholder="Your username" />
+        <div class="hint error" *ngIf="username?.touched && username?.invalid">
+          <span *ngIf="username?.errors?.['required']">Username is required.</span>
+          <span *ngIf="username?.errors?.['minlength']">Min 3 characters.</span>
+          <span *ngIf="username?.errors?.['maxlength']">Max 30 characters.</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Email</label>
+        <input type="email" formControlName="email" placeholder="Email" />
+        <div class="hint">Email is usually not editable.</div>
+      </div>
+
+      <div class="row">
+        <label>Bio</label>
+        <textarea formControlName="bio" rows="5" placeholder="Write something about you..."></textarea>
+        <div class="hint">
+          {{ (bio?.value?.length || 0) }} / 500
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

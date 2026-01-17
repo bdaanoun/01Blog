@@ -2,7 +2,7 @@ package com.o1blog._blog.controller;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
+// import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.o1blog._blog.dto.FollowResponse;
+// import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.PostResponse;
 import com.o1blog._blog.dto.UserProfileResponse;
 import com.o1blog._blog.model.User;
@@ -42,6 +42,7 @@ public class UserController {
     @GetMapping("/{id}")
     public UserProfileResponse getUserById(@PathVariable Long id) {
         Long currentUserId = getCurrentUserId();
+        System.out.println();
         return userService.getUserProfile(id, currentUserId);
     }
 
@@ -55,16 +56,6 @@ public class UserController {
         Long currentUserId = getCurrentUserId();
         return postService.getPostsByUser(id, currentUserId);
     }
-
-    // @PostMapping("/follow/{id}")
-    // public ResponseEntity<FollowResponse> followUser(@PathVariable Long id) {
-    //     Long currentUserId = getCurrentUserId();
-    //     if (currentUserId == null) {
-    //         throw new RuntimeException("User not authenticated");
-    //     }
-    //     FollowResponse response = userService.toggleFollow(currentUserId, id);
-    //     return ResponseEntity.ok(response);
-    // }
 
     private Long getCurrentUserId() {
         var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();

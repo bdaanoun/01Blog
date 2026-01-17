@@ -1,6 +1,5 @@
 package com.o1blog._blog.controller;
 
-import com.o1blog._blog.dto.PostRequest;
 import com.o1blog._blog.dto.PostResponse;
 import com.o1blog._blog.model.Post;
 import com.o1blog._blog.repository.LikeRepository;
@@ -8,11 +7,9 @@ import com.o1blog._blog.security.CustomUserDetails;
 import com.o1blog._blog.service.FileStorageService;
 import com.o1blog._blog.service.PostService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

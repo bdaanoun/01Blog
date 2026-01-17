@@ -3,15 +3,15 @@ import { LandingComponent } from './pages/landing/landing.component';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 export const routes: Routes = [
     {
         path: '',
         canActivate: [guestGuard],
         component: LandingComponent,
-        // loadComponent: () => import('./pages/landing/landing.component')
-        //     .then(m => m.LandingComponent)
     },
+    { path: 'settings', component: SettingsComponent, },
     {
         path: 'home',
         canActivate: [authGuard],
@@ -46,7 +46,7 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/writePost/writePost.component')
             .then(m => m.WritePostComponent)
     },
-      { path: 'profile/:id', component: ProfileComponent },
+    { path: 'profile/:id', component: ProfileComponent },
 
     {
         path: '**',

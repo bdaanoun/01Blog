@@ -89,7 +89,7 @@ export class Home implements OnInit {
   loadFollowingPosts(): void {
     this.postService.getFollowingPosts().subscribe({
       next: (posts) => {
-        console.log("pppppp", posts);
+        // console.log("pppppp", posts);
 
         this.posts = posts.reverse();
         this.loading = false;
@@ -147,7 +147,7 @@ export class Home implements OnInit {
 
     this.postService.toggleFollow(user.id).subscribe({
       next: (response) => {
-        console.log('Toggle response:', response);
+        // console.log('Toggle response:', response);
         user.isFollowing = response.isFollowing;
         if (user.followersCount !== undefined) {
           user.followersCount = response.isFollowing
@@ -164,6 +164,8 @@ export class Home implements OnInit {
   getPlainTextPreview(content: string, maxLength: number = 150): string {
     try {
       const editorData = JSON.parse(content);
+      // console.log("cont", content);
+      
       let text = '';
 
       editorData.blocks.forEach((block: any) => {
@@ -182,7 +184,7 @@ export class Home implements OnInit {
             });
           }
         }
-      });
+      });      
 
       return text.length > maxLength
         ? text.substring(0, maxLength) + '...'
@@ -223,7 +225,7 @@ export class Home implements OnInit {
   }
 
   getAuthorInitial(authorName: string | undefined): string {
-    console.log("useer l flani", this.getAuthorInitial);
+    // console.log("useer l flani", this.getAuthorInitial);
     
     return authorName ? authorName.charAt(0).toUpperCase() : 'U';
   }
