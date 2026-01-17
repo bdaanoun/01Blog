@@ -38,11 +38,10 @@ public class PostService {
 
     public Post createPost(CustomUserDetails userDetails, String title, String content, MultipartFile banner) {
         try {
-            // System.out.println("=== CREATE POST START ===");
-            // System.out.println("User ID: " + userDetails.getId());
+            System.out.println("=== CREATE POST START ===");
+            System.out.println("User ID: " + userDetails.getId());
             // System.out.println("Title: " + title);
-            // System.out.println("Content length: " + (content != null ? content.length() :
-            // "null"));
+            // System.out.println("Content length: " + (content != null ? content.length() : "null"));
 
             User user = userRepository.findById(userDetails.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));

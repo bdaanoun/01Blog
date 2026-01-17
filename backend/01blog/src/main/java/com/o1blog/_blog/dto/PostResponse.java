@@ -19,6 +19,7 @@ public class PostResponse {
     private LocalDateTime createdAt;
     private Long userId;
     private String authorName;
+    private String authorAvatar;
     private Long likesCount;
     private Boolean likedByCurrentUser;
 
@@ -31,6 +32,7 @@ public class PostResponse {
                 .createdAt(post.getCreatedAt())
                 .userId(post.getUser().getId())
                 .authorName(post.getUser().getUsername())
+                // .authorAvatar("post.getUser().getAvatar()")
                 .likesCount(post.getId())
                 .likedByCurrentUser(likedByCurrentUser)
                 .build();
