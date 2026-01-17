@@ -1,7 +1,5 @@
 package com.o1blog._blog.service;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.o1blog._blog.dto.AuthResponse;
 import com.o1blog._blog.dto.LoginRequest;
-import com.o1blog._blog.dto.RegisterRequest;
+// import com.o1blog._blog.dto.RegisterRequest;
 import com.o1blog._blog.model.User;
 import com.o1blog._blog.repository.UserRepository;
 import com.o1blog._blog.security.JwtUtil;
@@ -39,6 +37,13 @@ public class AuthService {
             String password,
             String bio,
             MultipartFile avatar) {
+        System.out.println("username" + username);
+        System.out.println("----avatat-----");
+        System.out.println(avatar.getOriginalFilename());
+        System.out.println(avatar.getSize());
+        System.out.println(avatar.getContentType());
+        System.out.println("----avatat-----");
+
         if (userRepository.existsByUsername(username)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new AuthResponse(null, "Username already exists"));
@@ -52,18 +57,22 @@ public class AuthService {
         User user = new User();
         user.setUsername(username);
         user.setEmail(email);
-        user.setBio(bio);
+        user.setBio(bio == null ? "" : bio);
         user.setPassword(passwordEncoder.encode(password));
 
-        // if (avatar != null && !avatar.isEmpty()) {
-        // try {
-        // String filename = fileStorageService.saveAvatar(avatar);
-        // user.setAvatar(filename);
-        // } catch (IOException e) {
-        // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        // .body(new AuthResponse(null, "Failed to upload avatar"));
-        // }
-        // }
+        if (avatar != null && !avatar.isEmpty()) {
+            System.out.println("----filename-----");
+
+            // try {
+            String filename = fileStorageService.saveAvatar(avatar);
+            user.setAvatar(filename);
+            System.out.println("----filename-----" + filename);
+
+            // } catch (IOException e) {
+            // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            // .body(new AuthResponse(null, "Failed to upload avatar"));
+            // }
+        }
 
         userRepository.save(user);
 

@@ -58,15 +58,17 @@ public class PostController {
     }
 
     // CREATE POST
-    @PostMapping()
-    public ResponseEntity<PostResponse> createPost(
-            @Valid @RequestBody PostRequest request,
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<PostResponse> createPost(@RequestParam("title") String title,
+            @RequestParam("content") String content,
             @RequestPart(value = "banner", required = false) MultipartFile banner) {
-                System.out.println("---> "+request.getTitle().length());
+        // System.out.println("---> " + title);
+        // System.out.println("--->content: " + content);
         CustomUserDetails user = (CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
 
-        Post post = postService.createPost(user, request.getTitle(), request.getContent(), banner);
+        Post post = postService.createPost(user, title, content, banner);
+
         return ResponseEntity.ok(mapToResponse(post, user.getId()));
     }
 
@@ -90,6 +92,7 @@ public class PostController {
         Post post = postService.getPostById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
+                // System.out.println("post l flani: "+ post.get);
         return ResponseEntity.ok(mapToResponse(post, currentUserId));
     }
 
@@ -150,6 +153,7 @@ public class PostController {
                 .createdAt(post.getCreatedAt())
                 .userId(post.getUser().getId())
                 .authorName(post.getUser().getUsername())
+                .authorAvatar(post.getUser().getAvatar())
                 .likesCount(likesCount)
                 .likedByCurrentUser(likedByCurrentUser)
                 .build();

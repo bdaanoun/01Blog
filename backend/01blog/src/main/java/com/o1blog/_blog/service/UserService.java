@@ -93,6 +93,7 @@ public class UserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .bio(user.getBio())
+                .avatar(user.getAvatar())
                 .followersCount(followersCount)
                 .followingCount(followingCount)
                 .isFollowing(isFollowing)

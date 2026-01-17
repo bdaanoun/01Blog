@@ -57,6 +57,7 @@ public class CommentService {
                 .content(comment.getContent())
                 .authorId(comment.getUser().getId())
                 .authorName(comment.getUser().getUsername())
+                .avatar(comment.getUser().getAvatar())
                 .createdAt(comment.getCreatedAt().toString())
                 .build();
     }
