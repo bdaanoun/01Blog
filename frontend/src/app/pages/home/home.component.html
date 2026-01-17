@@ -46,9 +46,6 @@
 
     <article *ngFor="let post of posts" class="post-card" [routerLink]="['/post', post.id]">
       <div class="post-author">
-        <!-- <div class="author-avatar" [routerLink]="['/profile', post.userId]">
-          {{ getAuthorInitial(post.authorName) }}
-        </div> -->
         <div class="avatar">
           <ng-container *ngIf="post.authorAvatar; else initial">
             <img [src]="getBannerUrl(post.authorAvatar)" alt="avatar" class="author-avatar" />

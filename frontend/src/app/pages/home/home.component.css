@@ -184,7 +184,6 @@
   gap: 3rem;
   cursor: pointer;
   margin-bottom: 1rem;
-  /* border-bottom: aliceblue solid */
 }
 
 .post-text {
@@ -314,25 +313,6 @@
   justify-content: center;
   z-index: 1;
 }
-/* .writer-avatar {
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  font-size: 2rem;
-  font-weight: 500;
-} */
-
-/* .avatar-initial {
-  width: 100%;
-  height: 100%;
-  background-color: #000;
-  align-items: center;
-  justify-content: center;
-  color: #ccc;
-  font-weight: 500;
-
-} */
-
 
 
 .writer-avatar img {
