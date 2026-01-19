@@ -37,12 +37,6 @@ public class AuthService {
             String password,
             String bio,
             MultipartFile avatar) {
-        System.out.println("username" + username);
-        System.out.println("----avatat-----");
-        System.out.println(avatar.getOriginalFilename());
-        System.out.println(avatar.getSize());
-        System.out.println(avatar.getContentType());
-        System.out.println("----avatat-----");
 
         if (userRepository.existsByUsername(username)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -73,7 +67,6 @@ public class AuthService {
             // .body(new AuthResponse(null, "Failed to upload avatar"));
             // }
         }
-
         userRepository.save(user);
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getId());

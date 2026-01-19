@@ -2,17 +2,25 @@ package com.o1blog._blog.controller;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 // import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.o1blog._blog.dto.AuthResponse;
 // import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.PostResponse;
+import com.o1blog._blog.dto.UpdateProfileRequest;
 import com.o1blog._blog.dto.UserProfileResponse;
 import com.o1blog._blog.model.User;
 import com.o1blog._blog.service.PostService;
@@ -44,6 +52,16 @@ public class UserController {
         Long currentUserId = getCurrentUserId();
         System.out.println();
         return userService.getUserProfile(id, currentUserId);
+    }
+
+    @PatchMapping(value = "/updateprofile/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public UserProfileResponse updateProfile(@PathVariable Long id,
+            @RequestPart(required = false) MultipartFile avatar,
+            @RequestPart("data") UpdateProfileRequest req) {
+        System.out.println("updateeed" + req);
+        Long currentUserId = getCurrentUserId();
+        // System.out.println();
+        return userService.updateProfile(id, currentUserId, req.getUsername(), req.getEmail(), req.getBio(), avatar);
     }
 
     @DeleteMapping("/{id}")

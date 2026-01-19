@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.UserProfileResponse;
@@ -12,6 +13,7 @@ import com.o1blog._blog.model.User;
 import com.o1blog._blog.repository.FollowRepository;
 import com.o1blog._blog.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final FileStorageService fileStorageService;
 
     // public UserService(UserRepository userRepository) {
     // this.userRepository = userRepository;
@@ -98,6 +101,32 @@ public class UserService {
                 .followingCount(followingCount)
                 .isFollowing(isFollowing)
                 .build();
+    }
+
+    @Transactional
+    public UserProfileResponse updateProfile(Long id, Long currentUserId,
+            String username, String email, String bio, MultipartFile avatar) {
+
+        if (!id.equals(currentUserId))
+            throw new RuntimeException("You can only edit your own profile");
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (username != null && !username.isBlank())
+            user.setUsername(username);
+        if (email != null && !email.isBlank())
+            user.setEmail(email);
+        if (bio != null)
+            user.setBio(bio);
+
+        if (avatar != null && !avatar.isEmpty()) {
+            String avatarUrl = fileStorageService.saveAvatar(avatar);
+            user.setAvatar(avatarUrl);
+        }
+
+        userRepository.save(user);
+        return getUserProfile(id, currentUserId);
     }
 
     public void deleteUser(Long id) {

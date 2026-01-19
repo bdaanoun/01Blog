@@ -20,7 +20,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(identifier)
                 .orElseGet(() -> userRepository.findByUsername(identifier)
                         .orElseThrow(() -> new UsernameNotFoundException(
-                            "User not found with identifier: " + identifier)));
+                                "User not found with identifier: " + identifier)));
+
+        return new CustomUserDetails(user);
+    }
+
+    public CustomUserDetails loadUserById(Long id)
+            throws UsernameNotFoundException {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "User not found with id: " + id));
 
         return new CustomUserDetails(user);
     }

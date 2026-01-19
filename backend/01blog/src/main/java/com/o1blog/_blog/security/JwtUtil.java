@@ -63,6 +63,10 @@ public class JwtUtil {
         return createToken(claims, username);
     }
 
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", Long.class));
+    }
+
     // Create token with claims
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
@@ -75,12 +79,17 @@ public class JwtUtil {
     }
 
     // Validate token
+    // public boolean validateToken(String token, CustomUserDetails userDetails) {
+    // final String username = extractUsername(token);
+    // boolean isValid = (username.equals(userDetails.getUsername()) &&
+    // !isTokenExpired(token));
+    // return isValid;
+    // }
     public boolean validateToken(String token, CustomUserDetails userDetails) {
-        final String username = extractUsername(token);
-        boolean isValid = (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-        System.out.println("Validating token for: " + username + " against: " + userDetails.getUsername());
+        Long tokenUserId = extractUserId(token);
+        System.out.println("Validating token for: " + tokenUserId + " against: " + userDetails.getId());
         System.out.println("Is expired: " + isTokenExpired(token));
-        System.out.println("Validation result: " + isValid);
-        return isValid;
+        return tokenUserId.equals(userDetails.getId()) && !isTokenExpired(token);
     }
+
 }

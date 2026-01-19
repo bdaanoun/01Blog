@@ -10,7 +10,7 @@ type ProfileDTO = {
     username: string;
     email: string;
     bio?: string | null;
-    avatar?: string | null; // can be URL from backend
+    avatar?: string | null;
 };
 
 @Component({
@@ -24,7 +24,7 @@ export class SettingsComponent implements OnInit {
     form!: FormGroup;
     userId: number | null = null;
 
-    private readonly usersUrl = "/api/users";
+    private readonly usersUrl = "http://localhost:8080/api/users";
 
 
     isLoading = false;
@@ -57,6 +57,7 @@ export class SettingsComponent implements OnInit {
             return;
         }
 
+        console.log(`---hona->: ${this.usersUrl}/${this.userId}`);
         this.loadMyProfile(this.userId);
     }
 
@@ -66,8 +67,10 @@ export class SettingsComponent implements OnInit {
         this.errorMessage = "";
         this.successMessage = "";
 
+
         this.http.get<ProfileDTO>(`${this.usersUrl}/${userId}`).subscribe({
             next: (p) => {
+                // console.log("dkhlll--");
                 this.originalProfile = p;
 
                 this.form.patchValue({
@@ -75,6 +78,9 @@ export class SettingsComponent implements OnInit {
                     email: p.email ?? "",
                     bio: p.bio ?? "",
                 });
+                // console.log("ddddddd", this.form);
+
+
 
                 this.avatarPreviewUrl = p.avatar ? this.getAvatarUrl(p.avatar) : null;
                 this.selectedAvatarFile = null;
@@ -182,10 +188,16 @@ export class SettingsComponent implements OnInit {
 
         // Use FormData so avatar upload works
         const fd = new FormData();
-        fd.append("username", this.form.get("username")?.value || "");
-        fd.append("bio", this.form.get("bio")?.value || "");
 
-        // If your backend accepts avatar file:
+        fd.append(
+            "data",
+            new Blob([JSON.stringify({
+                username: this.form.get("username")?.value || "",
+                email: this.form.get("email")?.value || "",
+                bio: this.form.get("bio")?.value || ""
+            })], { type: "application/json" })
+        );
+
         if (this.selectedAvatarFile) {
             fd.append("avatar", this.selectedAvatarFile);
         }
@@ -194,8 +206,10 @@ export class SettingsComponent implements OnInit {
             this.errorMessage = "Not logged in.";
             return;
         }
-        this.http.patch<ProfileDTO>(`${this.usersUrl}/${this.userId}`, fd).subscribe({
+        this.http.patch<ProfileDTO>(`${this.usersUrl}/updateprofile/${this.userId}`, fd).subscribe({
+
             next: (updated) => {
+                // console.log("hee", `${this.usersUrl}/${this.userId}`);
                 this.isSaving = false;
                 this.successMessage = "Profile updated successfully.";
                 this.originalProfile = updated;
