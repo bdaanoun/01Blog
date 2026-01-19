@@ -28,11 +28,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        // System.out.println("METHOD: " + request.getMethod());
-        // System.out.println("URI: " + request.getRequestURI());
-        // System.out.println("HEADER: " + request.getHeader("Authorization"));
-
-        // Skip JWT validation for public endpoints
         String path = request.getRequestURI();
         if (path.equals("/api/register") || path.equals("/api/login")) {
             filterChain.doFilter(request, response);
@@ -50,15 +45,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                logger.error("JWT Token extraction failed", e);
+                logger.warn("Invalid JWT token");
+                SecurityContextHolder.clearContext();
             }
-            // System.out.println("jwt: " + jwt);
-            // System.out.println("username: " + username);
-
         }
 
         // Validate token and set authentication
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        // if (jwt != null && SecurityContextHolder.getContext().getAuthentication() ==
+        // null) {
+        // try {
+        // Long userId = jwtUtil.extractUserId(jwt);
+        // if (userId != null) {
+        // CustomUserDetails userDetails = userDetailsService.loadUserById(userId);
+
+        // if (jwtUtil.validateToken(jwt, userDetails)) {
+        // UsernamePasswordAuthenticationToken authenticationToken = new
+        // UsernamePasswordAuthenticationToken(
+        // userDetails, null, userDetails.getAuthorities());
+
+        // authenticationToken.setDetails(
+        // new WebAuthenticationDetailsSource().buildDetails(request));
+
+        // SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        // }
+        // }
+        // } catch (Exception e) {
+        // // IMPORTANT: do NOT crash the request (prevents "fake CORS" errors)
+        // SecurityContextHolder.clearContext();
+        // logger.warn("JWT auth failed: {} " + e.getMessage());
+        // }
+        // }
+
+        if (username != null &&
+                SecurityContextHolder.getContext().getAuthentication() == null) {
             Long userId = jwtUtil.extractUserId(jwt);
             CustomUserDetails userDetails = userDetailsService.loadUserById(userId);
 

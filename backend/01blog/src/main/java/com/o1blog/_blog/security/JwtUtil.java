@@ -31,6 +31,11 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Check if token is expired
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
     // Extract expiration date from token
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
@@ -49,11 +54,6 @@ public class JwtUtil {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    // Check if token is expired
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
     }
 
     // Generate token for user
@@ -79,12 +79,6 @@ public class JwtUtil {
     }
 
     // Validate token
-    // public boolean validateToken(String token, CustomUserDetails userDetails) {
-    // final String username = extractUsername(token);
-    // boolean isValid = (username.equals(userDetails.getUsername()) &&
-    // !isTokenExpired(token));
-    // return isValid;
-    // }
     public boolean validateToken(String token, CustomUserDetails userDetails) {
         Long tokenUserId = extractUserId(token);
         System.out.println("Validating token for: " + tokenUserId + " against: " + userDetails.getId());

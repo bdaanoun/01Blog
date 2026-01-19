@@ -45,6 +45,10 @@ export class PostService {
   getAllPosts(): Observable<Post[]> {
     return this.http.get<Post[]>(this.apiUrl);
   }
+  //
+  updatePostFormData(postId: number, fd: FormData) {
+    return this.http.patch<Post>(`http://localhost:8080/api/posts/${postId}`, fd);
+  }
 
   // Get posts from users the current user follows (Feed tab)
   getFollowingPosts(): Observable<Post[]> {
@@ -69,6 +73,12 @@ export class PostService {
       {}
     );
   }
+
+  //edit post
+  updatePost(id: number, body: { title: string; content: string }) {
+    return this.http.patch<Post>(`http://localhost:8080/api/posts/${id}`, body);
+  }
+
 
   // Toggle follow on a user
   toggleFollow(userId: number): Observable<FollowResponse> {

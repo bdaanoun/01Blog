@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.UserProfileResponse;
+import com.o1blog._blog.exection.EmailAlreadyTakenException;
+import com.o1blog._blog.exection.UsernameAlreadyTakenException;
 import com.o1blog._blog.model.Follow;
 import com.o1blog._blog.model.User;
 import com.o1blog._blog.repository.FollowRepository;
@@ -113,10 +115,20 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (username != null && !username.isBlank())
+        if (username != null && !username.isBlank() && !username.equals(user.getUsername())) {
+            if (userRepository.existsByUsername(username)) {
+                throw new UsernameAlreadyTakenException();
+            }
             user.setUsername(username);
-        if (email != null && !email.isBlank())
+        }
+
+        if (email != null && !email.isBlank() && !email.equals(user.getEmail())) {
+            if (userRepository.existsByEmail(email)) {
+                throw new EmailAlreadyTakenException();
+            }
             user.setEmail(email);
+        }
+
         if (bio != null)
             user.setBio(bio);
 

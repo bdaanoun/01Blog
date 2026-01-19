@@ -1,3 +1,4 @@
+<!-- post-detail.component.html -->
 <div class="post-detail-container">
   <!-- Loading State -->
   <div *ngIf="loading" class="loading">
@@ -18,17 +19,17 @@
 
       <div class="post-meta">
         <div class="author-info">
-          <!-- <div class="author-avatar" [routerLink]="['/profile', post.userId]">
-            {{ getUserInitial(post.authorName) }}
-          </div> -->
           <div [routerLink]="['/profile', post.userId]" class="avatar-initial">
-            <img *ngIf="post.authorAvatar; else initial" class="author-avatar" [src]="getBannerUrl(post.authorAvatar)"
-              alt="avatar" />
+            <img *ngIf="post.authorAvatar; else initial"
+                 class="author-avatar"
+                 [src]="getBannerUrl(post.authorAvatar)"
+                 alt="avatar" />
 
             <ng-template #initial>
               {{ getUserInitial(post.authorName) }}
             </ng-template>
           </div>
+
           <div class="author-details">
             <span class="author-name">{{ post.authorName || 'Unknown' }}</span>
             <div class="meta-info">
@@ -40,12 +41,21 @@
         </div>
 
         <div class="post-actions">
-          <button class="like-button" [class.liked]="post.likedByCurrentUser" (click)="toggleLike()"
-            [attr.aria-label]="post.likedByCurrentUser ? 'Unlike' : 'Like'">
+          <button *ngIf="canEdit()"
+                  class="edit-button"
+                  (click)="startEdit()"
+                  [disabled]="isEditing">
+            Edit
+          </button>
+
+          <button class="like-button"
+                  [class.liked]="post.likedByCurrentUser"
+                  (click)="toggleLike()"
+                  [attr.aria-label]="post.likedByCurrentUser ? 'Unlike' : 'Like'">
             <svg width="24" height="24" viewBox="0 0 24 24"
-              [attr.fill]="post.likedByCurrentUser ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                 [attr.fill]="post.likedByCurrentUser ? 'currentColor' : 'none'"
+                 stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
             <span *ngIf="post.likesCount > 0">{{ post.likesCount }}</span>
           </button>
@@ -53,42 +63,78 @@
       </div>
     </header>
 
-    <!-- Banner Image -->
-    <div class="post-banner" *ngIf="post.banner">
+    <!-- Banner -->
+    <div class="post-banner" *ngIf="post.banner && !isEditing">
       <img [src]="getBannerUrl(post.banner)" [alt]="post.title">
     </div>
 
+    <!-- Edit Mode -->
+    <div *ngIf="isEditing" class="edit-box">
+      <!-- Banner editor -->
+      <div class="edit-banner">
+        <div class="edit-banner-preview" *ngIf="bannerPreviewUrl; else currentBanner">
+          <img [src]="bannerPreviewUrl" alt="banner preview" class="banner-preview">
+        </div>
+
+        <ng-template #currentBanner>
+          <div class="edit-banner-preview" *ngIf="post?.banner">
+            <img [src]="getBannerUrl(post.banner)" class="current banner">
+          </div>
+        </ng-template>
+
+        <div class="edit-banner-actions">
+          <input type="file" accept="image/*" (change)="onBannerSelected($event)">
+          <button type="button" class="btn-remove-banner" (click)="removeBanner()">
+            Remove banner
+          </button>
+        </div>
+      </div>
+
+      <input class="edit-input" [formControl]="editTitleControl" />
+
+      <div #editEditor class="editorjs-container"></div>
+
+      <div class="edit-actions">
+        <button (click)="saveEdit()" [disabled]="savingEdit || editTitleControl.invalid">
+          {{ savingEdit ? 'Saving...' : 'Save' }}
+        </button>
+        <button (click)="cancelEdit()" [disabled]="savingEdit">Cancel</button>
+      </div>
+
+      <p *ngIf="editError" class="edit-error">{{ editError }}</p>
+    </div>
+
     <!-- Post Content (EditorJS Blocks) -->
-    <div class="post-content">
+    <div class="post-content" *ngIf="!isEditing">
       <div *ngFor="let block of renderedContent" class="content-block">
-        <!-- Paragraph -->
-        <p *ngIf="block.type === 'paragraph'" class="paragraph" [innerHTML]="getSafeHtml(block.data.text)"></p>
+        <p *ngIf="block.type === 'paragraph'"
+           class="paragraph"
+           [innerHTML]="getSafeHtml(block.data.text)"></p>
 
-        <!-- Header -->
-        <h2 *ngIf="block.type === 'header' && block.data.level === 2" class="heading-2"
-          [innerHTML]="getSafeHtml(block.data.text)"></h2>
-        <h3 *ngIf="block.type === 'header' && block.data.level === 3" class="heading-3"
-          [innerHTML]="getSafeHtml(block.data.text)"></h3>
+        <h2 *ngIf="block.type === 'header' && block.data.level === 2"
+            class="heading-2"
+            [innerHTML]="getSafeHtml(block.data.text)"></h2>
 
-        <!-- List -->
+        <h3 *ngIf="block.type === 'header' && block.data.level === 3"
+            class="heading-3"
+            [innerHTML]="getSafeHtml(block.data.text)"></h3>
+
         <ul *ngIf="block.type === 'list' && block.data.style === 'unordered'" class="list">
           <li *ngFor="let item of block.data.items" [innerHTML]="getSafeHtml(item.content)"></li>
         </ul>
+
         <ol *ngIf="block.type === 'list' && block.data.style === 'ordered'" class="list">
           <li *ngFor="let item of block.data.items" [innerHTML]="getSafeHtml(item)"></li>
         </ol>
-        <!-- Checklist -->
+
         <ul *ngIf="block.type === 'list' && block.data.style === 'checklist'" class="checklist">
           <li *ngFor="let item of block.data.items" class="checklist-item">
             <input type="checkbox" [checked]="item.meta?.checked" disabled />
-
-            <span [class.checked]="item.meta?.checked" [innerHTML]="getSafeHtml(item.content)"></span>
+            <span [class.checked]="item.meta?.checked"
+                  [innerHTML]="getSafeHtml(item.content)"></span>
           </li>
         </ul>
 
-
-
-        <!-- Image -->
         <figure *ngIf="block.type === 'image'" class="image-block">
           <img [src]="block.data.file?.url || block.data.url" [alt]="block.data.caption || ''">
           <figcaption *ngIf="block.data.caption" [innerHTML]="getSafeHtml(block.data.caption)"></figcaption>
@@ -96,33 +142,21 @@
       </div>
     </div>
 
-    <!-- comments place -->
-    <!-- Loading -->
-    <div *ngIf="commentsLoading" class="comments-loading">
-      Loading comments...
-    </div>
-
-    <!-- Error -->
-    <div *ngIf="commentsError" class="comments-error">
-      {{ commentsError }}
-    </div>
-
-    <!-- Empty -->
+    <!-- Comments -->
+    <div *ngIf="commentsLoading" class="comments-loading">Loading comments...</div>
+    <div *ngIf="commentsError" class="comments-error">{{ commentsError }}</div>
     <div *ngIf="!commentsLoading && !commentsError && comments.length === 0" class="no-comments">
       No comments yet.
     </div>
 
-    <!-- List -->
     <div class="comment-list" *ngIf="!commentsLoading && !commentsError && comments.length > 0">
       <div class="comment" *ngFor="let c of comments">
-
-        <!-- <div class="comment-avatar" [routerLink]="['/profile', c.authorId]">
-          {{ getAuthorInitial(c.authorName) }}
-        </div> -->
         <div class="comment-avatar" [routerLink]="['/profile', c.authorId]">
-          <img *ngIf="c.avatar; else initial" class="comment-avatar" [src]="getBannerUrl(c.avatar)" alt="avatar" />
-
-          <ng-template #initial>
+          <img *ngIf="c.avatar; else cInitial"
+               class="comment-avatar"
+               [src]="getBannerUrl(c.avatar)"
+               alt="avatar" />
+          <ng-template #cInitial>
             {{ getUserInitial(c.authorName) }}
           </ng-template>
         </div>
@@ -132,17 +166,16 @@
             <span class="comment-author">{{ c.authorName }}</span>
             <span class="comment-time">{{ getTimeAgo(c.createdAt) }}</span>
           </div>
-
           <p class="comment-text">{{ c.content }}</p>
         </div>
       </div>
     </div>
 
-
     <div class="comment-form">
       <textarea [formControl]="commentControl" placeholder="Write a comment..." rows="3"></textarea>
-
-      <button class="comment-submit" (click)="submitComment()" [disabled]="submittingComment || commentControl.invalid">
+      <button class="comment-submit"
+              (click)="submitComment()"
+              [disabled]="submittingComment || commentControl.invalid">
         {{ submittingComment ? 'Posting...' : 'Post comment' }}
       </button>
     </div>

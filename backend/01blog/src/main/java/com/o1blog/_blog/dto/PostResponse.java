@@ -23,17 +23,18 @@ public class PostResponse {
     private Long likesCount;
     private Boolean likedByCurrentUser;
 
-    public static PostResponse from(Post post, boolean likedByCurrentUser) {
+    public static PostResponse from(Post post, boolean likedByCurrentUser, long likesCount) {
         return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .banner(post.getBanner())
+                .status(post.getStatus().name())
                 .createdAt(post.getCreatedAt())
                 .userId(post.getUser().getId())
                 .authorName(post.getUser().getUsername())
-                // .authorAvatar("post.getUser().getAvatar()")
-                .likesCount(post.getId())
+                .authorAvatar(post.getUser().getAvatar())
+                .likesCount(likesCount)
                 .likedByCurrentUser(likedByCurrentUser)
                 .build();
     }

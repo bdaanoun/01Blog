@@ -1,6 +1,9 @@
 package com.o1blog._blog.controller;
 
+// import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import com.o1blog._blog.dto.PostResponse;
+import com.o1blog._blog.dto.UpdatePostRequest;
 import com.o1blog._blog.model.Post;
 import com.o1blog._blog.repository.LikeRepository;
 import com.o1blog._blog.security.CustomUserDetails;
@@ -12,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+// import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -86,11 +90,25 @@ public class PostController {
     public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
         Long currentUserId = getCurrentUserId();
 
-        Post post = postService.getPostById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+        Post post = postService.getPostById(id);
+        // .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Post not found"));
 
-                // System.out.println("post l flani: "+ post.get);
+        // System.out.println("post l flani: "+ post.get);
         return ResponseEntity.ok(mapToResponse(post, currentUserId));
+    }
+
+    // ediit post
+    @PatchMapping("/{id}")
+    public ResponseEntity<PostResponse> updatePost(
+            @PathVariable Long id,
+            @RequestBody UpdatePostRequest req) {
+        Long currentUserId = getCurrentUserId(); // from SecurityContext (id from JWT)
+        Post updated = postService.updatePost(id, currentUserId, req.getTitle(), req.getContent());
+
+        long likesCount = likeRepository.countByPostId(updated.getId());
+        boolean liked = likeRepository.existsByPostIdAndUserId(updated.getId(), currentUserId);
+
+        return ResponseEntity.ok(PostResponse.from(updated, liked, likesCount));
     }
 
     // GET FOLLOWING POST

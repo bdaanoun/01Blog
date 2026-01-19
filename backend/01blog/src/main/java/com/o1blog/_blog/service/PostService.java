@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.o1blog._blog.dto.PostResponse;
+import com.o1blog._blog.exection.PostNotFoundException;
 import com.o1blog._blog.model.Follow;
 import com.o1blog._blog.model.Like;
 import com.o1blog._blog.model.Notification;
@@ -41,7 +42,8 @@ public class PostService {
             System.out.println("=== CREATE POST START ===");
             System.out.println("User ID: " + userDetails.getId());
             // System.out.println("Title: " + title);
-            // System.out.println("Content length: " + (content != null ? content.length() : "null"));
+            // System.out.println("Content length: " + (content != null ? content.length() :
+            // "null"));
 
             User user = userRepository.findById(userDetails.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -199,6 +201,23 @@ public class PostService {
         }
     }
 
+    @Transactional
+    public Post updatePost(Long postId, Long currentUserId, String title, String content) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (!post.getUser().getId().equals(currentUserId)) {
+            throw new RuntimeException("You are not allowed to edit this post");
+        }
+
+        if (title != null && !title.isBlank())
+            post.setTitle(title);
+        if (content != null && !content.isBlank())
+            post.setContent(processEditorJSImages(content));
+
+        return postRepository.save(post);
+    }
+
     // get all posts
     public List<Post> getAllPosts() {
         return postRepository.findAll();
@@ -212,12 +231,13 @@ public class PostService {
             boolean liked = currentUserId != null &&
                     likeRepository.existsByUserIdAndPostId(currentUserId, post.getId());
 
-            return PostResponse.from(post, liked);
+            return PostResponse.from(post, liked, currentUserId);
         }).toList();
     }
 
-    public Optional<Post> getPostById(Long id) {
-        return postRepository.findById(id);
+    public Post getPostById(Long id) {
+        return postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+
     }
 
     public void deletePost(Long id) {

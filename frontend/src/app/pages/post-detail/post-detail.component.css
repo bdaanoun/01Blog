@@ -88,7 +88,8 @@
   gap: 1rem;
 }
 
-.author-avatar , .avatar-initial{
+.author-avatar,
+.avatar-initial {
   width: 48px;
   height: 48px;
   border: solid 1px #000;
@@ -101,7 +102,8 @@
   font-size: 1.125rem;
   font-weight: 600;
 }
- /* {
+
+/* {
   font-weight: 600;
   color: #ccc;
 } */
@@ -419,4 +421,90 @@
 .comment-submit:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* edit posts */
+.edit-button {
+  border: 1px solid #d1d5db;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+.edit-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.edit-label {
+  display: block;
+  margin: 0.75rem 0 0.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+}
+
+.edit-textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  font-family: monospace;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-save,
+.btn-cancel {
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-save {
+  background: #111827;
+  color: white;
+}
+
+.btn-cancel {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.edit-error {
+  margin-top: 0.75rem;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.editorjs-container {
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 12px;
+  background: white;
+  min-height: 250px;
+}
+
+/* banner wkda */
+.current, .banner-preview {
+  width: 100%;
+  height: auto;
+  display: block;
 }

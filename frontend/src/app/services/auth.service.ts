@@ -207,11 +207,12 @@ export class AuthService {
   // Get user ID from token
   getUserIdFromToken(): string | null {
     const token = this.getToken();
-    if (!token) {
-      return null;
-    }
-    const decoded = this.decodeToken(token);
+    if (!token) return null;
 
-    return decoded?.id || decoded?.sub || null;
+    const decoded = this.decodeToken(token);
+    const id = decoded?.id;
+
+    return id != null ? String(id) : null;
   }
+
 }
