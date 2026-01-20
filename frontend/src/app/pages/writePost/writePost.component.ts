@@ -37,7 +37,7 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     const token = localStorage.getItem('authToken');
-    
+
     this.editor = new EditorJS({
       holder: this.editorRef.nativeElement,
       placeholder: 'Write your post content here...',
@@ -68,43 +68,44 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
               'Authorization': `Bearer ${token}`
             },
             uploader: {
-              /**
-               * Upload file to the server and return an uploaded image data
-               * @param {File} file - file selected from the device or pasted by drag-n-drop
-               * @return {Promise.<{success, file: {url}}>}
-               */
               uploadByFile: async (file: File) => {
+                const token = localStorage.getItem('authToken');
                 const formData = new FormData();
                 formData.append('image', file);
 
                 try {
                   const response = await fetch('http://localhost:8080/api/posts/images/temp', {
                     method: 'POST',
-                    headers: {
-                      'Authorization': `Bearer ${token}`
-                    },
+                    headers: { Authorization: `Bearer ${token ?? ''}` },
                     body: formData
                   });
 
+                  // ---- ERROR ----
                   if (!response.ok) {
-                    throw new Error('Upload failed');
+                    let message = 'Upload failed';
+
+                    try {
+                      const data = await response.json();      // { message: "..." }
+                      message = data?.message || message;
+                    } catch {
+                      const txt = await response.text();
+                      message = txt || message;
+                    }
+
+                    return { success: 0, message };
                   }
 
                   const data = await response.json();
-                  console.log('Image uploaded:', data);
-                  console.log("image:  ",data);
-                  
 
-                  return data; // Should return { success: 1, file: { url: "..." } }
-                  
-                } catch (error) {
-                  console.error('Error uploading image:', error);
-                  return {
-                    success: 0,
-                    message: 'Upload failed'
-                  };
+                  if (data?.success === 1 && data?.file?.url) return data;
+
+                  return { success: 0, message: 'Upload failed: invalid server response.' };
+
+                } catch {
+                  return { success: 0, message: 'Network error while uploading.' };
                 }
               }
+
             }
           }
         }
@@ -150,7 +151,7 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
 
     const file = input.files[0];
     const token = localStorage.getItem('authToken');
-    
+
     // Upload to server instead of creating blob URL
     const formData = new FormData();
     formData.append('image', file);
@@ -162,19 +163,19 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
       },
       body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success === 1) {
-        const index = this.editor.blocks.getCurrentBlockIndex() + 1;
-        this.editor.blocks.insert('image', { 
-          file: { url: data.file.url } 
-        }, {}, index);
-      }
-    })
-    .catch(error => {
-      console.error('Error uploading image:', error);
-      alert('Failed to upload image');
-    });
+      .then(response => response.json())
+      .then(data => {
+        if (data.success === 1) {
+          const index = this.editor.blocks.getCurrentBlockIndex() + 1;
+          this.editor.blocks.insert('image', {
+            file: { url: data.file.url }
+          }, {}, index);
+        }
+      })
+      .catch(error => {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image');
+      });
 
     input.value = '';
   }
@@ -198,26 +199,26 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
   }
 
   async saveContent() {
-    if (!this.title.trim()) { 
-      alert('Please enter a title.'); 
-      return; 
+    if (!this.title.trim()) {
+      alert('Please enter a title.');
+      return;
     }
 
     try {
       const editorData = await this.editor.save();
       const formData = new FormData();
-      
+
       if (this.bannerFile) {
         formData.append('banner', this.bannerFile);
       }
-      
+
       formData.append('title', this.title);
       formData.append('content', JSON.stringify(editorData));
-      
+
       console.log("Editor data:", editorData);
-      
+
       const token = localStorage.getItem("authToken");
-      
+
       const response = await fetch('http://localhost:8080/api/posts', {
         method: 'POST',
         headers: {

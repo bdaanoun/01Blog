@@ -1,11 +1,8 @@
 // post-detail.component.ts
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+// import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
+
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -68,8 +65,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     private postService: PostService,
     private commentService: CommentService,
     private sanitizer: DomSanitizer,
+    private dialog: MatDialog,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const postId = this.route.snapshot.paramMap.get('id');
@@ -81,9 +79,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.cleanupBannerPreview();
   }
 
-  
+
   // Load post & comments
-  
+
   loadPost(id: number): void {
     this.loading = true;
     this.error = null;
@@ -141,9 +139,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  
+
   // Render helpers
-  
+
   parseEditorJSContent(content: string): any[] {
     try {
       const editorData = JSON.parse(content);
@@ -227,9 +225,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  
+
   // Edit permissions
-  
+
   canEdit(): boolean {
     if (!this.post) return false;
 
@@ -239,9 +237,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     return myId !== null && myId === this.post.userId;
   }
 
-  
+
   // Banner edit handlers
-  
+
   onBannerSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -278,9 +276,17 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.removeBannerFlag = false;
   }
 
-  
+
+  // private showErrorPopup(message: string) {
+  //   this.dialog.open(ErrorDialogComponent, {
+  //     width: '380px',
+  //     data: { message }
+  //   });
+  // }
+
+
   // Edit Post (EditorJS)
-  
+
   startEdit(): void {
     if (!this.post) return;
 
@@ -337,22 +343,41 @@ export class PostDetailComponent implements OnInit, OnDestroy {
                   const response = await fetch('http://localhost:8080/api/posts/images/temp', {
                     method: 'POST',
                     headers: {
-                      Authorization: `Bearer ${token}`
+                      Authorization: `Bearer ${token ?? ''}`,
                     },
-                    body: formData
+                    body: formData,
                   });
 
+                  //  error response (413, 401, 500...)
                   if (!response.ok) {
-                    const txt = await response.text();
-                    throw new Error(txt || 'Upload failed');
+                    let message = 'Upload failed';
+
+                    try {
+                      const data = await response.json();
+                      message = data?.message || message;
+                    } catch {
+                      const txt = await response.text();
+                      message = txt || message;
+                    }
+
+                    return { success: 0, message: message };
                   }
 
-                  return await response.json(); // { success: 1, file: { url } }
+                  const data = await response.json();
+
+                  // safety: if backend returns something else, still show error
+                  if (data?.success !== 1 || !data?.file?.url) {
+                    return { success: 0, message: 'Upload failed: invalid server response.' };
+                  }
+
+                  return data;
+
                 } catch (err) {
                   console.error('Image upload failed:', err);
-                  return { success: 0, message: 'Upload failed' };
+                  return { success: 0, message: 'Network error while uploading.' };
                 }
               }
+
             }
           }
         }

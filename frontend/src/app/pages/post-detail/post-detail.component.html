@@ -7,7 +7,7 @@
 
   <!-- Error State -->
   <div *ngIf="error" class="error">
-    <p>{{ error }}</p>
+    <p> {{ error }}</p>
     <button routerLink="/home" class="back-btn">Back to Home</button>
   </div>
 
@@ -20,10 +20,8 @@
       <div class="post-meta">
         <div class="author-info">
           <div [routerLink]="['/profile', post.userId]" class="avatar-initial">
-            <img *ngIf="post.authorAvatar; else initial"
-                 class="author-avatar"
-                 [src]="getBannerUrl(post.authorAvatar)"
-                 alt="avatar" />
+            <img *ngIf="post.authorAvatar; else initial" class="author-avatar" [src]="getBannerUrl(post.authorAvatar)"
+              alt="avatar" />
 
             <ng-template #initial>
               {{ getUserInitial(post.authorName) }}
@@ -41,21 +39,16 @@
         </div>
 
         <div class="post-actions">
-          <button *ngIf="canEdit()"
-                  class="edit-button"
-                  (click)="startEdit()"
-                  [disabled]="isEditing">
+          <button *ngIf="canEdit()" class="edit-button" (click)="startEdit()" [disabled]="isEditing">
             Edit
           </button>
 
-          <button class="like-button"
-                  [class.liked]="post.likedByCurrentUser"
-                  (click)="toggleLike()"
-                  [attr.aria-label]="post.likedByCurrentUser ? 'Unlike' : 'Like'">
+          <button class="like-button" [class.liked]="post.likedByCurrentUser" (click)="toggleLike()"
+            [attr.aria-label]="post.likedByCurrentUser ? 'Unlike' : 'Like'">
             <svg width="24" height="24" viewBox="0 0 24 24"
-                 [attr.fill]="post.likedByCurrentUser ? 'currentColor' : 'none'"
-                 stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              [attr.fill]="post.likedByCurrentUser ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
             <span *ngIf="post.likesCount > 0">{{ post.likesCount }}</span>
           </button>
@@ -107,17 +100,13 @@
     <!-- Post Content (EditorJS Blocks) -->
     <div class="post-content" *ngIf="!isEditing">
       <div *ngFor="let block of renderedContent" class="content-block">
-        <p *ngIf="block.type === 'paragraph'"
-           class="paragraph"
-           [innerHTML]="getSafeHtml(block.data.text)"></p>
+        <p *ngIf="block.type === 'paragraph'" class="paragraph" [innerHTML]="getSafeHtml(block.data.text)"></p>
 
-        <h2 *ngIf="block.type === 'header' && block.data.level === 2"
-            class="heading-2"
-            [innerHTML]="getSafeHtml(block.data.text)"></h2>
+        <h2 *ngIf="block.type === 'header' && block.data.level === 2" class="heading-2"
+          [innerHTML]="getSafeHtml(block.data.text)"></h2>
 
-        <h3 *ngIf="block.type === 'header' && block.data.level === 3"
-            class="heading-3"
-            [innerHTML]="getSafeHtml(block.data.text)"></h3>
+        <h3 *ngIf="block.type === 'header' && block.data.level === 3" class="heading-3"
+          [innerHTML]="getSafeHtml(block.data.text)"></h3>
 
         <ul *ngIf="block.type === 'list' && block.data.style === 'unordered'" class="list">
           <li *ngFor="let item of block.data.items" [innerHTML]="getSafeHtml(item.content)"></li>
@@ -130,8 +119,7 @@
         <ul *ngIf="block.type === 'list' && block.data.style === 'checklist'" class="checklist">
           <li *ngFor="let item of block.data.items" class="checklist-item">
             <input type="checkbox" [checked]="item.meta?.checked" disabled />
-            <span [class.checked]="item.meta?.checked"
-                  [innerHTML]="getSafeHtml(item.content)"></span>
+            <span [class.checked]="item.meta?.checked" [innerHTML]="getSafeHtml(item.content)"></span>
           </li>
         </ul>
 
@@ -152,10 +140,7 @@
     <div class="comment-list" *ngIf="!commentsLoading && !commentsError && comments.length > 0">
       <div class="comment" *ngFor="let c of comments">
         <div class="comment-avatar" [routerLink]="['/profile', c.authorId]">
-          <img *ngIf="c.avatar; else cInitial"
-               class="comment-avatar"
-               [src]="getBannerUrl(c.avatar)"
-               alt="avatar" />
+          <img *ngIf="c.avatar; else cInitial" class="comment-avatar" [src]="getBannerUrl(c.avatar)" alt="avatar" />
           <ng-template #cInitial>
             {{ getUserInitial(c.authorName) }}
           </ng-template>
@@ -173,9 +158,7 @@
 
     <div class="comment-form">
       <textarea [formControl]="commentControl" placeholder="Write a comment..." rows="3"></textarea>
-      <button class="comment-submit"
-              (click)="submitComment()"
-              [disabled]="submittingComment || commentControl.invalid">
+      <button class="comment-submit" (click)="submitComment()" [disabled]="submittingComment || commentControl.invalid">
         {{ submittingComment ? 'Posting...' : 'Post comment' }}
       </button>
     </div>

@@ -163,7 +163,10 @@ export class SettingsComponent implements OnInit {
         this.selectedAvatarFile = file;
 
         // preview
+        console.log("fiiile:  ", this.selectedAvatarFile);
+        
         this.avatarPreviewUrl = URL.createObjectURL(file);
+        
     }
 
     removeAvatar(): void {
@@ -218,7 +221,6 @@ export class SettingsComponent implements OnInit {
                 this.isEditing = false;
                 this.form.disable();
 
-                // refresh preview url (if backend returns avatar url)
                 if (updated.avatar) this.avatarPreviewUrl = updated.avatar;
                 this.selectedAvatarFile = null;
             },

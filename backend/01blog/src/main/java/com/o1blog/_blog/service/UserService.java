@@ -8,8 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.UserProfileResponse;
-import com.o1blog._blog.exection.EmailAlreadyTakenException;
-import com.o1blog._blog.exection.UsernameAlreadyTakenException;
+import com.o1blog._blog.exeption.EmailAlreadyTakenException;
+import com.o1blog._blog.exeption.UsernameAlreadyTakenException;
 import com.o1blog._blog.model.Follow;
 import com.o1blog._blog.model.User;
 import com.o1blog._blog.repository.FollowRepository;

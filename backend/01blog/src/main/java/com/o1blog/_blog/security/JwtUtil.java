@@ -6,6 +6,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.o1blog._blog.model.User;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,9 +59,10 @@ public class JwtUtil {
     }
 
     // Generate token for user
-    public String generateToken(String username, long id) {
+    public String generateToken(String username, long id, User.Role role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", id);
+        claims.put("role", role.name());
         return createToken(claims, username);
     }
 

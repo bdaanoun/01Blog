@@ -3,19 +3,18 @@ package com.o1blog._blog.controller;
 // import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.o1blog._blog.dto.PostResponse;
-import com.o1blog._blog.dto.UpdatePostRequest;
 import com.o1blog._blog.model.Post;
 import com.o1blog._blog.repository.LikeRepository;
 import com.o1blog._blog.security.CustomUserDetails;
 import com.o1blog._blog.service.FileStorageService;
 import com.o1blog._blog.service.PostService;
 
+import org.springframework.http.MediaType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-// import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -91,19 +90,16 @@ public class PostController {
         Long currentUserId = getCurrentUserId();
 
         Post post = postService.getPostById(id);
-        // .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Post not found"));
-
-        // System.out.println("post l flani: "+ post.get);
         return ResponseEntity.ok(mapToResponse(post, currentUserId));
     }
 
     // ediit post
-    @PatchMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(
-            @PathVariable Long id,
-            @RequestBody UpdatePostRequest req) {
-        Long currentUserId = getCurrentUserId(); // from SecurityContext (id from JWT)
-        Post updated = postService.updatePost(id, currentUserId, req.getTitle(), req.getContent());
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestPart("title") String title,
+            @RequestPart("content") String content,
+            @RequestPart(value = "banner", required = false) MultipartFile banner) {
+        Long currentUserId = getCurrentUserId();
+        Post updated = postService.updatePost(id, currentUserId, title, content, banner);
 
         long likesCount = likeRepository.countByPostId(updated.getId());
         boolean liked = likeRepository.existsByPostIdAndUserId(updated.getId(), currentUserId);

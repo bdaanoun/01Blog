@@ -1,4 +1,4 @@
-package com.o1blog._blog.exection;
+package com.o1blog._blog.exeption;
 
 public class UsernameAlreadyTakenException extends RuntimeException {
     public UsernameAlreadyTakenException() {

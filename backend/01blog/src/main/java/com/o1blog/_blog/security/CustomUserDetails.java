@@ -30,25 +30,6 @@ public class CustomUserDetails implements UserDetails {
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
-    // @Override
-    // public String getUsername() {
-    // return username;
-    // }
-
-    // public String getEmail() {
-    // return email;
-    // }
-
-    // // Add a getter for the actual username if you need it
-    // public String getDisplayUsername() {
-    // return username;
-    // }
-
-    // @Override
-    // public String getPassword() {
-    // return password;
-    // }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;

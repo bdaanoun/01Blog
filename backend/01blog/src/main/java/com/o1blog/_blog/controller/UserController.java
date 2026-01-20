@@ -58,16 +58,14 @@ public class UserController {
     public UserProfileResponse updateProfile(@PathVariable Long id,
             @RequestPart(required = false) MultipartFile avatar,
             @RequestPart("data") UpdateProfileRequest req) {
-        System.out.println("updateeed" + req);
         Long currentUserId = getCurrentUserId();
-        // System.out.println();
         return userService.updateProfile(id, currentUserId, req.getUsername(), req.getEmail(), req.getBio(), avatar);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-    }
+    // @DeleteMapping("/{id}")
+    // public void deleteUser(@PathVariable Long id) {
+    //     userService.deleteUser(id);
+    // }
 
     @GetMapping("/{id}/posts")
     public List<PostResponse> getUserPosts(@PathVariable Long id) {

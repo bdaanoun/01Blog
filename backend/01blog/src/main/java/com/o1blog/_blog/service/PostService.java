@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.o1blog._blog.dto.PostResponse;
-import com.o1blog._blog.exection.PostNotFoundException;
+import com.o1blog._blog.exeption.PostNotFoundException;
 import com.o1blog._blog.model.Follow;
 import com.o1blog._blog.model.Like;
 import com.o1blog._blog.model.Notification;
@@ -40,7 +40,7 @@ public class PostService {
     public Post createPost(CustomUserDetails userDetails, String title, String content, MultipartFile banner) {
         try {
             System.out.println("=== CREATE POST START ===");
-            System.out.println("User ID: " + userDetails.getId());
+            // System.out.println("User ID: " + userDetails.getId());
             // System.out.println("Title: " + title);
             // System.out.println("Content length: " + (content != null ? content.length() :
             // "null"));
@@ -202,7 +202,7 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Long postId, Long currentUserId, String title, String content) {
+    public Post updatePost(Long postId, Long currentUserId, String title, String content, MultipartFile banner) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
@@ -212,6 +212,10 @@ public class PostService {
 
         if (title != null && !title.isBlank())
             post.setTitle(title);
+        if (banner != null && !banner.isEmpty()) {
+            String bannerPath = fileStorageService.save(banner);
+            post.setBanner(bannerPath);
+        }
         if (content != null && !content.isBlank())
             post.setContent(processEditorJSImages(content));
 
