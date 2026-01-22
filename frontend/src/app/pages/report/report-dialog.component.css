@@ -1,0 +1,15 @@
+.report-content {
+    padding-top: 8px;
+}
+
+.full {
+    width: 100%;
+}
+
+.report-actions {
+    padding: 8px 16px 16px;
+}
+
+button[mat-flat-button] {
+    min-width: 120px;
+}

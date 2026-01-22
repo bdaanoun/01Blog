@@ -18,6 +18,8 @@ import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
 import ImageTool from '@editorjs/image';
 
+import { ReportDialogComponent } from '../report/report-dialog.component';
+
 @Component({
   selector: 'app-post-detail',
   standalone: true,
@@ -77,6 +79,51 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroyEditEditor();
     this.cleanupBannerPreview();
+  }
+
+  //report 
+  isLoggedIn(): boolean {
+    const myIdStr = this.authService.getUserIdFromToken();
+    return !!myIdStr;
+  }
+
+  isMyPost(): boolean {
+    if (!this.post) return false;
+    const myIdStr = this.authService.getUserIdFromToken();
+    const myId = myIdStr ? Number(myIdStr) : null;
+    return myId !== null && myId === this.post.userId;
+  }
+
+  reporting = false;
+
+  openReport(): void {
+    if (!this.post) return;
+
+    // extra safety: don't allow reporting your own post
+    if (this.canEdit()) return;
+
+    const dialogRef = this.dialog.open(ReportDialogComponent, {
+      width: '420px',
+      data: { postId: this.post.id }
+    });
+
+    dialogRef.afterClosed().subscribe((reason: string | null) => {
+      if (!reason || !this.post || this.reporting) return;
+
+      this.reporting = true;
+
+      this.postService.reportPost(this.post.id, reason).subscribe({
+        next: (res) => {
+          alert(res.message || 'Report sent successfully');
+          this.reporting = false;
+        },
+        error: (err) => {
+          console.error('Report failed:', err);
+          alert(err?.error?.message || 'Failed to report post');
+          this.reporting = false;
+        }
+      });
+    });
   }
 
 

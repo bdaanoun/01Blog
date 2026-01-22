@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { PostService, Post, User } from '../../services/post.service';
 
+import { MatDialog } from '@angular/material/dialog';
+import { ReportDialogComponent } from '../report/report-dialog.component';
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -20,7 +23,9 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private postService: PostService
+    private postService: PostService,
+    private dialog: MatDialog
+
   ) { }
 
   ngOnInit(): void {
@@ -30,6 +35,38 @@ export class ProfileComponent implements OnInit {
       this.loadUserPosts(userId);
     });
   }
+
+  //report user
+  reportingUser = false;
+
+  openReportUser(): void {
+    if (!this.user) return;
+    if (this.isOwnProfile) return;
+
+    const dialogRef = this.dialog.open(ReportDialogComponent, {
+      width: '420px',
+      data: { userId: this.user.id }
+    });
+
+    dialogRef.afterClosed().subscribe((reason: string | null) => {
+      if (!reason || !this.user || this.reportingUser) return;
+
+      this.reportingUser = true;
+
+      this.postService.reportUser(this.user.id, reason).subscribe({
+        next: (res) => {
+          alert(res.message || 'User reported successfully');
+          this.reportingUser = false;
+        },
+        error: (err) => {
+          console.error('Report user failed:', err);
+          alert(err?.error?.message || 'Failed to report user');
+          this.reportingUser = false;
+        }
+      });
+    });
+  }
+
 
   loadUserProfile(userId: number): void {
     this.loading = true;
@@ -62,7 +99,7 @@ export class ProfileComponent implements OnInit {
 
   getAvatarUrl(path: string | null): string {
     console.log("avarrrr", path);
-    
+
     if (!path) return '';
     return `http://localhost:8080/uploads/${path}`;
   }

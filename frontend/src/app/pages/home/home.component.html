@@ -98,19 +98,21 @@
     </div>
 
     <div *ngFor="let writer of writers" class="writer-card">
-      <div class="writer-avatar" [routerLink]="['/profile', writer.id]" (click)="$event.stopPropagation()">
-        <div *ngIf="!writer.avatar" class="avatar-initial">
-          {{ getUserInitial(writer.username) }}
+      <div class="divv">
+        <div class="writer-avatar" [routerLink]="['/profile', writer.id]" (click)="$event.stopPropagation()">
+          <div *ngIf="!writer.avatar" class="avatar-initial">
+            {{ getUserInitial(writer.username) }}
+          </div>
+          <img *ngIf="writer.avatar" [src]="getAvatarUrl(writer.avatar)" [alt]="writer.username">
         </div>
-        <img *ngIf="writer.avatar" [src]="getAvatarUrl(writer.avatar)" [alt]="writer.username">
-      </div>
-
-      <div class="writer-info" [routerLink]="['/profile', writer.id]" (click)="$event.stopPropagation()">
-        <h3 class="writer-name">{{ writer.username }}</h3>
-        <p class="writer-email">{{ writer.email }}</p>
-        <p *ngIf="writer.bio" class="writer-bio">
-          {{ truncate(writer.bio, 10) }}
-        </p>
+  
+        <div class="writer-info" [routerLink]="['/profile', writer.id]" (click)="$event.stopPropagation()">
+          <h3 class="writer-name">{{ writer.username }}</h3>
+          <p class="writer-email">{{ writer.email }}</p>
+          <p *ngIf="writer.bio" class="writer-bio">
+            {{ truncate(writer.bio, 10) }}
+          </p>
+        </div>
       </div>
 
       <button class="follow-button" [class.following]="writer.isFollowing" (click)="toggleFollow(writer, $event)"
