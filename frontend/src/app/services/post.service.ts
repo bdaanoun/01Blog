@@ -66,6 +66,21 @@ export class PostService {
     return this.http.get<Post>(`${this.apiUrl}/${id}`);
   }
 
+  //report post
+  reportPost(postId: number, reason: string) {
+    return this.http.post<{ message: string }>(
+      `http://localhost:8080/api/report/posts/${postId}`,
+      { reason }
+    );
+  }
+  //report user
+  reportUser(userId: number, reason: string) {
+    return this.http.post<{ message: string }>(
+      `http://localhost:8080/api/report/users/${userId}`,
+      { reason }
+    );
+  }
+
   // Toggle like on a post
   toggleLike(postId: number): Observable<{ liked: boolean; likesCount: number }> {
     return this.http.post<{ liked: boolean; likesCount: number }>(
@@ -73,6 +88,7 @@ export class PostService {
       {}
     );
   }
+
 
   //edit post
   updatePost(id: number, body: { title: string; content: string }) {

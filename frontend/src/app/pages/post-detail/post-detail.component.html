@@ -39,9 +39,15 @@
         </div>
 
         <div class="post-actions">
-          <button *ngIf="canEdit()" class="edit-button" (click)="startEdit()" [disabled]="isEditing">
+          <button *ngIf="canEdit(); else reportBtn" class="edit-button" (click)="startEdit()" [disabled]="isEditing">
             Edit
           </button>
+          <!-- report-button -->
+          <ng-template #reportBtn>
+            <button class="report-button" (click)="openReport()" [disabled]="reporting">
+              Report
+            </button>
+          </ng-template>
 
           <button class="like-button" [class.liked]="post.likedByCurrentUser" (click)="toggleLike()"
             [attr.aria-label]="post.likedByCurrentUser ? 'Unlike' : 'Like'">
