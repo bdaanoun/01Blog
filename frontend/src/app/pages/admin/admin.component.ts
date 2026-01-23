@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 
@@ -8,24 +9,39 @@ type AdminUser = {
     username: string;
     email: string;
     role?: string;
-    status?: string;
+    status?: 'ACTIVE' | 'BANNED' | string;
     avatar?: string | null;
 };
+
 
 type ReportedPost = {
     reportId: number;
     postId: number;
     reason: string;
-    reporterId?: number;
+    reporterId: number;
     reporterUsername?: string;
-    createdAt?: string;
+    authorId: number;
+    authorUsername?: string;
+    reportedAt?: string;
     status?: 'OPEN' | 'RESOLVED' | string;
 };
+
+type ReportedUser = {
+    reportId: number;
+    reportedUserId: number;
+    reportedUsername?: string;
+    reporterId: number;
+    reporterUsername?: string;
+    reason: string;
+    reportedAt?: string;
+    status?: 'OPEN' | 'RESOLVED' | string;
+};
+
 
 @Component({
     selector: 'app-admin',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './admin.component.html',
     styleUrls: ['./admin.component.css'],
 })
@@ -33,13 +49,20 @@ export class AdminComponent implements OnInit {
 
     constructor(private http: HttpClient) { }
 
-    activeTab: 'users' | 'reports' = 'users';
+    // activeTab: 'users' | 'reports' = 'users';
+    activeTab: 'users' | 'reports' | 'userReports' = 'users';
 
     users: AdminUser[] = [];
     reports: ReportedPost[] = [];
+    userReports: ReportedUser[] = [];
+
+    userReportsLoading = false;
+    userReportsError = '';
+
 
     usersLoading = false;
     reportsLoading = false;
+    isForbidden = false;
 
     usersError = '';
     reportsError = '';
@@ -50,19 +73,95 @@ export class AdminComponent implements OnInit {
     ngOnInit(): void {
         this.loadUsers();
     }
+    banUser(user: AdminUser) {
+        this.http.patch(`${this.adminBase}/users/${user.id}/ban`, {}).subscribe({
+            next: () => {
+                user.status = 'BANNED';
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to ban user')
+        });
+    }
 
-    //UI actions
-    switchTab(tab: 'users' | 'reports') {
+    unbanUser(user: AdminUser) {
+        this.http.patch(`${this.adminBase}/users/${user.id}/unban`, {}).subscribe({
+            next: () => {
+                user.status = 'ACTIVE';
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to unban user')
+        });
+    }
+    resolvePostReport(r: ReportedPost) {
+        this.http.patch(`${this.adminBase}/post-reports/${r.reportId}/resolve`, {}).subscribe({
+            next: () => {
+                r.status = 'RESOLVED';
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to resolve report')
+        });
+    }
+    resolveUserReport(r: ReportedUser) {
+        this.http.patch(`${this.adminBase}/user-reports/${r.reportId}/resolve`, {}).subscribe({
+            next: () => {
+                r.status = 'RESOLVED';
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to resolve report')
+        });
+    }
+    askBanUser(u: AdminUser) {
+        this.openConfirm(`Ban "${u.username}"?`, () => this.banUser(u));
+    }
+
+    askUnbanUser(u: AdminUser) {
+        this.openConfirm(`Unban "${u.username}"?`, () => this.unbanUser(u));
+    }
+
+    askResolvePostReport(r: ReportedPost) {
+        this.openConfirm(`Mark report #${r.reportId} as RESOLVED?`, () => this.resolvePostReport(r));
+    }
+
+    askResolveUserReport(r: ReportedUser) {
+        this.openConfirm(`Mark report #${r.reportId} as RESOLVED?`, () => this.resolveUserReport(r));
+    }
+
+    //actions
+    switchTab(tab: 'users' | 'reports' | 'userReports') {
         this.activeTab = tab;
 
         if (tab === 'users' && this.users.length === 0) this.loadUsers();
         if (tab === 'reports' && this.reports.length === 0) this.loadReports();
+        if (tab === 'userReports' && this.userReports.length === 0) this.loadUserReports();
+    }
+    loadUserReports() {
+        this.userReportsLoading = true;
+        this.userReportsError = '';
+
+        this.http.get<ReportedUser[]>(`${this.adminBase}/reported-users`).subscribe({
+            next: (data) => {
+                this.userReports = Array.isArray(data) ? data : [];
+                this.userReportsLoading = false;
+            },
+            error: (err) => {
+                if (err.status === 403) {
+                    this.userReportsError = "You don't have access here";
+                    this.userReportsLoading = false;
+                    this.isForbidden = true;
+                    return;
+                }
+
+                const msg =
+                    err?.error?.message ||
+                    (typeof err?.error === 'string' ? err.error : '') ||
+                    err?.message ||
+                    `Failed to load reported users (${err.status})`;
+
+                this.userReportsError = msg;
+                this.userReportsLoading = false;
+            }
+        });
     }
 
-    //API calls (using fetch so you don't need HttpClient setup here)
-    loadUsers() {
-        // console.log("users; ", this.users);
 
+
+    loadUsers() {
         this.usersLoading = true;
         this.usersError = '';
 
@@ -72,6 +171,12 @@ export class AdminComponent implements OnInit {
                 this.usersLoading = false;
             },
             error: (err) => {
+                if (err.status == 403) {
+                    this.usersError = "You don't have access here";
+                    this.usersLoading = false;
+                    this.isForbidden = true;
+                    return;
+                }
                 this.usersError =
                     err?.error?.message ||
                     `Failed to load users (${err.status})`;
@@ -82,26 +187,15 @@ export class AdminComponent implements OnInit {
 
 
 
-    async deleteUser(user: AdminUser) {
-        const ok = confirm(`Delete user "${user.username}"? This cannot be undone.`);
-        if (!ok) return;
-
-        try {
-            const res = await fetch(`${this.adminBase}/users/${user.id}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            });
-
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text || `Failed to delete user (${res.status})`);
+    deleteUser(user: AdminUser) {
+        this.http.delete(`${this.adminBase}/users/${user.id}`).subscribe({
+            next: () => {
+                this.users = this.users.filter(u => u.id !== user.id);
+            },
+            error: (err) => {
+                alert(err?.error?.message || 'Failed to delete user');
             }
-
-            // remove from UI
-            this.users = this.users.filter(u => u.id !== user.id);
-        } catch (e: any) {
-            alert(e?.message || 'Failed to delete user');
-        }
+        });
     }
 
     loadReports() {
@@ -114,6 +208,14 @@ export class AdminComponent implements OnInit {
                 this.reportsLoading = false;
             },
             error: (err) => {
+
+                if (err.status === 403) {
+                    this.reportsError = "You don't have access here";
+                    this.reportsLoading = false;
+                    this.isForbidden = true;
+                    return;
+                }
+
                 const msg =
                     err?.error?.message ||
                     (typeof err?.error === 'string' ? err.error : '') ||
@@ -127,26 +229,51 @@ export class AdminComponent implements OnInit {
     }
 
 
-    async deletePostFromReport(r: ReportedPost) {
-        const ok = confirm(`Delete post #${r.postId}? (reported)`);
-        if (!ok) return;
-
-        try {
-            const res = await fetch(`${this.adminBase}/posts/${r.postId}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            });
-
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text || `Failed to delete post (${res.status})`);
+    deletePost(postId: number, reportId: number) {
+        this.http.delete(`${this.adminBase}/posts/${postId}`).subscribe({
+            next: () => {
+                this.reports = this.reports.filter(r => r.reportId !== reportId);
+            },
+            error: (err) => {
+                alert(err?.error?.message || 'Failed to delete post');
             }
+        });
+    }
 
-            // Option 1: remove the report row after deleting the post
-            this.reports = this.reports.filter(x => x.reportId !== r.reportId);
-        } catch (e: any) {
-            alert(e?.message || 'Failed to delete post');
-        }
+    confirmMessage = '';
+    confirmAction: (() => void) | null = null;
+    showConfirm = false;
+
+    openConfirm(message: string, action: () => void) {
+        this.confirmMessage = message;
+        this.confirmAction = action;
+        this.showConfirm = true;
+    }
+
+    confirmYes() {
+        this.showConfirm = false;
+        this.confirmAction?.();
+        this.confirmAction = null;
+    }
+
+
+    confirmNo() {
+        this.showConfirm = false;
+        this.confirmAction = null;
+    }
+
+    askDeleteUser(user: AdminUser) {
+        this.openConfirm(
+            `Delete user "${user.username}"? This cannot be undone.`,
+            () => this.deleteUser(user)
+        );
+    }
+
+    askDeletePost(r: ReportedPost) {
+        this.openConfirm(
+            `Delete post #${r.postId}?`,
+            () => this.deletePost(r.postId, r.reportId!)
+        );
     }
 
     // helpers

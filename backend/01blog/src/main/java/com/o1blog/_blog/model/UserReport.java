@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+
 @Entity
 @Table(name = "user_reports")
 @Data
@@ -17,7 +18,10 @@ public class UserReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // The user that is being reported
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reporter_id", nullable = false)
+    private User reporter;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reported_user_id", nullable = false)
     private User reportedUser;

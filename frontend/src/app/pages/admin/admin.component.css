@@ -221,3 +221,26 @@ h1 {
     padding: 14px;
     color: #6b7280;
 }
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 320px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+}

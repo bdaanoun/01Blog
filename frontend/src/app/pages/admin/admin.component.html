@@ -1,144 +1,245 @@
 <div class="admin-page">
-    <div class="admin-header">
-        <div>
-            <h1>Admin Panel</h1>
-            <p class="sub">Manage users and reported posts</p>
-        </div>
 
-        <div class="tabs">
-            <button class="tab" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
-                Users
-            </button>
-
-            <button class="tab" [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">
-                Reported Posts
-            </button>
-        </div>
+    <div class="state error" *ngIf="isForbidden">
+        {{ usersError }}
     </div>
 
-    <!-- USERS TAB -->
-    <section class="card" *ngIf="activeTab === 'users'">
-        <div class="card-head">
-            <h2>All Users</h2>
-            <button class="ghost" (click)="loadUsers()" [disabled]="usersLoading">
-                Refresh
-            </button>
-        </div>
+    <ng-container *ngIf="!isForbidden">
 
-        <div class="state" *ngIf="usersLoading">Loading users...</div>
-        <div class="state error" *ngIf="usersError">{{ usersError }}</div>
+        <div class="admin-header">
+            <div>
+                <h1>Admin Panel</h1>
+                <p class="sub">Manage users and reported posts</p>
+            </div>
 
-        <div class="table-wrap" *ngIf="!usersLoading && !usersError">
-            <table class="table" *ngIf="users.length; else noUsers">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th class="right">Actions</th>
-                    </tr>
-                </thead>
+            <div class="tabs">
+                <button class="tab" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
+                    Users
+                </button>
 
-                <tbody>
-                    <tr *ngFor="let u of users">
-                        <td class="mono">{{ u.id }}</td>
+                <button class="tab" [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">
+                    Reported Posts
+                </button>
 
-                        <td>
-                            <div class="user-cell">
-                                <div class="avatar">
-                                    <img *ngIf="u.avatar; else initial" [src]="'http://localhost:8080/uploads/' + u.avatar"
-                                        alt="avatar" />
-                                    <ng-template #initial>
-                                        <span class="initial">{{ (u.username || '?')[0] | uppercase }}</span>
-                                    </ng-template>
-                                </div>
-
-                                <div class="user-meta">
-                                    <div class="username">{{ safeText(u.username) }}</div>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td class="muted">{{ safeText(u.email) }}</td>
-                        <td><span class="pill">{{ safeText(u.role, 'USER') }}</span></td>
-                        <td>
-                            <span class="pill" [class.warn]="(u.status || '').toLowerCase() !== 'active'">
-                                {{ safeText(u.status, 'ACTIVE') }}
-                            </span>
-                        </td>
-
-                        <td class="right">
-                            <button class="danger" (click)="deleteUser(u)">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <ng-template #noUsers>
-                <div class="empty">No users found.</div>
-            </ng-template>
-        </div>
-    </section>
-
-    <!-- REPORTED POSTS TAB -->
-    <section class="card" *ngIf="activeTab === 'reports'">
-        <div class="card-head">
-            <h2>Reported Posts</h2>
-            <button class="ghost" (click)="loadReports()" [disabled]="reportsLoading">
-                Refresh
-            </button>
-        </div>
-
-        <div class="state" *ngIf="reportsLoading">Loading reports...</div>
-        <div class="state error" *ngIf="reportsError">
-            {{ reportsError }}
-            <div class="hint">
-                (Backend needed: GET /api/admin/reported-posts)
+                <button class="tab" [class.active]="activeTab === 'userReports'" (click)="switchTab('userReports')">
+                    Reported Users
+                </button>
             </div>
         </div>
 
-        <div class="table-wrap" *ngIf="!reportsLoading && !reportsError">
-            <table class="table" *ngIf="reports.length; else noReports">
-                <thead>
-                    <tr>
-                        <th>Report</th>
-                        <th>Post</th>
-                        <th>Reason</th>
-                        <th>Reporter</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th class="right">Actions</th>
-                    </tr>
-                </thead>
+        <!-- USERS TAB -->
+        <section class="card" *ngIf="activeTab === 'users'">
+            <div class="card-head">
+                <h2>All Users</h2>
+                <button class="ghost" (click)="loadUsers()" [disabled]="usersLoading">
+                    Refresh
+                </button>
+            </div>
 
-                <tbody>
-                    <tr *ngFor="let r of reports">
-                        <td class="mono">#{{ r.reportId }}</td>
-                        <td class="mono">#{{ r.postId }}</td>
-                        <td>{{ safeText(r.reason) }}</td>
-                        <td>{{ safeText(r.reporterUsername) }}</td>
-                        <td class="muted">{{ formatDate(r.createdAt) }}</td>
-                        <td>
-                            <span class="pill" [class.ok]="(r.status || '').toLowerCase() === 'resolved'">
-                                {{ safeText(r.status, 'OPEN') }}
-                            </span>
-                        </td>
-                        <td class="right">
-                            <button class="danger" (click)="deletePostFromReport(r)">
-                                Delete Post
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="state" *ngIf="usersLoading">Loading users...</div>
+            <div class="state error" *ngIf="usersError">{{ usersError }}</div>
 
-            <ng-template #noReports>
-                <div class="empty">No reported posts 🎉</div>
-            </ng-template>
+            <div class="table-wrap" *ngIf="!usersLoading && !usersError">
+                <table class="table" *ngIf="users.length; else noUsers">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th class="right">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let u of users">
+                            <td class="mono">{{ u.id }}</td>
+
+                            <td>
+                                <div class="user-cell">
+                                    <div class="avatar">
+                                        <img *ngIf="u.avatar; else initial"
+                                            [src]="'http://localhost:8080/uploads/' + u.avatar" alt="avatar" />
+                                        <ng-template #initial>
+                                            <span class="initial">{{ (u.username || '?')[0] | uppercase }}</span>
+                                        </ng-template>
+                                    </div>
+
+                                    <div class="user-meta">
+                                        <div class="username">{{ safeText(u.username) }}</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="muted">{{ safeText(u.email) }}</td>
+
+                            <td>
+                                <span class="pill">{{ safeText(u.role, 'USER') }}</span>
+                            </td>
+
+                            <td>
+                                <span class="pill" [class.warn]="(u.status || '').toLowerCase() !== 'active'">
+                                    {{ safeText(u.status, 'ACTIVE') }}
+                                </span>
+                            </td>
+
+                            <td class="right">
+                                <button class="ghost" *ngIf="(u.status || '').toLowerCase() !== 'banned'"
+                                    (click)="askBanUser(u)">
+                                    Ban
+                                </button>
+
+                                <button class="ghost" *ngIf="(u.status || '').toLowerCase() === 'banned'"
+                                    (click)="askUnbanUser(u)">
+                                    Unban
+                                </button>
+
+                                <button class="danger" (click)="askDeleteUser(u)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <ng-template #noUsers>
+                    <div class="empty">No users found.</div>
+                </ng-template>
+            </div>
+        </section>
+
+        <!-- REPORTED USERS TAB -->
+        <section class="card" *ngIf="activeTab === 'userReports'">
+            <div class="card-head">
+                <h2>Reported Users</h2>
+                <button class="ghost" (click)="loadUserReports()" [disabled]="userReportsLoading">
+                    Refresh
+                </button>
+            </div>
+
+            <div class="state" *ngIf="userReportsLoading">Loading reported users...</div>
+
+            <div class="state error" *ngIf="userReportsError">
+                {{ userReportsError }}
+            </div>
+
+            <div class="table-wrap" *ngIf="!userReportsLoading && !userReportsError">
+                <table class="table" *ngIf="userReports.length; else noUserReports">
+                    <thead>
+                        <tr>
+                            <th>Report</th>
+                            <th>Reported User</th>
+                            <th>Reporter</th>
+                            <th>Reason</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let r of userReports">
+                            <td class="mono">#{{ r.reportId }}</td>
+
+                            <td>
+                                <a [routerLink]="['/profile', r.reportedUserId]">
+                                    {{ safeText(r.reportedUsername) }}
+                                </a>
+                            </td>
+
+                            <td>
+                                <a [routerLink]="['/profile', r.reporterId]">
+                                    {{ safeText(r.reporterUsername) }}
+                                </a>
+                            </td>
+
+                            <td>{{ safeText(r.reason) }}</td>
+
+                            <td class="muted">{{ formatDate(r.reportedAt) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <ng-template #noUserReports>
+                    <div class="empty">No reported users 🎉</div>
+                </ng-template>
+            </div>
+        </section>
+
+        <!-- REPORTED POSTS TAB -->
+        <section class="card" *ngIf="activeTab === 'reports'">
+            <div class="card-head">
+                <h2>Reported Posts</h2>
+                <button class="ghost" (click)="loadReports()" [disabled]="reportsLoading">
+                    Refresh
+                </button>
+            </div>
+
+            <div class="state" *ngIf="reportsLoading">Loading reports...</div>
+            <div class="state error" *ngIf="reportsError">
+                {{ reportsError }}
+            </div>
+
+            <div class="table-wrap" *ngIf="!reportsLoading && !reportsError">
+                <table class="table" *ngIf="reports.length; else noReports">
+                    <thead>
+                        <tr>
+                            <th>Report</th>
+                            <th>Post</th>
+                            <th>Reason</th>
+                            <th>Reporter</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="right">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let r of reports">
+                            <td class="mono">#{{ r.reportId }}</td>
+                            <td class="mono">#{{ r.postId }}</td>
+                            <td>{{ safeText(r.reason) }}</td>
+
+                            <td>
+                                <!-- NOTE: you currently use author fields here. If your DTO has reporter fields, switch to r.reporterId / r.reporterUsername -->
+                                <a [routerLink]="['/profile', r.authorId]">
+                                    {{ safeText(r.authorUsername) }}
+                                </a>
+                            </td>
+
+                            <td class="muted">{{ formatDate(r.reportedAt) }}</td>
+
+                            <td>
+                                <span class="pill" [class.ok]="(r.status || '').toLowerCase() === 'resolved'">
+                                    {{ safeText(r.status, 'OPEN') }}
+                                </span>
+                            </td>
+
+                            <td class="right">
+                                <button class="danger" (click)="askDeletePost(r)">Delete Post</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <ng-template #noReports>
+                    <div class="empty">No reported posts 🎉</div>
+                </ng-template>
+            </div>
+        </section>
+
+    </ng-container>
+
+    <!-- CONFIRM MODAL -->
+    <div class="modal-backdrop" *ngIf="showConfirm">
+        <div class="modal">
+            <h3>Confirm action</h3>
+            <p>{{ confirmMessage }}</p>
+
+            <div class="actions">
+                <button class="danger" (click)="confirmYes()">Yes</button>
+                <button class="ghost" (click)="confirmNo()">Cancel</button>
+            </div>
         </div>
-    </section>
+    </div>
+
 </div>
