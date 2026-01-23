@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/report")
 @RequiredArgsConstructor
-public class ReportPostController {
+public class ReportController {
 
     private final PostRepository postRepository;
     private final PostReportRepository postReportRepository;
