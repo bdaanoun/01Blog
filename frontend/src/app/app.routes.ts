@@ -40,6 +40,13 @@ export const routes: Routes = [
             .then(m => m.LoginComponent)
     },
     {
+        path: 'admin',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/admin/admin.component')
+                .then(m => m.AdminComponent)
+    },
+    {
         path: 'writePost',
         canActivate: [authGuard],
         // component : WritePostComponent
