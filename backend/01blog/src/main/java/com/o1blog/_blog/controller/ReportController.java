@@ -13,6 +13,7 @@ import com.o1blog._blog.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -47,21 +48,44 @@ public class ReportController {
     }
 
     @PostMapping("/users/{userId}")
-    public ResponseEntity<?> reportUser(
-            @PathVariable Long userId,
-            @Valid @RequestBody ReportPostRequest req) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
+    public ResponseEntity<?> reportUser(@PathVariable Long userId, @Valid @RequestBody ReportPostRequest req) {
+
+        Long reporterId = getCurrentUserId();
+        if (reporterId == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+
+        User reporter = userRepository.findById(reporterId).orElse(null);
+        if (reporter == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+
+        User reportedUser = userRepository.findById(userId).orElse(null);
+        if (reportedUser == null) {
             return ResponseEntity.status(404).body(Map.of("message", "User not found"));
         }
 
         UserReport report = UserReport.builder()
-                .reportedUser(user)
+                .reporter(reporter)
+                .reportedUser(reportedUser)
                 .reason(req.getReason().trim())
                 .build();
 
         userReportRepository.save(report);
 
         return ResponseEntity.ok(Map.of("message", "User reported successfully"));
+    }
+
+    private Long getCurrentUserId() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated())
+            return null;
+
+        var principal = auth.getPrincipal();
+        if (principal instanceof com.o1blog._blog.security.CustomUserDetails userDetails) {
+            return userDetails.getId();
+        }
+        return null;
+
     }
 }

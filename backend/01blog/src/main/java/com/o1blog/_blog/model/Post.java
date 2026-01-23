@@ -45,6 +45,13 @@ public class Post {
     @Builder.Default
     private List<Like> likes = new ArrayList<>();
 
+    // Reports
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<PostReport> reports = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
