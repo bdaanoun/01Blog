@@ -239,8 +239,25 @@ h1 {
     width: 320px;
 }
 
+/* .clear {
+    display: flex;
+    border-radius: 8px;
+    align-items: center;
+    padding: 8px;
+}
+
+.clear:hover {
+    background: rgba(0, 0, 0, 0.04);
+} */
+
 .actions {
     display: flex;
     justify-content: flex-end;
     gap: .5rem;
+}
+
+td.right {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
 }

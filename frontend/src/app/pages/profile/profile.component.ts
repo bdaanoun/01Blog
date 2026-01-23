@@ -98,8 +98,6 @@ export class ProfileComponent implements OnInit {
   }
 
   getAvatarUrl(path: string | null): string {
-    console.log("avarrrr", path);
-
     if (!path) return '';
     return `http://localhost:8080/uploads/${path}`;
   }

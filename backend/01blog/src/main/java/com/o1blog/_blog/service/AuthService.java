@@ -55,12 +55,10 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(password));
 
         if (avatar != null && !avatar.isEmpty()) {
-            System.out.println("----filename-----");
 
             // try {
             String filename = fileStorageService.saveAvatar(avatar);
             user.setAvatar(filename);
-            System.out.println("----filename-----" + filename);
 
             // } catch (IOException e) {
             // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -80,6 +78,11 @@ public class AuthService {
                     .orElseGet(() -> userRepository.findByUsername(request.getIdentifier())
                             .orElseThrow(() -> new IllegalArgumentException("User makaynch.")));
 
+            // blocked user cannot login
+            if (user.getStatus() == User.Status.BANNED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new AuthResponse(null, "Account is banned"));
+            }
             // Check password
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 throw new IllegalArgumentException("Invalid email or password");

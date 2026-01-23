@@ -160,7 +160,7 @@
                 </table>
 
                 <ng-template #noUserReports>
-                    <div class="empty">No reported users 🎉</div>
+                    <div class="empty">No reported users</div>
                 </ng-template>
             </div>
         </section>
@@ -186,7 +186,7 @@
                             <th>Report</th>
                             <th>Post</th>
                             <th>Reason</th>
-                            <th>Reporter</th>
+                            <th>Creator</th>
                             <th>Date</th>
                             <th>Status</th>
                             <th class="right">Actions</th>
@@ -215,14 +215,27 @@
                             </td>
 
                             <td class="right">
-                                <button class="danger" (click)="askDeletePost(r)">Delete Post</button>
+                                <!-- Delete post -->
+                                <!-- <button class="icon danger" title="Delete post" (click)="askDeletePost(r)">
+                                    Delete
+                                </button> -->
+                                <button class="danger" (click)="askDeletePost(r)">Delete</button>
+                                <button class="ghost" (click)="clearReport(r)">clear</button>
+
+                                <!-- Clear report (mark as clean) -->
+                                <!-- <button class="icon success" mat-icon-button title="Clear report"
+                                    (click)="clearReport(r)">
+                                    <mat-icon>check_circle</mat-icon>
+                                </button> -->
                             </td>
+
+
                         </tr>
                     </tbody>
                 </table>
 
                 <ng-template #noReports>
-                    <div class="empty">No reported posts 🎉</div>
+                    <div class="empty">No reported posts</div>
                 </ng-template>
             </div>
         </section>
