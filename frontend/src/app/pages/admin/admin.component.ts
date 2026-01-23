@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 
 type AdminUser = {
@@ -37,11 +39,11 @@ type ReportedUser = {
     status?: 'OPEN' | 'RESOLVED' | string;
 };
 
-
+``
 @Component({
     selector: 'app-admin',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule],
     templateUrl: './admin.component.html',
     styleUrls: ['./admin.component.css'],
 })
@@ -73,6 +75,16 @@ export class AdminComponent implements OnInit {
     ngOnInit(): void {
         this.loadUsers();
     }
+    clearReport(r: any) {
+        // TODO: call backend to delete/clear the report
+        // example:
+        // this.adminService.deleteReport(r.reportId).subscribe(() => {
+        //   this.reports = this.reports.filter(x => x.reportId !== r.reportId);
+        // });
+
+        console.log("clear report", r);
+    }
+
     banUser(user: AdminUser) {
         this.http.patch(`${this.adminBase}/users/${user.id}/ban`, {}).subscribe({
             next: () => {

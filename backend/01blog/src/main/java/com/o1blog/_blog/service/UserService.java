@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.UserProfileResponse;
+import com.o1blog._blog.dto.UsersAdminResponse;
 import com.o1blog._blog.exeption.EmailAlreadyTakenException;
 import com.o1blog._blog.exeption.UsernameAlreadyTakenException;
 import com.o1blog._blog.model.Follow;
@@ -15,7 +17,6 @@ import com.o1blog._blog.model.User;
 import com.o1blog._blog.repository.FollowRepository;
 import com.o1blog._blog.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -74,6 +75,20 @@ public class UserService {
                 .collect(Collectors.toList());
 
         return userProfiles;
+    }
+
+    @Transactional(readOnly = true)
+    public List<UsersAdminResponse> getAllUsersForAdmin() {
+        return userRepository.findAll()
+                .stream()
+                .map(u -> UsersAdminResponse.builder()
+                        .id(u.getId())
+                        .avatar(u.getAvatar())
+                        .username(u.getUsername())
+                        .email(u.getEmail())
+                        .status(u.getStatus().toString()) // or .name()
+                        .build())
+                .toList();
     }
 
     public UserProfileResponse getUserProfile(Long userId, Long currentUserId) {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.o1blog._blog.dto.AdminReportedPostResponse;
 import com.o1blog._blog.dto.AdminReportedUsersResponse;
-import com.o1blog._blog.dto.UserProfileResponse;
+import com.o1blog._blog.dto.UsersAdminResponse;
 import com.o1blog._blog.service.AdminService;
 import com.o1blog._blog.service.PostService;
 import com.o1blog._blog.service.UserService;
@@ -44,10 +44,14 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+    }
+
     @GetMapping("/users")
-    public List<UserProfileResponse> getAllUsers() {
-        Long currentUserId = getCurrentUserId();
-        return userService.getAllUsersWithFollowStatus(currentUserId);
+    public List<UsersAdminResponse> getAllUsers() {
+        return userService.getAllUsersForAdmin();
     }
 
     @GetMapping("/reported-users")
@@ -59,11 +63,6 @@ public class AdminController {
     @GetMapping("/reported-posts")
     public List<AdminReportedPostResponse> getReportedPosts() {
         return adminService.getReportedPostsForAdmin();
-    }
-
-    @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
     }
 
     @DeleteMapping("/posts/{id}")

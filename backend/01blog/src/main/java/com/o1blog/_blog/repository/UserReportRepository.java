@@ -1,6 +1,5 @@
 package com.o1blog._blog.repository;
 
-import com.o1blog._blog.dto.AdminReportedUsersResponse;
 import com.o1blog._blog.model.UserReport;
 
 import java.util.List;
