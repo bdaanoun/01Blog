@@ -63,13 +63,14 @@
 
 /* Avatar */
 .avatar-wrapper {
-  /* position: relative;
-  cursor: pointer; */
+  position: relative;
+  /* cursor: pointer; */
   cursor: pointer;
   display: flex;
   gap: 8px;
 }
-.userinfo{
+
+.userinfo {
   display: flex;
   flex-direction: column;
 

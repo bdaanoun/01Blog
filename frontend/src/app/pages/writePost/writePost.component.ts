@@ -6,6 +6,7 @@ import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
 import ImageTool from '@editorjs/image';
+import VideoTool from '../../editor-tools/video.tool';
 
 @Component({
   selector: 'app-write-post',
@@ -18,6 +19,7 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('editor') editorRef!: ElementRef;
   @ViewChild('imageInput') imageInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('videoInput') videoInputRef!: ElementRef<HTMLInputElement>;
 
   editor!: EditorJS;
 
@@ -29,11 +31,11 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
   showSlashMenu = false;
   menuX = 0;
   menuY = 0;
-  slashItems = [
-    { type: 'header', label: 'Header H2' },
-    { type: 'list', label: 'List' },
-    { type: 'image', label: 'Image' }
-  ];
+  // slashItems = [
+  //   { type: 'header', label: 'Header H2' },
+  //   { type: 'list', label: 'List' },
+  //   { type: 'image', label: 'Image' }
+  // ];
 
   ngAfterViewInit(): void {
     const token = localStorage.getItem('authToken');
@@ -48,9 +50,12 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
           class: Header as any,
           inlineToolbar: true,
           config: {
-            levels: [2, 3],
+            levels: [1, 2, 3],
             defaultLevel: 2
           }
+        },
+        video: {
+          class: VideoTool as any,
         },
         list: { class: List as any, inlineToolbar: true },
         paragraph: { class: Paragraph as any },
@@ -129,6 +134,49 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  //video selection
+  onVideoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const token = localStorage.getItem('authToken') ?? '';
+
+    const formData = new FormData();
+    formData.append('video', file);
+
+    fetch('http://localhost:8080/api/posts/videos/temp', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        // expecting: { success: 1, file: { url: "..." } }
+        if (data?.success === 1 && data?.file?.url) {
+          const index = this.editor.blocks.getCurrentBlockIndex() + 1;
+
+          this.editor.blocks.insert(
+            'video',
+            { url: data.file.url },
+            {},
+            index
+          );
+        } else {
+          alert(data?.message || 'Failed to upload video');
+        }
+      })
+      .catch(err => {
+        console.error('Error uploading video:', err);
+        alert('Failed to upload video');
+      });
+
+    input.value = '';
+  }
+
+
   // Slash menu
   checkForSlash(event: KeyboardEvent) {
     const selection = window.getSelection();
@@ -193,10 +241,14 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
       case 'image':
         this.imageInputRef.nativeElement.click();
         break;
+      case 'video':
+        this.videoInputRef.nativeElement.click();
+        break;
     }
 
     this.showSlashMenu = false;
   }
+
 
   async saveContent() {
     if (!this.title.trim()) {

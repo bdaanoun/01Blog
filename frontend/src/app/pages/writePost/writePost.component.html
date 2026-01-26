@@ -1,38 +1,30 @@
 <div class="editor-wrapper">
-
-  <!-- Banner Upload Box -->
+  <!-- Banner Upload -->
   <label class="image-upload-box">
-    <input #fileInput type="file" accept="image/*" (change)="onBannerSelected($event)" hidden />
+    <input type="file" accept="image/*" (change)="onBannerSelected($event)" hidden />
 
-    <!-- Show preview if bannerFile exists -->
     <ng-container *ngIf="bannerPreview; else placeholder">
       <img [src]="bannerPreview" alt="Banner Preview" class="banner-preview" />
     </ng-container>
 
-    <!-- Placeholder when no image selected -->
     <ng-template #placeholder>
       <span class="placeholder-text">Click or drop Banner here</span>
     </ng-template>
+
     <!-- Hidden file input for editor images -->
-    <input #imageInput type="file" (change)="onImageSelected($event)" hidden />
+    <input #imageInput type="file" accept="image/*" (change)="onImageSelected($event)" hidden />
+    <input #videoInput type="file" accept="video/*" (change)="onVideoSelected($event)" hidden />
 
   </label>
 
-  <!-- Title Input -->
+  <!-- Title -->
   <input type="text" id="title" [(ngModel)]="title" placeholder="Untitled" />
 
-  <!-- Editor Body -->
+  <!-- Editor -->
   <div class="editor-container">
     <div #editor class="editor"></div>
   </div>
 
-  <!-- Slash Menu -->
-  <div *ngIf="showSlashMenu" [style.top.px]="menuY" [style.left.px]="menuX" class="slash-menu">
-    <div *ngFor="let item of slashItems" (click)="insertSlashBlock(item)" class="slash-item">
-      {{ item.label }}
-    </div>
-  </div>
-
-  <!-- Save Button -->
+  <!-- Save -->
   <button class="btn-save" (click)="saveContent()">Create Post</button>
 </div>
