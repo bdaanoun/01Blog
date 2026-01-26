@@ -17,6 +17,8 @@ import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
 import ImageTool from '@editorjs/image';
+import { Input } from '@angular/core';
+
 
 import { ReportDialogComponent } from '../report/report-dialog.component';
 
@@ -28,6 +30,10 @@ import { ReportDialogComponent } from '../report/report-dialog.component';
   styleUrl: './post-detail.component.css'
 })
 export class PostDetailComponent implements OnInit, OnDestroy {
+  @Input() postId?: number;
+  @Input() adminPreview = false;
+
+
   post: Post | null = null;
   loading = true;
   error: string | null = null;
@@ -72,9 +78,15 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    const postId = this.route.snapshot.paramMap.get('id');
-    if (postId) this.loadPost(+postId);
+    if (this.postId) {
+      this.loadPost(this.postId);
+      return;
+    }
+
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) this.loadPost(+id);
   }
+
 
   ngOnDestroy(): void {
     this.destroyEditEditor();

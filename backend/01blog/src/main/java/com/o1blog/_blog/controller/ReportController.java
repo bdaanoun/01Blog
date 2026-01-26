@@ -27,6 +27,7 @@ public class ReportController {
     private final PostReportRepository postReportRepository;
     private final UserRepository userRepository;
     private final UserReportRepository userReportRepository;
+    // private final ReportService reportService;
 
     @PostMapping("/posts/{postId}")
     public ResponseEntity<?> reportPost(

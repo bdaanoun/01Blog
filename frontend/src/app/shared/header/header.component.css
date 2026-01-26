@@ -63,8 +63,18 @@
 
 /* Avatar */
 .avatar-wrapper {
-  position: relative;
+  /* position: relative;
+  cursor: pointer; */
   cursor: pointer;
+  display: flex;
+  gap: 8px;
+}
+.userinfo{
+  display: flex;
+  flex-direction: column;
+
+  /* justify-items: end; */
+  align-items: end;
 }
 
 .avatar {
