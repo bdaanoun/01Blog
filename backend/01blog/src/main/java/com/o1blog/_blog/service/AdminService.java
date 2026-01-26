@@ -18,55 +18,54 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminService {
 
-        private final PostReportRepository postReportRepository;
-        private final UserReportRepository userReportRepository;
-        private final UserRepository userRepository;
+    private final PostReportRepository postReportRepository;
+    private final UserReportRepository userReportRepository;
+    private final UserRepository userRepository;
 
-        public List<AdminReportedPostResponse> getReportedPostsForAdmin() {
-                return postReportRepository.findAllByOrderByReportedAtDesc()
-                                .stream()
-                                .map(r -> new AdminReportedPostResponse(
-                                                r.getId(),
-                                                r.getPost().getId(),
-                                                r.getReason(),
-                                                r.getPost().getUser().getId(),
-                                                r.getPost().getUser().getUsername(),
-                                                r.getReportedAt()))
-                                .toList();
-        }
+    public List<AdminReportedPostResponse> getReportedPostsForAdmin() {
+        return postReportRepository.findAllByOrderByReportedAtDesc()
+                .stream()
+                .map(r -> new AdminReportedPostResponse(
+                        r.getId(),
+                        r.getPost().getId(),
+                        r.getReason(),
+                        r.getPost().getUser().getId(),
+                        r.getPost().getUser().getUsername(),
+                        r.getReportedAt()))
+                .toList();
+    }
 
-        @Transactional(readOnly = true)
-        public List<AdminReportedUsersResponse> getReportedUsersForAdmin() {
-                return userReportRepository.findAllByOrderByReportedAtDesc()
-                                .stream()
-                                .map(r -> new AdminReportedUsersResponse(
-                                                r.getId(),
-                                                r.getReportedUser().getId(),
-                                                r.getReportedUser().getUsername(),
-                                                r.getReporter().getId(),
-                                                r.getReporter().getUsername(),
-                                                r.getReason(),
-                                                // r.getStatus(),
-                                                r.getReportedAt()))
-                                .toList();
-        }
+    @Transactional(readOnly = true)
+    public List<AdminReportedUsersResponse> getReportedUsersForAdmin() {
+        return userReportRepository.findAllByOrderByReportedAtDesc()
+                .stream()
+                .map(r -> new AdminReportedUsersResponse(
+                        r.getId(),
+                        r.getReportedUser().getId(),
+                        r.getReportedUser().getUsername(),
+                        r.getReporter().getId(),
+                        r.getReporter().getUsername(),
+                        r.getReason(),
+                        r.getReportedAt()))
+                .toList();
+    }
 
-        @Transactional
-        public void banUser(Long userId) {
-                User user = userRepository.findById(userId)
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public void banUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-                user.setStatus(User.Status.BANNED);
-                userRepository.save(user);
-        }
+        user.setStatus(User.Status.BANNED);
+        userRepository.save(user);
+    }
 
-        @Transactional
-        public void unbanUser(Long userId) {
-                User user = userRepository.findById(userId)
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public void unbanUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-                user.setStatus(User.Status.ACTIVE);
-                userRepository.save(user);
-        }
+        user.setStatus(User.Status.ACTIVE);
+        userRepository.save(user);
+    }
 
 }

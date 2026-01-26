@@ -4,6 +4,10 @@ import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AdminService } from '../../services/admin.service';
+
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PostDetailPreviewDialogComponent } from '../post-detail/post-detail-preview-dialog.component';
 
 
 type AdminUser = {
@@ -43,13 +47,14 @@ type ReportedUser = {
 @Component({
     selector: 'app-admin',
     standalone: true,
-    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule],
+    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatDialogModule],
     templateUrl: './admin.component.html',
     styleUrls: ['./admin.component.css'],
 })
+
 export class AdminComponent implements OnInit {
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private adminService: AdminService, private dialog: MatDialog) { }
 
     // activeTab: 'users' | 'reports' = 'users';
     activeTab: 'users' | 'reports' | 'userReports' = 'users';
@@ -75,15 +80,40 @@ export class AdminComponent implements OnInit {
     ngOnInit(): void {
         this.loadUsers();
     }
-    clearReport(r: any) {
-        // TODO: call backend to delete/clear the report
-        // example:
-        // this.adminService.deleteReport(r.reportId).subscribe(() => {
-        //   this.reports = this.reports.filter(x => x.reportId !== r.reportId);
-        // });
 
-        console.log("clear report", r);
+    openPostPreview(postId: number) {
+        this.dialog.open(PostDetailPreviewDialogComponent, {
+            width: '900px',
+            maxWidth: '95vw',
+            data: { postId }
+        });
     }
+
+    clearPostReport(r: any) {
+        this.adminService.deletePostReport(r.reportId).subscribe({
+            next: () => {
+                this.reports = this.reports.filter(x => x.reportId !== r.reportId);
+                console.log("clear report", r);
+            },
+            error: (err) => {
+                console.error("Failed to clear report", err);
+            }
+        });
+    }
+
+    clearUserReport(r: ReportedUser) {
+        this.adminService.deleteUserReport(r.reportId).subscribe({
+            next: () => {
+                this.userReports = this.userReports.filter(x => x.reportId !== r.reportId);
+                console.log("clear user report", r);
+            },
+            error: (err) => {
+                console.error("Failed to clear user report", err);
+            }
+        });
+    }
+
+
 
     banUser(user: AdminUser) {
         this.http.patch(`${this.adminBase}/users/${user.id}/ban`, {}).subscribe({
@@ -279,6 +309,24 @@ export class AdminComponent implements OnInit {
             `Delete user "${user.username}"? This cannot be undone.`,
             () => this.deleteUser(user)
         );
+    }
+
+    askDeleteUserFromReport(r: ReportedUser) {
+        const name = this.safeText(r.reportedUsername);
+        this.openConfirm(
+            `Delete user "${name}"? This cannot be undone.`,
+            () => this.deleteUserById(r.reportedUserId)
+        );
+    }
+
+    deleteUserById(userId: number) {
+        this.http.delete(`${this.adminBase}/users/${userId}`).subscribe({
+            next: () => {
+                this.users = this.users.filter(u => u.id !== userId);
+                this.userReports = this.userReports.filter(r => r.reportedUserId !== userId);
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to delete user')
+        });
     }
 
     askDeletePost(r: ReportedPost) {

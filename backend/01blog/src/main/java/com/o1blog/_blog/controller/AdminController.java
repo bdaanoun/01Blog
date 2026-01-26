@@ -16,21 +16,28 @@ import com.o1blog._blog.dto.AdminReportedUsersResponse;
 import com.o1blog._blog.dto.UsersAdminResponse;
 import com.o1blog._blog.service.AdminService;
 import com.o1blog._blog.service.PostService;
+import com.o1blog._blog.service.ReportService;
 import com.o1blog._blog.service.UserService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin")
+@RequiredArgsConstructor
+
 public class AdminController {
 
     private final UserService userService;
     private final PostService postService;
     private final AdminService adminService;
+    private final ReportService reportService;
 
-    public AdminController(UserService userService, PostService postService, AdminService adminService) {
-        this.userService = userService;
-        this.postService = postService;
-        this.adminService = adminService;
-    }
+    // public AdminController(UserService userService, PostService postService,
+    // AdminService adminService) {
+    // this.userService = userService;
+    // this.postService = postService;
+    // this.adminService = adminService;
+    // }
 
     @PatchMapping("/users/{id}/ban")
     public ResponseEntity<Void> banUser(@PathVariable Long id) {
@@ -70,14 +77,22 @@ public class AdminController {
         postService.deletePost(id);
     }
 
-    private Long getCurrentUserId() {
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated())
-            return null;
-        var principal = auth.getPrincipal();
-        if (principal instanceof com.o1blog._blog.security.CustomUserDetails userDetails) {
-            return userDetails.getId();
-        }
-        return null;
+    @DeleteMapping("reports/{id}")
+    public void deleteReport(@PathVariable Long id) {
+        System.out.println("dakhl---> " + id);
+        reportService.deletePostReport(id);
     }
+
+    // private Long getCurrentUserId() {
+    // var auth =
+    // org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+    // if (auth == null || !auth.isAuthenticated())
+    // return null;
+    // var principal = auth.getPrincipal();
+    // if (principal instanceof com.o1blog._blog.security.CustomUserDetails
+    // userDetails) {
+    // return userDetails.getId();
+    // }
+    // return null;
+    // }
 }

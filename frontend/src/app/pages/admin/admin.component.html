@@ -133,6 +133,7 @@
                             <th>Reporter</th>
                             <th>Reason</th>
                             <th>Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
 
@@ -155,6 +156,10 @@
                             <td>{{ safeText(r.reason) }}</td>
 
                             <td class="muted">{{ formatDate(r.reportedAt) }}</td>
+                            <td class="right">
+                                <button class="danger" (click)="askDeleteUserFromReport(r)">Delete</button>
+                                <button class="ghost" (click)="clearUserReport(r)">clear</button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -196,11 +201,15 @@
                     <tbody>
                         <tr *ngFor="let r of reports">
                             <td class="mono">#{{ r.reportId }}</td>
-                            <td class="mono">#{{ r.postId }}</td>
+                            <td class="mono">
+                                <span class="ghost small" (click)="openPostPreview(r.postId)">#{{ r.postId }}</span>
+                                <!-- <button class="ghost small" (click)="openPostPreview(r.postId)">
+                                    View
+                                </button> -->
+                            </td>
                             <td>{{ safeText(r.reason) }}</td>
 
                             <td>
-                                <!-- NOTE: you currently use author fields here. If your DTO has reporter fields, switch to r.reporterId / r.reporterUsername -->
                                 <a [routerLink]="['/profile', r.authorId]">
                                     {{ safeText(r.authorUsername) }}
                                 </a>
@@ -220,7 +229,7 @@
                                     Delete
                                 </button> -->
                                 <button class="danger" (click)="askDeletePost(r)">Delete</button>
-                                <button class="ghost" (click)="clearReport(r)">clear</button>
+                                <button class="ghost" (click)="clearPostReport(r)">clear</button>
 
                                 <!-- Clear report (mark as clean) -->
                                 <!-- <button class="icon success" mat-icon-button title="Clear report"

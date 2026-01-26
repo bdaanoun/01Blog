@@ -116,26 +116,6 @@ export class AuthService {
     return localStorage.getItem('authToken');
   }
 
-  // Save user info
-  // saveUser(user: any): void {
-  //   const safeUser = {
-  //     id: user.id,
-  //     username: user.username,
-  //     email: user.email,
-  //     avatarUrl: user.avatarUrl ?? user.avatar
-  //   };
-
-  //   localStorage.setItem('currentUser', JSON.stringify(safeUser));
-  //   this.currentUserSubject.next(safeUser);
-  // }
-
-
-  // Get stored user
-  // getStoredUser(): any {
-  //   const userJson = localStorage.getItem('currentUser');
-  //   return userJson ? JSON.parse(userJson) : null;
-  // }
-
   // Check if token exists
   private hasToken(): boolean {
     return !!this.getToken();
