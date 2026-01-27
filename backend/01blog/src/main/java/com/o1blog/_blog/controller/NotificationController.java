@@ -60,6 +60,25 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    // Mark one as unread
+    @PatchMapping("/{id}/unread")
+    public ResponseEntity<Void> markAsUnRead(@PathVariable Long id) {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null)
+            throw new RuntimeException("User not authenticated");
+
+        Notification n = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        if (!n.getReceiver().getId().equals(currentUserId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        n.setStatus(Notification.NotificationStatus.UNREAD);
+        notificationRepository.save(n);
+        return ResponseEntity.noContent().build();
+    }
+
     // Mark all as read
     @PatchMapping("/read-all")
     public ResponseEntity<Void> markAllAsRead() {

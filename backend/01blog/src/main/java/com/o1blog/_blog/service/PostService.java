@@ -75,6 +75,7 @@ public class PostService {
                         .map((Follow f) -> Notification.builder()
                                 .sender(user)
                                 .receiver(f.getFollower())
+                                .postId(savedPost.getId())
                                 .content(user.getUsername() + " created a new post")
                                 .notifType(Notification.NotificationType.NEW_POST)
                                 .status(Notification.NotificationStatus.UNREAD)
@@ -84,8 +85,8 @@ public class PostService {
                 notificationRepository.saveAll(notifs);
             }
 
-            System.out.println("Post saved successfully with ID: " + savedPost.getId());
-            System.out.println("=== CREATE POST END ===");
+            // System.out.println("Post saved successfully with ID: " + savedPost.getId());
+            // System.out.println("=== CREATE POST END ===");
 
             return savedPost;
 
@@ -135,7 +136,7 @@ public class PostService {
                 return content;
             }
 
-            System.out.println("Processing " + blocks.size() + " blocks");
+            // System.out.println("Processing " + blocks.size() + " blocks");
 
             for (int i = 0; i < blocks.size(); i++) {
                 JsonNode block = blocks.get(i);
@@ -161,6 +162,26 @@ public class PostService {
                         }
                     }
                 }
+                if (block.has("type") && "video".equals(block.get("type").asText())) {
+                    JsonNode data = block.get("data");
+                    if (data != null && data.has("url")) {
+                        String url = data.get("url").asText();
+                        System.out.println("Found video URL: " + url);
+
+                        if (url.contains("/temp/")) {
+                            String filename = url.substring(url.lastIndexOf("/") + 1);
+                            System.out.println("Moving temp video file: " + filename);
+
+                            String newPath = fileStorageService.moveTempToPermanent(filename);
+                            System.out.println("New video path: " + newPath);
+                            String newUrl = "http://localhost:8080/uploads/" + newPath;
+
+                            ((ObjectNode) data).put("url", newUrl);
+                            System.out.println("Updated video to: " + newUrl);
+                        }
+                    }
+                }
+
             }
 
             String result = objectMapper.writeValueAsString(root);

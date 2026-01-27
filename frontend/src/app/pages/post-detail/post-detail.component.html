@@ -94,11 +94,12 @@
       <div #editEditor class="editorjs-container"></div>
 
       <div class="edit-actions">
-        <button (click)="saveEdit()" [disabled]="savingEdit || editTitleControl.invalid">
+        <button class="btn-save" (click)="saveEdit()" [disabled]="savingEdit || editTitleControl.invalid">
           {{ savingEdit ? 'Saving...' : 'Save' }}
         </button>
-        <button (click)="cancelEdit()" [disabled]="savingEdit">Cancel</button>
+        <button class="btn-cancel" (click)="cancelEdit()" [disabled]="savingEdit">Cancel</button>
       </div>
+
 
       <p *ngIf="editError" class="edit-error">{{ editError }}</p>
     </div>
@@ -113,6 +114,15 @@
 
         <h3 *ngIf="block.type === 'header' && block.data.level === 3" class="heading-3"
           [innerHTML]="getSafeHtml(block.data.text)"></h3>
+
+        <!-- VIDEO -->
+        <div *ngIf="block.type === 'video'" class="block-video">
+          <video controls style="width:100%; border-radius:8px;">
+            <source [src]="getSafeUrl(block.data?.url)" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
 
         <ul *ngIf="block.type === 'list' && block.data.style === 'unordered'" class="list">
           <li *ngFor="let item of block.data.items" [innerHTML]="getSafeHtml(item.content)"></li>

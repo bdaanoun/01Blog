@@ -80,9 +80,10 @@ export default class VideoTool {
         return video;
     }
 
-    save() {
+    save(blockContent: HTMLElement) {
         return { url: this.data.url || '' };
     }
+
 
     validate(savedData: any) {
         return !!savedData.url;

@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { PostService, Post } from '../../services/post.service';
@@ -21,6 +21,9 @@ import { Input } from '@angular/core';
 
 
 import { ReportDialogComponent } from '../report/report-dialog.component';
+import VideoTool from '../../editor-tools/video.tool';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-post-detail',
@@ -74,19 +77,30 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     private commentService: CommentService,
     private sanitizer: DomSanitizer,
     private dialog: MatDialog,
-    private authService: AuthService
+    private authService: AuthService,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
+    // Admin preview mode (input)
     if (this.postId) {
       this.loadPost(this.postId);
       return;
     }
 
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.loadPost(+id);
-  }
+    this.route.paramMap.subscribe(params => {
+      const id = Number(params.get('id'));
+      if (!Number.isFinite(id)) return;
 
+      this.isEditing = false;
+      this.destroyEditEditor();
+
+        this.post = null;
+      this.comments = [];
+
+      this.loadPost(id);
+    });
+  }
 
   ngOnDestroy(): void {
     this.destroyEditEditor();
@@ -310,7 +324,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.cleanupBannerPreview();
     this.bannerPreviewUrl = URL.createObjectURL(file);
 
-    // allow selecting same file again
     input.value = '';
   }
 
@@ -336,15 +349,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   }
 
 
-  // private showErrorPopup(message: string) {
-  //   this.dialog.open(ErrorDialogComponent, {
-  //     width: '380px',
-  //     data: { message }
-  //   });
-  // }
-
-
-  // Edit Post (EditorJS)
+  getSafeUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url || '');
+  }
 
   startEdit(): void {
     if (!this.post) return;
@@ -407,7 +414,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
                     body: formData,
                   });
 
-                  //  error response (413, 401, 500...)
                   if (!response.ok) {
                     let message = 'Upload failed';
 
@@ -424,7 +430,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
                   const data = await response.json();
 
-                  // safety: if backend returns something else, still show error
                   if (data?.success !== 1 || !data?.file?.url) {
                     return { success: 0, message: 'Upload failed: invalid server response.' };
                   }
@@ -439,7 +444,40 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
             }
           }
-        }
+        },
+        //video
+
+        video: {
+          class: VideoTool as any,
+          config: {
+            uploader: {
+              uploadByFile: async (file: File) => {
+                const formData = new FormData();
+                formData.append('video', file);
+
+                try {
+                  const data = await firstValueFrom(
+                    this.http.post<any>('http://localhost:8080/api/posts/video/temp', formData)
+                  );
+
+                  if (data?.success === 1 && data?.file?.url) return data;
+
+                  return { success: 0, message: data?.message || 'Upload failed: invalid server response.' };
+
+                } catch (err: any) {
+                  const message =
+                    err?.error?.message ||
+                    (typeof err?.error === 'string' ? err.error : null) ||
+                    'Network error while uploading.';
+
+                  return { success: 0, message };
+                }
+              }
+            }
+          }
+        },
+
+
       }
     });
   }

@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 export interface NotificationDto {
     id: number;
     senderId: number;
+    postId?: number | null;
     senderUsername: string;
     content: string;
     createdAt: string;
@@ -30,8 +31,11 @@ export class NotificationService {
         return this.http.patch<void>(`${this.apiUrl}/${id}/read`, {});
     }
 
+    markAsUnread(id: number) {
+        return this.http.patch<void>(`${this.apiUrl}/${id}/unread`, {});
+    }
+
     markAllAsRead() {
         return this.http.patch<void>(`${this.apiUrl}/read-all`, {});
     }
-
 }

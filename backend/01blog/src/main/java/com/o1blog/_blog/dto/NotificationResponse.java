@@ -13,6 +13,7 @@ public class NotificationResponse {
     private Long id;
 
     private Long senderId;
+    private Long postId;
     private String senderUsername;
 
     private String content;
@@ -26,7 +27,8 @@ public class NotificationResponse {
         return NotificationResponse.builder()
                 .id(n.getId())
                 .senderId(n.getSender().getId())
-                .senderUsername(n.getSender().getUsername()) // change if your field differs
+                .postId(n.getPostId())
+                .senderUsername(n.getSender().getUsername())
                 .content(n.getContent())
                 .createdAt(n.getCreatedAt())
                 .status(n.getStatus())
