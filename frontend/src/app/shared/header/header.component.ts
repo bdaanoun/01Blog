@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -33,6 +33,22 @@ export class HeaderComponent {
     this.currentUser$ = this.authService.currentUser$;
   }
 
+
+  ngOnInit(): void {
+    // only fetch when user is logged in
+    this.isLoggedIn$.subscribe(isLogged => {
+      if (isLogged) this.refreshUnreadCount();
+      else this.unreadCount = 0;
+    });
+  }
+
+  private refreshUnreadCount() {
+    this.notificationService.getUnreadCount().subscribe({
+      next: (count) => this.unreadCount = count,
+      error: (err) => console.error('Failed to load unread count', err)
+    });
+  }
+
   toggleNotifications() {
     this.showNotifications = !this.showNotifications;
 
@@ -47,8 +63,14 @@ export class HeaderComponent {
 
     this.notificationService.getMyNotifications().subscribe({
       next: (data) => {
-        this.notifications = data;
-        this.unreadCount = data.filter(n => n.status === 'UNREAD').length;
+
+        this.notifications = data.sort((a, b) => {
+          if (a.status === b.status) return 0;
+          return a.status === 'UNREAD' ? -1 : 1;
+        });
+
+        this.unreadCount = this.notifications.filter(n => n.status === 'UNREAD').length;
+
         this.loadingNotifications = false;
       },
       error: (err) => {
@@ -79,19 +101,68 @@ export class HeaderComponent {
     this.showProfileDropdown = !this.showProfileDropdown;
   }
 
-  getAvatarUrl(path: string): string {  
+  getAvatarUrl(path: string): string {
     return `http://localhost:8080/uploads/${path}`;
   }
 
+  // openNotification(n: NotificationDto) {
+  //   // mark as read (optimistic)
+  //   if (n.status === 'UNREAD') {
+  //     n.status = 'READ';
+  //     this.unreadCount = Math.max(0, this.unreadCount - 1);
+
+  //     this.notificationService.markAsRead(n.id).subscribe({
+  //       error: (err) => console.error('markAsRead failed', err)
+  //     });
+  //   }
+  // }
+
+
+  toggleRead(n: NotificationDto, ev: MouseEvent) {
+    ev.stopPropagation();
+
+    const makeUnread = n.status === 'READ';
+
+    if (makeUnread) {
+      n.status = 'UNREAD';
+      this.unreadCount += 1;
+    } else {
+      n.status = 'READ';
+      this.unreadCount = Math.max(0, this.unreadCount - 1);
+    }
+
+    const req$ = makeUnread
+      ? this.notificationService.markAsUnread(n.id)
+      : this.notificationService.markAsRead(n.id);
+
+    req$.subscribe({
+      error: () => {
+        if (makeUnread) {
+          n.status = 'READ';
+          this.unreadCount = Math.max(0, this.unreadCount - 1);
+        } else {
+          n.status = 'UNREAD';
+          this.unreadCount += 1;
+        }
+      }
+    });
+  }
+
   openNotification(n: NotificationDto) {
-    // mark as read (optimistic)
+    // mark as read when opening
     if (n.status === 'UNREAD') {
       n.status = 'READ';
       this.unreadCount = Math.max(0, this.unreadCount - 1);
+      this.notificationService.markAsRead(n.id).subscribe({ error: () => { } });
+    }
 
-      this.notificationService.markAsRead(n.id).subscribe({
-        error: (err) => console.error('markAsRead failed', err)
-      });
+    this.showNotifications = false;
+
+    if (n.notifType === 'NEW_POST' && n.postId) {
+      this.router.navigate(['/post', n.postId])
+    } else if (n.notifType === 'FOLLOW') {
+      this.router.navigate(['/profile', n.senderId]);
     }
   }
+
 }

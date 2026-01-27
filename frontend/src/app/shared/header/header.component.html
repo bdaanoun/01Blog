@@ -14,7 +14,7 @@
           <div class="notifications-wrapper">
             <button class="notifications-btn" (click)="toggleNotifications()">
               <mat-icon>notifications</mat-icon>
-              <span *ngIf="notifications.length > 0" class="badge">{{ notifications.length }}</span>
+              <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
             </button>
 
             <!-- <div *ngIf="showNotifications" class="notifications-dropdown">
@@ -27,10 +27,24 @@
                 Loading...
               </div>
               <ng-container *ngIf="!loadingNotifications">
-                <div *ngFor="let n of notifications" class="notifications-dropdown-item">
-                  <strong>{{ n.senderUsername }}</strong> — {{ n.content }}
-                  <div class="notif-date">{{ n.createdAt | date:'short' }}</div>
+                <div *ngFor="let n of notifications" class="notifications-dropdown-item"
+                  [class.unread]="n.status === 'UNREAD'" (click)="openNotification(n)">
+
+                  <div class="notif-row">
+                    <div class="notif-text">
+                      <strong>{{ n.senderUsername }}</strong> — {{ n.content }}
+                      <div class="notif-date">{{ n.createdAt | date:'short' }}</div>
+                    </div>
+
+                    <button class="notif-toggle" (click)="toggleRead(n, $event)">
+                      <mat-icon>
+                        {{ n.status === 'READ' ? 'done_all' : 'check' }}
+                      </mat-icon>
+                    </button>
+
+                  </div>
                 </div>
+
                 <div *ngIf="notifications.length === 0" class="notifications-dropdown-item">
                   No notifications
                 </div>

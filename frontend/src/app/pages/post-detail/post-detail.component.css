@@ -164,8 +164,9 @@
 /* Banner */
 .post-banner {
   width: 100%;
-  margin-bottom: 3rem;
-  border-radius: 4px;
+  /* max-height: 300px; */
+  margin-bottom: 2rem;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -227,7 +228,7 @@
 .image-block img {
   max-width: 100%;
   height: auto;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .image-block figcaption {
@@ -431,11 +432,26 @@
 }
 
 .edit-box {
-  margin-top: 1rem;
-  padding: 1rem;
+  margin-top: 1.5rem;
+  padding: 1.25rem;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 16px;
   background: #fafafa;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+.edit-banner {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.edit-banner-preview {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: #fff;
 }
 
 .edit-label {
@@ -447,11 +463,19 @@
 
 .edit-input {
   width: 100%;
-  padding: 0.6rem;
+  padding: 0.75rem 0.85rem;
   border: 1px solid #d1d5db;
-  border-radius: 10px;
+  border-radius: 12px;
   outline: none;
+  background: #fff;
+  font-size: 1rem;
 }
+
+.edit-input:focus {
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+
 
 .edit-textarea {
   width: 100%;
@@ -469,12 +493,17 @@
 }
 
 .btn-save,
-.btn-cancel {
-  padding: 0.55rem 1rem;
-  border-radius: 10px;
+.btn-cancel,
+.btn-remove-banner {
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.05s ease, background 0.2s ease, border-color 0.2s ease;
 }
+
 
 .btn-save {
   background: #111827;
@@ -493,12 +522,14 @@
 }
 
 .editorjs-container {
+  margin-top: 0.9rem;
   border: 1px solid #d1d5db;
-  border-radius: 12px;
-  padding: 12px;
-  background: white;
-  min-height: 250px;
+  border-radius: 8px;
+  padding: 14px;
+  background: #fff;
+  min-height: 280px;
 }
+
 
 /* banner wkda */
 .current,
@@ -506,4 +537,14 @@
   width: 100%;
   height: auto;
   display: block;
+}
+.edit-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.edit-banner-actions input[type="file"] {
+  max-width: 100%;
+  font-size: 0.9rem;
 }

@@ -56,7 +56,59 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
         },
         video: {
           class: VideoTool as any,
+          inlineToolbar: true,
+          config: {
+            endpoints: {
+              byFile: 'http://localhost:8080/api/posts/video/temp'
+            },
+            field: 'video',
+            types: 'video/*',
+            additionalRequestHeaders: {
+              'Authorization': `Bearer ${token}`
+            },
+            uploader: {
+              uploadByFile: async (file: File) => {
+                const token = localStorage.getItem('authToken');
+                const formData = new FormData();
+                formData.append('video', file);
+
+                try {
+                  const response = await fetch('http://localhost:8080/api/posts/video/temp', {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token ?? ''}` },
+                    body: formData
+                  });
+
+                  // ---- ERROR ----
+                  if (!response.ok) {
+                    let message = 'Upload failed';
+
+                    try {
+                      const data = await response.json();
+                      message = data?.message || message;
+                    } catch {
+                      const txt = await response.text();
+                      message = txt || message;
+                    }
+
+                    return { success: 0, message };
+                  }
+
+                  const data = await response.json();
+
+                  if (data?.success === 1 && data?.file?.url) return data;
+
+                  return { success: 0, message: 'Upload failed: invalid server response.' };
+
+                } catch {
+                  return { success: 0, message: 'Network error while uploading.' };
+                }
+              }
+
+            }
+          }
         },
+
         list: { class: List as any, inlineToolbar: true },
         paragraph: { class: Paragraph as any },
 
@@ -90,7 +142,7 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
                     let message = 'Upload failed';
 
                     try {
-                      const data = await response.json();      // { message: "..." }
+                      const data = await response.json();
                       message = data?.message || message;
                     } catch {
                       const txt = await response.text();
@@ -154,7 +206,6 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
     })
       .then(res => res.json())
       .then(data => {
-        // expecting: { success: 1, file: { url: "..." } }
         if (data?.success === 1 && data?.file?.url) {
           const index = this.editor.blocks.getCurrentBlockIndex() + 1;
 

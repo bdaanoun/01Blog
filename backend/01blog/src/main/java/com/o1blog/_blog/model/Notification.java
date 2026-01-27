@@ -33,6 +33,9 @@ public class Notification {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "post_id")
+    private Long postId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private NotificationType notifType;
@@ -53,6 +56,7 @@ public class Notification {
         UNREAD,
         READ
     }
+
     public enum NotificationType {
         FOLLOW,
         NEW_POST

@@ -57,6 +57,33 @@ public class PostController {
         }
     }
 
+    @PostMapping("/video/temp")
+    public ResponseEntity<Map<String, Object>> uploadTempVideo(
+            @RequestParam("video") MultipartFile video) {
+
+        try {
+            System.out.println("Uploading temp image: " + video.getOriginalFilename());
+            String videoPath = fileStorageService.saveTemp(video);
+            System.out.println("Temp video saved: " + videoPath);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", 1);
+            response.put("file", Map.of(
+                    "url", "http://localhost:8080/uploads/temp/" + videoPath));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error uploading temp video: " + e.getMessage());
+            e.printStackTrace();
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", 0);
+            errorResponse.put("message", "Upload failed: " + e.getMessage());
+
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
     // CREATE POST
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<PostResponse> createPost(@RequestParam("title") String title,
