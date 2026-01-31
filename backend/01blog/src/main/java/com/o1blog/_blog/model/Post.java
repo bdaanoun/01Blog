@@ -59,6 +59,6 @@ public class Post {
 
     public enum PostStatus {
         PUBLISHED,
-        DELETED
+        HIDDEN
     }
 }

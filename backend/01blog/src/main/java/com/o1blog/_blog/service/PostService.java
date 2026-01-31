@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.o1blog._blog.dto.PostResponse;
+import com.o1blog._blog.dto.PostsForAdmin;
 import com.o1blog._blog.exeption.PostNotFoundException;
+import com.o1blog._blog.exeption.UserNotFoundException;
 import com.o1blog._blog.model.Follow;
 import com.o1blog._blog.model.Like;
 import com.o1blog._blog.model.Notification;
 import com.o1blog._blog.model.Post;
+import com.o1blog._blog.model.Post.PostStatus;
 import com.o1blog._blog.model.User;
 import com.o1blog._blog.repository.FollowRepository;
 import com.o1blog._blog.repository.LikeRepository;
@@ -17,9 +20,12 @@ import com.o1blog._blog.repository.PostRepository;
 import com.o1blog._blog.repository.UserRepository;
 import com.o1blog._blog.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,8 +70,6 @@ public class PostService {
                     .content(processedContent)
                     .banner(bannerPath)
                     .build();
-
-            System.out.println("Saving post to database...");
             Post savedPost = postRepository.save(post);
 
             // Notify followers that this user created a post
@@ -85,8 +89,8 @@ public class PostService {
                 notificationRepository.saveAll(notifs);
             }
 
-            // System.out.println("Post saved successfully with ID: " + savedPost.getId());
-            // System.out.println("=== CREATE POST END ===");
+            System.out.println("Post saved successfully with ID: " + savedPost.getId());
+            System.out.println("=== CREATE POST END ===");
 
             return savedPost;
 
@@ -98,25 +102,46 @@ public class PostService {
         }
     }
 
+    public void hidePost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        post.setStatus(Post.PostStatus.HIDDEN);
+        postRepository.save(post);
+    }
+
+    public void showPost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        post.setStatus(Post.PostStatus.PUBLISHED);
+        postRepository.save(post);
+    }
+
     public List<Post> getFollowingPosts(Long currentUserId) {
         User currentUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Get follow relations
         List<Follow> follows = followRepository.findAllByFollower(currentUser);
 
-        // Extract followed users
         List<User> followedUsers = follows.stream()
                 .map(Follow::getFollowing)
                 .toList();
 
-        // if user follows nobody
-        if (followedUsers.isEmpty()) {
+        if (followedUsers.isEmpty())
             return List.of();
+
+        if (isAdmin(currentUserId)) {
+            return postRepository.findAllByUserIn(followedUsers);
         }
 
-        // Get posts of followed users
-        return postRepository.findAllByUserIn(followedUsers);
+        return postRepository.findAllByUserInAndStatus(followedUsers, PostStatus.PUBLISHED);
+    }
+
+    private boolean isAdmin(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.getRole() == User.Role.ADMIN;
     }
 
     private String processEditorJSImages(String content) {
@@ -222,6 +247,20 @@ public class PostService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<PostsForAdmin> getAllPostsForAdmin() {
+        return postRepository.findAll()
+                .stream()
+                .map(post -> PostsForAdmin.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .userId(post.getUser().getId())
+                        .authorUsername(post.getUser().getUsername())
+                        .status(post.getStatus().name()) // or toString()
+                        .build())
+                .toList();
+    }
+
     @Transactional
     public Post updatePost(Long postId, Long currentUserId, String title, String content, MultipartFile banner) {
         Post post = postRepository.findById(postId)
@@ -244,25 +283,42 @@ public class PostService {
     }
 
     // get all posts
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public List<Post> getAllPosts(Long currentUserId) {
+        if (isAdmin(currentUserId)) {
+            return postRepository.findAll();
+        }
+        return postRepository.findAllByStatusOrderByCreatedAtDesc(PostStatus.PUBLISHED);
     }
 
     // get one user posts
     public List<PostResponse> getPostsByUser(Long profileUserId, Long currentUserId) {
-        List<Post> posts = postRepository.findByUserId(profileUserId);
+        List<Post> posts;
+
+        if (isAdmin(currentUserId) || currentUserId.equals(profileUserId)) {
+            posts = postRepository.findByUserId(profileUserId);
+        } else {
+            posts = postRepository.findByUserIdAndStatus(profileUserId, PostStatus.PUBLISHED);
+        }
 
         return posts.stream().map(post -> {
-            boolean liked = currentUserId != null &&
-                    likeRepository.existsByUserIdAndPostId(currentUserId, post.getId());
-
+            boolean liked = likeRepository.existsByUserIdAndPostId(currentUserId, post.getId());
             return PostResponse.from(post, liked, currentUserId);
         }).toList();
     }
 
-    public Post getPostById(Long id) {
-        return postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+    public Post getPostById(Long postId, Long currentUserId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
 
+        if (post.getStatus() == PostStatus.PUBLISHED)
+            return post;
+
+        // hidden post: only admin (and optionally owner)
+        if (isAdmin(currentUserId) || post.getUser().getId().equals(currentUserId))
+            return post;
+
+        // you can use 404 instead if you want to "hide that it exists"
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
     }
 
     public void deletePost(Long id) {

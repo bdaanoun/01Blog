@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.o1blog._blog.dto.AdminReportedPostResponse;
 import com.o1blog._blog.dto.AdminReportedUsersResponse;
+import com.o1blog._blog.dto.PostsForAdmin;
 import com.o1blog._blog.dto.UsersAdminResponse;
 import com.o1blog._blog.service.AdminService;
 import com.o1blog._blog.service.PostService;
@@ -60,6 +61,10 @@ public class AdminController {
     public List<UsersAdminResponse> getAllUsers() {
         return userService.getAllUsersForAdmin();
     }
+    @GetMapping("/posts")
+    public List<PostsForAdmin> getAllPosts() {
+        return postService.getAllPostsForAdmin();
+    }
 
     @GetMapping("/reported-users")
     public List<AdminReportedUsersResponse> getReportedUsers() {
@@ -70,6 +75,16 @@ public class AdminController {
     @GetMapping("/reported-posts")
     public List<AdminReportedPostResponse> getReportedPosts() {
         return adminService.getReportedPostsForAdmin();
+    }
+
+    @PatchMapping("/posts/{id}/hide")
+    public void hidePost(@PathVariable Long id) {
+        postService.hidePost(id);
+    }
+
+    @PatchMapping("/posts/{id}/show")
+    public void showPost(@PathVariable Long id) {
+        postService.showPost(id);
     }
 
     @DeleteMapping("/posts/{id}")

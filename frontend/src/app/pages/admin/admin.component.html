@@ -17,13 +17,18 @@
                     Users
                 </button>
 
+                <button class="tab" [class.active]="activeTab === 'userReports'" (click)="switchTab('userReports')">
+                    Reported Users
+                </button>
+
+                <button class="tab" [class.active]="activeTab === 'posts'" (click)="switchTab('posts')">
+                    Posts
+                </button>
+
                 <button class="tab" [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">
                     Reported Posts
                 </button>
 
-                <button class="tab" [class.active]="activeTab === 'userReports'" (click)="switchTab('userReports')">
-                    Reported Users
-                </button>
             </div>
         </div>
 
@@ -57,7 +62,7 @@
                             <td class="mono">{{ u.id }}</td>
 
                             <td>
-                                <div class="user-cell">
+                                <div class="user-cell" routerLink="/profile/{{ u.id }}" style="cursor: pointer;">
                                     <div class="avatar">
                                         <img *ngIf="u.avatar; else initial"
                                             [src]="'http://localhost:8080/uploads/' + u.avatar" alt="avatar" />
@@ -109,6 +114,68 @@
             </div>
         </section>
 
+
+        <!-- posts tab -->
+        <section class="card" *ngIf="activeTab === 'posts'">
+            <div class="card-head">
+                <h2>All Posts</h2>
+                <button class="ghost" (click)="loadPosts()" [disabled]="postsloading">
+                    Refresh
+                </button>
+            </div>
+
+            <div class="state" *ngIf="postsloading">Loading posts...</div>
+            <div class="state error" *ngIf="postsError">{{ postsError }}</div>
+
+            <div class="table-wrap" *ngIf="!postsloading && !postsError">
+                <table class="table" *ngIf="posts.length; else noPosts">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let p of posts">
+                            <td class="mono">
+                                <span class="ghost small" (click)="openPostPreview(p.id)">#{{ p.id }}</span>
+                            </td>
+                            <td>{{ safeText(p.title) }}</td>
+                            <td>
+                                <a [routerLink]="['/profile', p.userId]">
+                                    {{ safeText(p.authorUsername) }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="pill" [class.warn]="(p.status || '').toLowerCase() !== 'published'">
+                                    {{ safeText(p.status, 'PUBLISHED') }}
+                                </span>
+                            </td>
+                            <td class="right">
+                                <button class="ghost" (click)="askHidePost(p)" *ngIf="(p.status || '').toLowerCase() !== 'hidden'">
+                                    hide
+                                </button>
+                                <button class="ghost" (click)="showPost(p)" *ngIf="(p.status || '').toLowerCase() === 'hidden'">
+                                    show
+                                </button>
+
+                                <button class="danger" (click)="askDeletePostFromAdmin(p)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <ng-template #noPosts>
+                    <div class="empty">No posts found.</div>
+                </ng-template>
+            </div>
+        </section>
         <!-- REPORTED USERS TAB -->
         <section class="card" *ngIf="activeTab === 'userReports'">
             <div class="card-head">

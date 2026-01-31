@@ -2,6 +2,8 @@ package com.o1blog._blog.config;
 
 import com.o1blog._blog.security.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,10 +44,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // .exceptionHandling(ex -> ex
-                // .authenticationEntryPoint((request, response, authException) -> {
-                // response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-                // }))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            System.out.println("Unauthorized access: " + authException.getMessage());
+                            System.out.println("reeeq: " + request);
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
