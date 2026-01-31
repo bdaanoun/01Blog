@@ -11,6 +11,7 @@ import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.UserProfileResponse;
 import com.o1blog._blog.dto.UsersAdminResponse;
 import com.o1blog._blog.exeption.EmailAlreadyTakenException;
+import com.o1blog._blog.exeption.UserNotFoundException;
 import com.o1blog._blog.exeption.UsernameAlreadyTakenException;
 import com.o1blog._blog.model.Follow;
 import com.o1blog._blog.model.User;
@@ -40,7 +41,8 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public List<UserProfileResponse> getAllUsersWithFollowStatus(Long currentUserId) {
@@ -86,14 +88,14 @@ public class UserService {
                         .avatar(u.getAvatar())
                         .username(u.getUsername())
                         .email(u.getEmail())
-                        .status(u.getStatus().toString()) // or .name()
+                        .status(u.getStatus().toString())
                         .build())
                 .toList();
     }
 
     public UserProfileResponse getUserProfile(Long userId, Long currentUserId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // Check if current user is following this user
         boolean isFollowing = false;

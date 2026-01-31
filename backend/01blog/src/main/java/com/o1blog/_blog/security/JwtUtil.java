@@ -88,5 +88,4 @@ public class JwtUtil {
         System.out.println("Is expired: " + isTokenExpired(token));
         return tokenUserId.equals(userDetails.getId()) && !isTokenExpired(token);
     }
-
 }

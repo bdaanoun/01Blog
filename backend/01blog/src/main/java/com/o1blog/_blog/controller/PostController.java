@@ -105,7 +105,7 @@ public class PostController {
         Long currentUserId = getCurrentUserId();
 
         return ResponseEntity.ok(
-                postService.getAllPosts()
+                postService.getAllPosts(currentUserId)
                         .stream()
                         .map(post -> mapToResponse(post, currentUserId))
                         .toList());
@@ -116,7 +116,7 @@ public class PostController {
     public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
         Long currentUserId = getCurrentUserId();
 
-        Post post = postService.getPostById(id);
+        Post post = postService.getPostById(id, currentUserId);
         return ResponseEntity.ok(mapToResponse(post, currentUserId));
     }
 

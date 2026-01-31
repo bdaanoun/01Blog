@@ -42,8 +42,14 @@ type ReportedUser = {
     reportedAt?: string;
     status?: 'OPEN' | 'RESOLVED' | string;
 };
+type PostPannel = {
+    authorUsername: string;
+    id: number;
+    status: string;
+    title: string;
+    userId: string;
+};
 
-``
 @Component({
     selector: 'app-admin',
     standalone: true,
@@ -57,14 +63,18 @@ export class AdminComponent implements OnInit {
     constructor(private http: HttpClient, private adminService: AdminService, private dialog: MatDialog) { }
 
     // activeTab: 'users' | 'reports' = 'users';
-    activeTab: 'users' | 'reports' | 'userReports' = 'users';
+    activeTab: 'users' | 'posts' | 'reports' | 'userReports' = 'users';
 
     users: AdminUser[] = [];
+    posts: PostPannel[] = [];
     reports: ReportedPost[] = [];
     userReports: ReportedUser[] = [];
 
     userReportsLoading = false;
     userReportsError = '';
+
+    postsloading = false;
+    postsError = '';
 
 
     usersLoading = false;
@@ -74,7 +84,6 @@ export class AdminComponent implements OnInit {
     usersError = '';
     reportsError = '';
 
-    // Adjust if your API base is different
     private readonly adminBase = 'http://localhost:8080/api/admin';
 
     ngOnInit(): void {
@@ -165,12 +174,43 @@ export class AdminComponent implements OnInit {
     }
 
     //actions
-    switchTab(tab: 'users' | 'reports' | 'userReports') {
+    switchTab(tab: 'users' | 'posts' | 'reports' | 'userReports') {
         this.activeTab = tab;
 
         if (tab === 'users' && this.users.length === 0) this.loadUsers();
+        if (tab === 'posts' && this.posts.length === 0) this.loadPosts();
         if (tab === 'reports' && this.reports.length === 0) this.loadReports();
         if (tab === 'userReports' && this.userReports.length === 0) this.loadUserReports();
+    }
+    loadPosts() {
+        this.postsloading = true;
+        this.postsError = '';
+        this.http.get<PostPannel[]>(`${this.adminBase}/posts`).subscribe({
+            next: (posts) => {
+                console.log("posts:   ", posts);
+
+                this.posts = posts;
+                this.postsloading = false;
+            },
+            error: (err) => {
+                if (err.status === 403) {
+                    this.postsError = "You don't have access here";
+                    this.postsloading = false;
+                    this.isForbidden = true;
+                    return;
+                }
+
+                const msg =
+                    err?.error?.message ||
+                    (typeof err?.error === 'string' ? err.error : '') ||
+                    err?.message ||
+                    `Failed to load posts (${err.status})`;
+
+                this.postsError = msg;
+                this.postsloading = false;
+            }
+        });
+
     }
     loadUserReports() {
         this.userReportsLoading = true;
@@ -224,6 +264,45 @@ export class AdminComponent implements OnInit {
                     `Failed to load users (${err.status})`;
                 this.usersLoading = false;
             }
+        });
+    }
+
+    askHidePost(post: PostPannel) {
+        this.openConfirm(`Hide post "${this.safeText(post.title)}"?`, () => this.hidePost(post));
+    }
+
+    hidePost(post: any) {
+        this.http.patch(`${this.adminBase}/posts/${post.id}/hide`, {}).subscribe({
+            next: () => {
+                post.status = 'HIDDEN';
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to hide post')
+        });
+    }
+
+    showPost(post: any) {
+        this.http.patch(`${this.adminBase}/posts/${post.id}/show`, {}).subscribe({
+            next: () => {
+                post.status = 'PUBLISHED';
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to show post')
+        });
+    }
+    
+    askDeletePostFromAdmin(post: PostPannel) {
+        this.openConfirm(
+            `Delete post "${this.safeText(post.title)}"? This cannot be undone.`,
+            () => this.deletePostById(post.id)
+        );
+    }
+
+    deletePostById(postId: number) {
+        this.http.delete(`${this.adminBase}/posts/${postId}`).subscribe({
+            next: () => {
+                this.posts = this.posts.filter(p => p.id !== postId);
+                this.reports = this.reports.filter(r => r.postId !== postId);
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to delete post')
         });
     }
 

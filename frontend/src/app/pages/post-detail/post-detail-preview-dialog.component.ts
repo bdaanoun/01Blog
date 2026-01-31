@@ -12,7 +12,7 @@ import { PostDetailComponent } from '../post-detail/post-detail.component';
     </div>
   `,
     styles: [`
-    .dialog-wrap { max-height: 80vh; overflow: auto; scrollbar-width: none; }
+    .dialog-wrap { max-height: 80vh; overflow: auto; }
     .actions { display: flex; justify-content: flex-end; padding: 8px; }
   `]
 })

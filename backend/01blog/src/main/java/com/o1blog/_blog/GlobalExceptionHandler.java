@@ -1,5 +1,8 @@
 package com.o1blog._blog;
 
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 // import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,6 +11,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
 import com.o1blog._blog.exeption.PostNotFoundException;
+import com.o1blog._blog.exeption.UserNotFoundException;
 import com.o1blog._blog.exeption.UsernameAlreadyTakenException;
 
 @RestControllerAdvice
@@ -34,9 +38,14 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(MultipartException.class)
         public ResponseEntity<ApiError> handleMultipart(MultipartException ex) {
-                // often wraps the size exception depending on server
                 return ResponseEntity.status(413)
                                 .body(new ApiError("Upload failed (request too large or invalid multipart)."));
+        }
+
+        @ExceptionHandler(UserNotFoundException.class)
+        public ResponseEntity<?> handleUserNotFound(UserNotFoundException ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(new ApiError(ex.getMessage()));
         }
 
 }
