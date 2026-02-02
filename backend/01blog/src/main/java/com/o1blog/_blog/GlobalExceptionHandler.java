@@ -1,8 +1,5 @@
 package com.o1blog._blog;
 
-import java.util.Map;
-
-import org.springframework.http.HttpStatus;
 // import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,7 +14,6 @@ import com.o1blog._blog.exeption.UsernameAlreadyTakenException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-        // ---------- fallback ----------
         public record ApiError(String message) {
         }
 

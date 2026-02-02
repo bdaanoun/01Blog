@@ -1,7 +1,5 @@
 package com.o1blog._blog.controller;
 
-// import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.o1blog._blog.dto.PostResponse;
 import com.o1blog._blog.model.Post;
 import com.o1blog._blog.repository.LikeRepository;
@@ -89,8 +87,6 @@ public class PostController {
     public ResponseEntity<PostResponse> createPost(@RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestPart(value = "banner", required = false) MultipartFile banner) {
-        // System.out.println("---> " + title);
-        // System.out.println("--->content: " + content);
         CustomUserDetails user = (CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
 
@@ -172,7 +168,7 @@ public class PostController {
     // DELETE POST
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+        postService.deletePost(id, getCurrentUserId());
         return ResponseEntity.noContent().build();
     }
 

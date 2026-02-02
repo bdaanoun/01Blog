@@ -1,0 +1,19 @@
+<div class="confirm-dialog">
+
+    <h2 class="title">Confirmation</h2>
+
+    <div class="content">
+        <p>{{ data.message }}</p>
+    </div>
+
+    <div class="actions">
+        <button class="cancel-btn" mat-button (click)="close(false)">
+            Cancel
+        </button>
+
+        <button class="delete-btn" mat-raised-button (click)="close(true)">
+            Delete
+        </button>
+    </div>
+
+</div>

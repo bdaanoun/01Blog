@@ -24,83 +24,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private CustomUserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-        if (path.equals("/api/register") || path.equals("/api/login")) {
+        final String header = request.getHeader("Authorization");
+
+        // no token → continue (Spring will respond 401 if endpoint requires auth)
+        if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String authorizationHeader = request.getHeader("Authorization");
+        final String jwt = header.substring(7);
 
-        String username = null;
-        String jwt = null;
-
-        // Extract JWT token from Authorization header
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            try {
-                username = jwtUtil.extractUsername(jwt);
-            } catch (Exception e) {
-                logger.warn("Invalid JWT token");
-                SecurityContextHolder.clearContext();
-            }
-        }
-
-        // Validate token and set authentication
-        // if (jwt != null && SecurityContextHolder.getContext().getAuthentication() ==
-        // null) {
-        // try {
-        // Long userId = jwtUtil.extractUserId(jwt);
-        // if (userId != null) {
-        // CustomUserDetails userDetails = userDetailsService.loadUserById(userId);
-
-        // if (jwtUtil.validateToken(jwt, userDetails)) {
-        // UsernamePasswordAuthenticationToken authenticationToken = new
-        // UsernamePasswordAuthenticationToken(
-        // userDetails, null, userDetails.getAuthorities());
-
-        // authenticationToken.setDetails(
-        // new WebAuthenticationDetailsSource().buildDetails(request));
-
-        // SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        // }
-        // }
-        // } catch (Exception e) {
-        // // IMPORTANT: do NOT crash the request (prevents "fake CORS" errors)
-        // SecurityContextHolder.clearContext();
-        // logger.warn("JWT auth failed: {} " + e.getMessage());
-        // }
-        // }
-
-        if (username != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
             Long userId = jwtUtil.extractUserId(jwt);
             CustomUserDetails userDetails = userDetailsService.loadUserById(userId);
 
-            boolean isValid = jwtUtil.validateToken(jwt, userDetails);
-            // System.out.println("Token valid: " + isValid);
+            if (!userDetails.isEnabled()) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json");
 
-            if (isValid) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
+                String json = """
+                        {
+                          "status": 403,
+                          "error": "FORBIDDEN",
+                          "message": "Your account has been banned."
+                        }
+                        """;
 
-                authenticationToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request));
+                response.getWriter().write(json);
+                return;
 
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                // System.out.println("Authentication set in SecurityContext");
-                System.out.println("Auth details: " + SecurityContextHolder.getContext().getAuthentication());
-            } else {
-                System.out.println("Token validation FAILED");
             }
+
+            if (jwtUtil.validateToken(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
+                        null, userDetails.getAuthorities());
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
     }
+
 }

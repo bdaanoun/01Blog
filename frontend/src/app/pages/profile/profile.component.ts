@@ -89,7 +89,7 @@ export class ProfileComponent implements OnInit {
   loadUserPosts(userId: number): void {
     this.postService.getUserPosts(userId).subscribe({
       next: (posts) => {
-        this.userPosts = posts.reverse();
+        this.userPosts = posts;
       },
       error: (err) => {
         console.error('Error loading user posts:', err);

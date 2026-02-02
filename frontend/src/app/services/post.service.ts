@@ -66,6 +66,11 @@ export class PostService {
     return this.http.get<Post>(`${this.apiUrl}/${id}`);
   }
 
+
+  getPostByIdForAdmin(id: number) {
+    return this.http.get<Post>(`http://localhost:8080/api/admin/posts/${id}`);
+  }
+
   //report post
   reportPost(postId: number, reason: string) {
     return this.http.post<{ message: string }>(

@@ -75,11 +75,11 @@ export class Home implements OnInit {
   loadAllPosts(): void {
     this.postService.getAllPosts().subscribe({
       next: (posts) => {
-        this.posts = posts.reverse();
+        this.posts = posts;
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Failed to load posts';
+        this.error = err?.error?.message || 'Failed to load posts';
         this.loading = false;
         console.error('Error loading posts:', err);
       }
@@ -91,7 +91,7 @@ export class Home implements OnInit {
       next: (posts) => {
         // console.log("pppppp", posts);
 
-        this.posts = posts.reverse();
+        this.posts = posts;
         this.loading = false;
       },
       error: (err) => {
@@ -165,7 +165,7 @@ export class Home implements OnInit {
     try {
       const editorData = JSON.parse(content);
       // console.log("cont", content);
-      
+
       let text = '';
 
       editorData.blocks.forEach((block: any) => {
@@ -184,7 +184,7 @@ export class Home implements OnInit {
             });
           }
         }
-      });      
+      });
 
       return text.length > maxLength
         ? text.substring(0, maxLength) + '...'
@@ -226,7 +226,7 @@ export class Home implements OnInit {
 
   getAuthorInitial(authorName: string | undefined): string {
     // console.log("useer l flani", this.getAuthorInitial);
-    
+
     return authorName ? authorName.charAt(0).toUpperCase() : 'U';
   }
 

@@ -133,7 +133,9 @@ export class SettingsComponent implements OnInit {
                 bio: this.originalProfile.bio ?? "",
             });
 
-            this.avatarPreviewUrl = this.originalProfile.avatar ? this.originalProfile.avatar : null;
+            this.avatarPreviewUrl = this.originalProfile.avatar
+                ? this.getAvatarUrl(this.originalProfile.avatar)
+                : null;
             this.selectedAvatarFile = null;
         }
 
@@ -163,10 +165,9 @@ export class SettingsComponent implements OnInit {
         this.selectedAvatarFile = file;
 
         // preview
-        console.log("fiiile:  ", this.selectedAvatarFile);
-        
         this.avatarPreviewUrl = URL.createObjectURL(file);
-        
+
+
     }
 
     removeAvatar(): void {
@@ -221,7 +222,9 @@ export class SettingsComponent implements OnInit {
                 this.isEditing = false;
                 this.form.disable();
 
-                if (updated.avatar) this.avatarPreviewUrl = updated.avatar;
+                this.avatarPreviewUrl = updated.avatar
+                    ? this.getAvatarUrl(updated.avatar)
+                    : null;
                 this.selectedAvatarFile = null;
             },
             error: (err) => {

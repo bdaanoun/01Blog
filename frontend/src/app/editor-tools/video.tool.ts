@@ -3,14 +3,16 @@ export default class VideoTool {
         return {
             title: 'Video',
             icon: `<svg width="18" height="18" viewBox="0 0 24 24">
-              <path d="M10 8l6 4-6 4V8z"></path>
-            </svg>`
+        <path d="M10 8l6 4-6 4V8z"></path>
+      </svg>`
         };
     }
 
     private data: { url?: string } | any;
     private wrapper!: HTMLElement;
     private config: any;
+
+    private fileDialogOpened = false;
 
     constructor({ data, config }: any) {
         this.data = data || {};
@@ -53,7 +55,6 @@ export default class VideoTool {
                 if (result?.success === 1 && result?.file?.url) {
                     this.data.url = result.file.url;
 
-                    // Replace UI with video
                     this.wrapper.innerHTML = '';
                     this.wrapper.appendChild(this.createVideo(this.data.url));
                 } else {
@@ -68,6 +69,14 @@ export default class VideoTool {
         this.wrapper.appendChild(input);
         this.wrapper.appendChild(status);
 
+        if (!this.fileDialogOpened) {
+            this.fileDialogOpened = true;
+
+            setTimeout(() => {
+                if (!this.data.url) input.click();
+            }, 0);
+        }
+
         return this.wrapper;
     }
 
@@ -80,10 +89,9 @@ export default class VideoTool {
         return video;
     }
 
-    save(blockContent: HTMLElement) {
+    save() {
         return { url: this.data.url || '' };
     }
-
 
     validate(savedData: any) {
         return !!savedData.url;

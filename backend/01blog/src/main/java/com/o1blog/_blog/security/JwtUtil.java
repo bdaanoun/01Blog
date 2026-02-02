@@ -86,6 +86,7 @@ public class JwtUtil {
         Long tokenUserId = extractUserId(token);
         System.out.println("Validating token for: " + tokenUserId + " against: " + userDetails.getId());
         System.out.println("Is expired: " + isTokenExpired(token));
+        
         return tokenUserId.equals(userDetails.getId()) && !isTokenExpired(token);
     }
 }

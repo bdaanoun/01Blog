@@ -45,6 +45,10 @@ public class Post {
     @Builder.Default
     private List<Like> likes = new ArrayList<>();
 
+     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
+
     // Reports
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
