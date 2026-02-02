@@ -267,6 +267,24 @@ export class AdminComponent implements OnInit {
         });
     }
 
+    askHideReportedPost(r: ReportedPost) {
+        this.openConfirm(
+            `Hide post #${r.postId}?`,
+            () => this.hidePostById(r.postId)
+        );
+    }
+
+    hidePostById(postId: number) {
+        this.http.patch(`${this.adminBase}/posts/${postId}/hide`, {}).subscribe({
+            next: () => {
+                // optional: show feedback
+                console.log(`Post ${postId} hidden`);
+            },
+            error: (err) => alert(err?.error?.message || 'Failed to hide post')
+        });
+    }
+
+
     askHidePost(post: PostPannel) {
         this.openConfirm(`Hide post "${this.safeText(post.title)}"?`, () => this.hidePost(post));
     }
@@ -288,7 +306,7 @@ export class AdminComponent implements OnInit {
             error: (err) => alert(err?.error?.message || 'Failed to show post')
         });
     }
-    
+
     askDeletePostFromAdmin(post: PostPannel) {
         this.openConfirm(
             `Delete post "${this.safeText(post.title)}"? This cannot be undone.`,
@@ -423,8 +441,14 @@ export class AdminComponent implements OnInit {
         return d.toLocaleString();
     }
 
-    safeText(s?: string | null, fallback = '-') {
+    safeText(s?: string | null, fallback = '-', max = 20) {
         const v = (s ?? '').trim();
-        return v.length ? v : fallback;
+
+        if (!v.length) return fallback;
+
+        return v.length > max
+            ? v.slice(0, max) + '...'
+            : v;
     }
+
 }

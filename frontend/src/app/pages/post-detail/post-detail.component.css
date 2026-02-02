@@ -72,6 +72,7 @@
   color: #1a1a1a;
   margin: 0 0 2rem 0;
   font-family: 'Georgia', serif;
+  word-break: break-all;
 }
 
 .post-meta {
@@ -421,8 +422,8 @@
   cursor: not-allowed;
 }
 
-/* edit posts */
 .edit-button,
+.delete-btn,
 .report-button {
   border: 1px solid #d1d5db;
   padding: 0.4rem 0.8rem;
@@ -538,12 +539,14 @@
   height: auto;
   display: block;
 }
+
 .edit-banner-actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
 }
+
 .edit-banner-actions input[type="file"] {
   max-width: 100%;
   font-size: 0.9rem;

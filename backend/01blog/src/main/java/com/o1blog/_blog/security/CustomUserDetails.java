@@ -17,6 +17,7 @@ public class CustomUserDetails implements UserDetails {
     private String username;
     private String email;
     private String password;
+    private User.Status status;
     private Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(User user) {
@@ -24,6 +25,7 @@ public class CustomUserDetails implements UserDetails {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.password = user.getPassword();
+        this.status = user.getStatus();
 
         // Set authorities based on user role
         this.authorities = Collections.singletonList(
@@ -52,6 +54,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return status == User.Status.ACTIVE;
     }
 }

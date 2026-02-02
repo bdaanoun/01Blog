@@ -1,7 +1,5 @@
-// post-detail.component.ts
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-// import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -24,6 +22,7 @@ import { ReportDialogComponent } from '../report/report-dialog.component';
 import VideoTool from '../../editor-tools/video.tool';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog-component/confirm-dialog.component';
 
 @Component({
   selector: 'app-post-detail',
@@ -66,6 +65,10 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     Validators.maxLength(255)
   ]);
 
+  currentUser: any = null;
+  isOwner = false;
+
+
   // ---- Edit Banner ----
   selectedBannerFile: File | null = null;
   bannerPreviewUrl: string | null = null;
@@ -82,6 +85,11 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+
+    this.authService.currentUser$.subscribe(u => {
+      this.currentUser = u;
+      this.isOwner = !!this.post && !!u && this.post.userId === u.id;
+    });
     // Admin preview mode (input)
     if (this.postId) {
       this.loadPost(this.postId);
@@ -95,7 +103,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       this.isEditing = false;
       this.destroyEditEditor();
 
-        this.post = null;
+      this.post = null;
       this.comments = [];
 
       this.loadPost(id);
@@ -155,24 +163,61 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
   // Load post & comments
 
-  loadPost(id: number): void {
+  loadPost(id: number) {
     this.loading = true;
     this.error = null;
 
-    this.postService.getPostById(id).subscribe({
+    const req$ = this.adminPreview
+      ? this.postService.getPostByIdForAdmin(id)
+      : this.postService.getPostById(id);
+
+    req$.subscribe({
       next: (post) => {
         this.post = post;
         this.renderedContent = this.parseEditorJSContent(post.content);
+
+        // update owner check after post arrives
+        this.isOwner = !!this.currentUser && post.userId === this.currentUser.id;
+
         this.loading = false;
         this.loadComments(post.id);
       },
       error: (err) => {
-        this.error = 'Failed to load post';
+        this.error = err?.error?.message || 'Failed to load post';
         this.loading = false;
         console.error('Error loading post:', err);
       }
     });
   }
+
+
+  deleteMyOwnPost(): void {
+    if (!this.post) return;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        message: 'Are you sure you want to delete this post? This action cannot be undone.'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+
+      this.postService.deletePost(this.post!.id).subscribe({
+        next: () => {
+          alert('Post deleted successfully.');
+          window.location.href = '/';
+        },
+        error: (err) => {
+          console.error('Error deleting post:', err);
+          alert(err?.error?.message || 'Failed to delete post.');
+        }
+      });
+    });
+  }
+
+
 
   loadComments(postId: number): void {
     this.commentsLoading = true;

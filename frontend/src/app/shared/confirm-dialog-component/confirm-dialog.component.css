@@ -1,0 +1,42 @@
+ .confirm-dialog {
+     padding: 16px;
+     min-width: 320px;
+     border-radius: 8px;
+ }
+
+ .title {
+     font-size: 20px;
+     font-weight: 600;
+     margin-bottom: 12px;
+     color: #111827;
+ }
+
+ .content p {
+     color: #4b5563;
+     line-height: 1.5;
+     margin: 0 0 20px;
+ }
+
+ .actions {
+     display: flex;
+     justify-content: flex-end;
+     gap: 12px;
+ }
+
+ .cancel-btn {
+     color: #374151;
+     border-radius: 6px;
+     font-weight: 500;
+ }
+
+ .delete-btn {
+     background: #dc2626 !important;
+     color: white !important;
+     font-weight: 600;
+     border-radius: 6px;
+     padding: 6px 16px;
+ }
+
+ .delete-btn:hover {
+     background: #b91c1c !important;
+ }

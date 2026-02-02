@@ -39,6 +39,9 @@
         </div>
 
         <div class="post-actions" *ngIf="!adminPreview">
+          <button *ngIf="isOwner" class="delete-btn" (click)="deleteMyOwnPost()">
+            delete
+          </button>
           <button *ngIf="canEdit(); else reportBtn" class="edit-button" (click)="startEdit()" [disabled]="isEditing">
             Edit
           </button>

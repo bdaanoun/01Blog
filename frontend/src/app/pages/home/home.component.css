@@ -197,6 +197,7 @@
   color: #1a1a1a;
   margin: 0 0 0.5rem 0;
   font-family: 'Georgia', serif;
+  word-break: break-all;
 }
 
 .post-subtitle {
@@ -390,6 +391,8 @@
 
   .post-title {
     font-size: 1.25rem;
+    word-break: break-all;
+
   }
 
   .post-image {

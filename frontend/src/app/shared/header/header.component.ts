@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -19,6 +19,10 @@ export class HeaderComponent {
   showProfileDropdown = false;
   showNotifications = false;
 
+  @ViewChild('notifBox') notifBox!: ElementRef;
+  @ViewChild('profileBox') profileBox!: ElementRef;
+
+
   unreadCount = 0;
 
   notifications: NotificationDto[] = [];
@@ -32,10 +36,33 @@ export class HeaderComponent {
     this.isLoggedIn$ = this.authService.isAuthenticated$;
     this.currentUser$ = this.authService.currentUser$;
   }
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+
+    const target = event.target as HTMLElement;
+
+    // Close notifications if clicked outside
+    if (
+      this.showNotifications &&
+      this.notifBox &&
+      !this.notifBox.nativeElement.contains(target)
+    ) {
+      this.showNotifications = false;
+    }
+
+    // Close profile dropdown if clicked outside
+    if (
+      this.showProfileDropdown &&
+      this.profileBox &&
+      !this.profileBox.nativeElement.contains(target)
+    ) {
+      this.showProfileDropdown = false;
+    }
+  }
+
 
 
   ngOnInit(): void {
-    // only fetch when user is logged in
     this.isLoggedIn$.subscribe(isLogged => {
       if (isLogged) this.refreshUnreadCount();
       else this.unreadCount = 0;

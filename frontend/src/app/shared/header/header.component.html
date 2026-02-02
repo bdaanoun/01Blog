@@ -11,7 +11,7 @@
           <button class="btn btn-outline" routerLink="/writePost">Write Post</button>
 
           <!-- Notifications -->
-          <div class="notifications-wrapper">
+          <div class="notifications-wrapper" #notifBox>
             <button class="notifications-btn" (click)="toggleNotifications()">
               <mat-icon>notifications</mat-icon>
               <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
@@ -55,7 +55,7 @@
           </div>
 
 
-          <div class="avatar-wrapper" (click)="toggleProfileDropdown()">
+          <div class="avatar-wrapper"  #profileBox (click)="toggleProfileDropdown()">
             <div class="userinfo">
               <div class="username"> {{ (currentUser$ | async)?.username }}</div>
               <div class="email"> {{ (currentUser$ | async)?.email }}</div>
@@ -79,9 +79,26 @@
             </ng-template>
 
             <div *ngIf="showProfileDropdown" class="dropdown">
-              <span class="dropdown-item btn btn-outline w-full text-left" (click)="goToMyProfile()">Profile</span>
-              <span (click)="logout()" class="dropdown-item btn btn-outline w-full text-left">Logout</span>
+              <!-- <pre>{{ currentUser$ | async | json }}</pre> -->
+              <!-- Profile -->
+              <span class="dropdown-item btn btn-outline w-full text-left" (click)="goToMyProfile()">
+                Profile
+              </span>
+
+              <!-- Logout -->
+              <span (click)="logout()" class="dropdown-item btn btn-outline w-full text-left">
+                Logout
+              </span>
+
+              @if ((currentUser$ | async)?.role === 'ADMIN') {
+              <span class="dropdown-item btn btn-outline w-full text-left admin-item" routerLink="/admin">
+                <mat-icon>admin_panel_settings</mat-icon>
+                Admin Panel
+              </span>
+              }
+
             </div>
+
           </div>
 
 

@@ -115,6 +115,7 @@ public class UserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .bio(user.getBio())
+                .role(user.getRole() != null ? user.getRole().name() : null)
                 .avatar(user.getAvatar())
                 .followersCount(followersCount)
                 .followingCount(followingCount)

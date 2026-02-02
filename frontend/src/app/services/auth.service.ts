@@ -63,6 +63,7 @@ export class AuthService {
       const user = this.loadCurrentUser();
       this.currentUserSubject.next(user);
     }
+    
   }
 
 
