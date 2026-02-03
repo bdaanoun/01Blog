@@ -175,7 +175,7 @@ export class Home implements OnInit {
         else if (block.type === 'list') {
           if (block.data.style === 'unordered' || block.data.style === 'ordered') {
             block.data.items.forEach((item: any) => {
-              text += item + ' ';
+              text += item.content + ' ';
             });
           }
           if (block.data.style === 'checklist') {

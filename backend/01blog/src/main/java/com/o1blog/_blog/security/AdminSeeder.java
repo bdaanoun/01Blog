@@ -1,6 +1,5 @@
 package com.o1blog._blog.security;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -14,37 +13,33 @@ public class AdminSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${ADMIN_EMAIL:}")
-    private String adminEmail;
+    // Default admin credentials
+    private static final String DEFAULT_EMAIL = "admin@bilal.com";
+    private static final String DEFAULT_USERNAME = "admin";
+    private static final String DEFAULT_PASSWORD = "admin";
 
-    @Value("${ADMIN_USERNAME:}")
-    private String adminUsername;
-
-    @Value("${ADMIN_PASSWORD:}")
-    private String adminPassword;
-
-    public AdminSeeder(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AdminSeeder(UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
-        if (adminEmail.isBlank() || adminUsername.isBlank() || adminPassword.isBlank())
-            return;
 
-        // only create if no admin exists
-        if (userRepository.existsByRole(User.Role.ADMIN))
+        // If an admin already exists - do nothing
+        if (userRepository.existsByRole(User.Role.ADMIN)) {
+            System.out.println("Admin already exists. Skipping seeding.");
             return;
+        }
 
         User admin = new User();
-        admin.setEmail(adminEmail);
-        admin.setUsername(adminUsername);
-        admin.setPassword(passwordEncoder.encode(adminPassword));
+        admin.setEmail(DEFAULT_EMAIL);
+        admin.setUsername(DEFAULT_USERNAME);
+        admin.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
         admin.setRole(User.Role.ADMIN);
 
         userRepository.save(admin);
 
-        System.out.println("Default admin created: " + adminEmail);
     }
 }
