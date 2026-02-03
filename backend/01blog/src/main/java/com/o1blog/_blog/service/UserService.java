@@ -3,9 +3,11 @@ package com.o1blog._blog.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.o1blog._blog.dto.FollowResponse;
 import com.o1blog._blog.dto.UserProfileResponse;
@@ -86,6 +88,7 @@ public class UserService {
                 .map(u -> UsersAdminResponse.builder()
                         .id(u.getId())
                         .avatar(u.getAvatar())
+                        .role(u.getRole())
                         .username(u.getUsername())
                         .email(u.getEmail())
                         .status(u.getStatus().toString())
@@ -159,8 +162,20 @@ public class UserService {
         return getUserProfile(id, currentUserId);
     }
 
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    public Long findUserIdByUsername(String username) {
+        return userRepository.findIdByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    }
+
+    public void deleteUser(Long targetId, String currentUsername) {
+
+        Long currentUserId = findUserIdByUsername(currentUsername);
+
+        if (currentUserId.equals(targetId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete yourself");
+        }
+
+        userRepository.deleteById(targetId);
     }
 
     public FollowResponse toggleFollow(Long currentUserId, Long targetUserId) {

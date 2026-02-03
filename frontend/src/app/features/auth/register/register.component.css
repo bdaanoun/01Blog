@@ -1,31 +1,20 @@
-/* for header*/
-/* * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-} */
-
 .register-container {
   position: relative;
   max-width: 500px;
   margin: 80px auto 50px;
   padding: 60px 30px 30px;
-  /* extra top padding for avatar overlap */
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
 }
 
-/* wrapper that places avatar half outside */
 .avatar-float {
   position: absolute;
   top: -45px;
-  /* controls how much goes outside */
   left: 50%;
   transform: translateX(-50%);
 }
 
-/* the avatar upload box */
 .avatar-box {
   width: 90px;
   height: 90px;
@@ -62,7 +51,6 @@
 }
 
 
-/* Shared container (used by header) */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -114,15 +102,6 @@
 }
 
 /* __________________________________________ */
-
-/* .register-container {
-  max-width: 500px;
-  margin: 50px auto;
-  padding: 30px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-} */
 
 h2 {
   text-align: center;
@@ -185,7 +164,7 @@ input[type="password"] {
 
 input:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #CDB885;
 }
 
 input.invalid {
@@ -226,12 +205,12 @@ button:disabled {
 }
 
 .btn-primary {
-  background-color: #4CAF50;
+  background-color: #CDB885;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: #b39f72;
 }
 
 .btn-secondary {
@@ -250,7 +229,7 @@ button:disabled {
 }
 
 .login-link a {
-  color: #4CAF50;
+  color: #b9a577;
   text-decoration: none;
 }
 

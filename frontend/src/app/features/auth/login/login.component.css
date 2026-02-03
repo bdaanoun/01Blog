@@ -1,11 +1,3 @@
-/* for header*/
-/* * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-} */
-
-/* Shared container (used by header) */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -110,7 +102,7 @@ input[type="password"] {
 
 input:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #b9a577;
 }
 
 input:disabled {
@@ -138,12 +130,12 @@ button:disabled {
 }
 
 .btn-primary {
-  background-color: #4CAF50;
+  background-color: #CDB885;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: #b39f72;
 }
 
 .register-link {
@@ -153,7 +145,7 @@ button:disabled {
 }
 
 .register-link a {
-  color: #4CAF50;
+  color: #b9a577;
   text-decoration: none;
 }
 

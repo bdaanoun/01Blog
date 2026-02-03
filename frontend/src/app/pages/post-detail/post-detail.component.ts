@@ -23,6 +23,8 @@ import VideoTool from '../../editor-tools/video.tool';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog-component/confirm-dialog.component';
+import { Toast } from '../../shared/toast/toast';
+
 
 @Component({
   selector: 'app-post-detail',
@@ -81,7 +83,8 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private dialog: MatDialog,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private toast: Toast
   ) { }
 
   ngOnInit(): void {
@@ -148,12 +151,12 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
       this.postService.reportPost(this.post.id, reason).subscribe({
         next: (res) => {
-          alert(res.message || 'Report sent successfully');
+          this.toast.success(res.message || 'Report sent successfully');
           this.reporting = false;
         },
         error: (err) => {
           console.error('Report failed:', err);
-          alert(err?.error?.message || 'Failed to report post');
+          this.toast.error(err?.error?.message || 'Failed to report post');
           this.reporting = false;
         }
       });
@@ -206,12 +209,12 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
       this.postService.deletePost(this.post!.id).subscribe({
         next: () => {
-          alert('Post deleted successfully.');
+          this.toast.success('Post deleted successfully.');
           window.location.href = '/';
         },
         error: (err) => {
           console.error('Error deleting post:', err);
-          alert(err?.error?.message || 'Failed to delete post.');
+          this.toast.error(err?.error?.message || 'Failed to delete post.');
         }
       });
     });
@@ -560,7 +563,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       // if you support removing the banner in backend
       fd.append('removeBanner', String(this.removeBannerFlag));
 
-      // IMPORTANT: your PostService must implement updatePostFormData()
       this.postService.updatePostFormData(this.post.id, fd).subscribe({
         next: (updated) => {
           this.post = updated;

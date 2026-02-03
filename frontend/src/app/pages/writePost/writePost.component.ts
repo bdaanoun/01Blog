@@ -7,15 +7,19 @@ import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
 import ImageTool from '@editorjs/image';
 import VideoTool from '../../editor-tools/video.tool';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-write-post',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule],
   templateUrl: './writePost.component.html',
   styleUrls: ['./writePost.component.css']
 })
 export class WritePostComponent implements AfterViewInit, OnDestroy {
+  constructor(private snackBar: MatSnackBar) { }
 
   @ViewChild('editor') editorRef!: ElementRef;
   @ViewChild('imageInput') imageInputRef!: ElementRef<HTMLInputElement>;
@@ -31,12 +35,6 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
   showSlashMenu = false;
   menuX = 0;
   menuY = 0;
-  // slashItems = [
-  //   { type: 'header', label: 'Header H2' },
-  //   { type: 'list', label: 'List' },
-  //   { type: 'image', label: 'Image' }
-  // ];
-
   ngAfterViewInit(): void {
     const token = localStorage.getItem('authToken');
 
@@ -216,12 +214,12 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
             index
           );
         } else {
-          alert(data?.message || 'Failed to upload video');
+          this.showToast(data?.message || 'Failed to upload video', 'error');
         }
       })
       .catch(err => {
         console.error('Error uploading video:', err);
-        alert('Failed to upload video');
+        this.showToast('Failed to upload video', 'error');
       });
 
     input.value = '';
@@ -273,7 +271,7 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
       })
       .catch(error => {
         console.error('Error uploading image:', error);
-        alert('Failed to upload image');
+        this.showToast('Failed to upload image', 'error');
       });
 
     input.value = '';
@@ -303,7 +301,7 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
 
   async saveContent() {
     if (!this.title.trim()) {
-      alert('Please enter a title.');
+      this.showToast('Please enter a title.', 'error');
       return;
     }
 
@@ -331,21 +329,32 @@ export class WritePostComponent implements AfterViewInit, OnDestroy {
       });
 
       if (response.ok) {
-        alert('Post saved successfully!');
+        this.showToast('Post saved successfully!', 'success');
         this.editor.clear();
+        window.location.href = '/';
         this.title = '';
         this.bannerFile = null;
         this.bannerPreview = null;
       } else {
         const error = await response.text();
         console.error('Error saving post:', error);
-        alert('Failed to save post.');
+        this.showToast('Failed to save post.', 'error');
       }
     } catch (err) {
       console.error('Error:', err);
-      alert('An error occurred while saving the post.');
+      this.showToast('An error occurred while saving the post.', 'error');
     }
   }
+
+  showToast(message: string, type: 'success' | 'error' = 'success') {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'left',
+      verticalPosition: 'bottom',
+      panelClass: type === 'success' ? ['toast-success'] : ['toast-error']
+    });
+  }
+
 
   ngOnDestroy(): void {
     if (this.editor) this.editor.destroy();

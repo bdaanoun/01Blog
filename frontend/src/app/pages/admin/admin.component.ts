@@ -8,6 +8,7 @@ import { AdminService } from '../../services/admin.service';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PostDetailPreviewDialogComponent } from '../post-detail/post-detail-preview-dialog.component';
+import { Toast } from '../../shared/toast/toast';
 
 
 type AdminUser = {
@@ -60,7 +61,7 @@ type PostPannel = {
 
 export class AdminComponent implements OnInit {
 
-    constructor(private http: HttpClient, private adminService: AdminService, private dialog: MatDialog) { }
+    constructor(private http: HttpClient, private adminService: AdminService, private dialog: MatDialog, private toast: Toast) { }
 
     // activeTab: 'users' | 'reports' = 'users';
     activeTab: 'users' | 'posts' | 'reports' | 'userReports' = 'users';
@@ -128,8 +129,9 @@ export class AdminComponent implements OnInit {
         this.http.patch(`${this.adminBase}/users/${user.id}/ban`, {}).subscribe({
             next: () => {
                 user.status = 'BANNED';
+                this.toast.success(`User "${user.username}" has been banned.`);
             },
-            error: (err) => alert(err?.error?.message || 'Failed to ban user')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to ban user')
         });
     }
 
@@ -137,8 +139,9 @@ export class AdminComponent implements OnInit {
         this.http.patch(`${this.adminBase}/users/${user.id}/unban`, {}).subscribe({
             next: () => {
                 user.status = 'ACTIVE';
+                this.toast.success(`User "${user.username}" has been unbanned.`);
             },
-            error: (err) => alert(err?.error?.message || 'Failed to unban user')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to unban user')
         });
     }
     resolvePostReport(r: ReportedPost) {
@@ -146,7 +149,7 @@ export class AdminComponent implements OnInit {
             next: () => {
                 r.status = 'RESOLVED';
             },
-            error: (err) => alert(err?.error?.message || 'Failed to resolve report')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to resolve report')
         });
     }
     resolveUserReport(r: ReportedUser) {
@@ -154,7 +157,7 @@ export class AdminComponent implements OnInit {
             next: () => {
                 r.status = 'RESOLVED';
             },
-            error: (err) => alert(err?.error?.message || 'Failed to resolve report')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to resolve report')
         });
     }
     askBanUser(u: AdminUser) {
@@ -280,7 +283,7 @@ export class AdminComponent implements OnInit {
                 // optional: show feedback
                 console.log(`Post ${postId} hidden`);
             },
-            error: (err) => alert(err?.error?.message || 'Failed to hide post')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to hide post')
         });
     }
 
@@ -294,7 +297,7 @@ export class AdminComponent implements OnInit {
             next: () => {
                 post.status = 'HIDDEN';
             },
-            error: (err) => alert(err?.error?.message || 'Failed to hide post')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to hide post')
         });
     }
 
@@ -303,7 +306,7 @@ export class AdminComponent implements OnInit {
             next: () => {
                 post.status = 'PUBLISHED';
             },
-            error: (err) => alert(err?.error?.message || 'Failed to show post')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to show post')
         });
     }
 
@@ -320,7 +323,7 @@ export class AdminComponent implements OnInit {
                 this.posts = this.posts.filter(p => p.id !== postId);
                 this.reports = this.reports.filter(r => r.postId !== postId);
             },
-            error: (err) => alert(err?.error?.message || 'Failed to delete post')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to delete post')
         });
     }
 
@@ -332,7 +335,8 @@ export class AdminComponent implements OnInit {
                 this.users = this.users.filter(u => u.id !== user.id);
             },
             error: (err) => {
-                alert(err?.error?.message || 'Failed to delete user');
+
+                this.toast.error(err?.error?.message || 'Failed to delete user');
             }
         });
     }
@@ -374,7 +378,7 @@ export class AdminComponent implements OnInit {
                 this.reports = this.reports.filter(r => r.reportId !== reportId);
             },
             error: (err) => {
-                alert(err?.error?.message || 'Failed to delete post');
+                this.toast.error(err?.error?.message || 'Failed to delete post');
             }
         });
     }
@@ -422,7 +426,7 @@ export class AdminComponent implements OnInit {
                 this.users = this.users.filter(u => u.id !== userId);
                 this.userReports = this.userReports.filter(r => r.reportedUserId !== userId);
             },
-            error: (err) => alert(err?.error?.message || 'Failed to delete user')
+            error: (err) => this.toast.error(err?.error?.message || 'Failed to delete user')
         });
     }
 

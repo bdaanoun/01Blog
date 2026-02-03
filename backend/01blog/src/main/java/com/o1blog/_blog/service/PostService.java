@@ -20,9 +20,11 @@ import com.o1blog._blog.repository.UserRepository;
 import com.o1blog._blog.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -263,13 +265,45 @@ public class PostService {
         }).toList();
     }
 
-    public Post getPostById(Long id) {
-        return postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+    public Post getPostById(Long postId, Long currentUserId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
 
+        if (post.getStatus() == PostStatus.PUBLISHED)
+            return post;
+
+        if (isAdmin(currentUserId) || post.getUser().getId().equals(currentUserId))
+            return post;
+
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
     }
 
-    public void deletePost(Long id) {
-        postRepository.deleteById(id);
+    @Transactional
+    public void deletePost(Long postId, Long currentUserId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        if (!post.getUser().getId().equals(currentUserId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own post");
+        }
+
+        postRepository.delete(post);
+    }
+
+    public void hidePost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        post.setStatus(Post.PostStatus.HIDDEN);
+        postRepository.save(post);
+    }
+
+    public void showPost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        post.setStatus(Post.PostStatus.PUBLISHED);
+        postRepository.save(post);
     }
 
     public Post updatePost(Post post) {

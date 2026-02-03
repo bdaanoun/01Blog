@@ -2,18 +2,23 @@ package com.o1blog._blog.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.o1blog._blog.dto.AdminReportedPostResponse;
 import com.o1blog._blog.dto.AdminReportedUsersResponse;
 import com.o1blog._blog.dto.UsersAdminResponse;
 import com.o1blog._blog.model.Post;
+import com.o1blog._blog.model.User;
 import com.o1blog._blog.service.AdminService;
 import com.o1blog._blog.service.PostService;
 import com.o1blog._blog.service.ReportService;
@@ -45,8 +50,15 @@ public class AdminController {
     }
 
     @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+
+        String currentUsername = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        userService.deleteUser(id, currentUsername);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/users")
@@ -73,7 +85,6 @@ public class AdminController {
     public void showPost(@PathVariable Long id) {
         postService.showPost(id);
     }
-
 
     @DeleteMapping("/posts/{id}")
     public void deletePost(@PathVariable Long id) {
