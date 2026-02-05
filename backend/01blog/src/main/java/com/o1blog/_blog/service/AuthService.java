@@ -76,27 +76,24 @@ public class AuthService {
         try {
             User user = userRepository.findByEmail(request.getIdentifier())
                     .orElseGet(() -> userRepository.findByUsername(request.getIdentifier())
-                            .orElseThrow(() -> new IllegalArgumentException("User makaynch.")));
+                            .orElseThrow(() -> new IllegalArgumentException("Invalid email or password")));
 
-            // blocked user cannot login
             if (user.getStatus() == User.Status.BANNED) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(new AuthResponse(null, "Account is banned"));
             }
-            // Check password
+
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 throw new IllegalArgumentException("Invalid email or password");
             }
 
             String token = jwtUtil.generateToken(user.getUsername(), user.getId(), user.getRole());
+            return ResponseEntity.ok(new AuthResponse(token, "Login successful"));
 
-            return ResponseEntity.ok(
-                    new AuthResponse(token, "Login successful"));
-
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body(new AuthResponse(null, "Invalid " + e));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new AuthResponse(null, e.getMessage()));
         }
     }
+
 }

@@ -22,11 +22,8 @@ import com.o1blog._blog.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -88,8 +85,6 @@ public class PostService {
             return savedPost;
 
         } catch (Exception e) {
-            // System.err.println("=== ERROR IN CREATE POST ===");
-            System.err.println("Error message: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to create post: " + e.getMessage(), e);
         }
@@ -287,7 +282,7 @@ public class PostService {
 
     // get one user posts
     public List<PostResponse> getPostsByUser(Long profileUserId, Long currentUserId) {
-        List<Post> posts = postRepository.findByUserId(profileUserId);
+        List<Post> posts = postRepository.findByUserIdAndStatus(profileUserId, PostStatus.PUBLISHED);
 
         return posts.stream().map(post -> {
             boolean liked = likeRepository.existsByUserIdAndPostId(currentUserId, post.getId());

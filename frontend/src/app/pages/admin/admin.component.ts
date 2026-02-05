@@ -63,7 +63,6 @@ export class AdminComponent implements OnInit {
 
     constructor(private http: HttpClient, private adminService: AdminService, private dialog: MatDialog, private toast: Toast) { }
 
-    // activeTab: 'users' | 'reports' = 'users';
     activeTab: 'users' | 'posts' | 'reports' | 'userReports' = 'users';
 
     users: AdminUser[] = [];
@@ -122,8 +121,6 @@ export class AdminComponent implements OnInit {
             }
         });
     }
-
-
 
     banUser(user: AdminUser) {
         this.http.patch(`${this.adminBase}/users/${user.id}/ban`, {}).subscribe({
