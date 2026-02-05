@@ -19,10 +19,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
 
-      // if (error.status === 401 && token) {
-      //   localStorage.removeItem('authToken');
-      //   router.navigate(['/login']);
-      // }
+      if (error.status === 403 && error.error?.message === 'Your account has been banned.') {        
+        localStorage.removeItem('authToken');
+        router.navigate(['/login']);
+      }
 
       return throwError(() => error);
     })
