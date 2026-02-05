@@ -185,6 +185,23 @@ export class AdminComponent implements OnInit {
         if (tab === 'reports' && this.reports.length === 0) this.loadReports();
         if (tab === 'userReports' && this.userReports.length === 0) this.loadUserReports();
     }
+
+    toggleRole(user: any) {
+        const newRole = user.role === 'ADMIN' ? 'USER' : 'ADMIN';
+
+        this.adminService.updateUserRole(user.id, newRole).subscribe({
+            next: () => {
+                // Update UI instantly
+                user.role = newRole;
+            },
+            error: (err) => {
+                console.error('Failed to update role', err);
+                this.toast.error(err?.error?.message)
+            }
+        });
+    }
+
+
     loadPosts() {
         this.postsloading = true;
         this.postsError = '';

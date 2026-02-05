@@ -41,20 +41,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/posts/**").authenticated()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                    )
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // .exceptionHandling(ex -> ex
-                //         // 401: not authenticated
-                //         .authenticationEntryPoint((request, response, authException) -> {
-                //             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-                //         })
-                //         // 403: authenticated but no permission
-                //         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                //             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
-                //         }))
-
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
