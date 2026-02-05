@@ -15,4 +15,12 @@ export class AdminService {
     deleteUserReport(reportId: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/reports/${reportId}`);
     }
+
+    updateUserRole(userId: number, role: string) {
+        return this.http.patch(
+            `http://localhost:8080/api/admin/users/${userId}/role`,
+            { role }
+        );
+    }
+
 }
