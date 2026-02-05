@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.o1blog._blog.dto.PostResponse;
+import com.o1blog._blog.dto.PostsForAdmin;
 import com.o1blog._blog.exeption.PostNotFoundException;
 import com.o1blog._blog.exeption.UserNotFoundException;
 import com.o1blog._blog.model.Follow;
@@ -21,8 +22,11 @@ import com.o1blog._blog.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -44,12 +48,6 @@ public class PostService {
 
     public Post createPost(CustomUserDetails userDetails, String title, String content, MultipartFile banner) {
         try {
-            System.out.println("=== CREATE POST START ===");
-            // System.out.println("User ID: " + userDetails.getId());
-            // System.out.println("Title: " + title);
-            // System.out.println("Content length: " + (content != null ? content.length() :
-            // "null"));
-
             User user = userRepository.findById(userDetails.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -247,12 +245,39 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    @Transactional(readOnly = true)
+    public List<PostsForAdmin> getAllPostsForAdmin() {
+        return postRepository.findAll()
+                .stream()
+                .map(post -> PostsForAdmin.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .userId(post.getUser().getId())
+                        .authorUsername(post.getUser().getUsername())
+                        .status(post.getStatus().name()) // or toString()
+                        .build())
+                .toList();
+    }
+
     // get all posts
     public List<Post> getAllPosts(Long currentUserId) {
         if (isAdmin(currentUserId)) {
             return postRepository.findAll();
         }
         return postRepository.findAllByStatusOrderByCreatedAtDesc(PostStatus.PUBLISHED);
+    }
+
+    @Transactional(readOnly = true)
+    public PostResponse getPostForAdmin(Long id) {
+        var post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        return PostResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .authorUsername(post.getUser().getUsername())
+                .status(post.getStatus().toString())
+                .build();
     }
 
     // get one user posts

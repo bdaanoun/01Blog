@@ -211,4 +211,37 @@ public class UserService {
 
         return new FollowResponse(isFollowing, followersCount);
     }
+
+    @Transactional
+    public void updateRole(Long targetUserId, String role, Long currentUserId) {
+        if (currentUserId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+
+        // validate role value
+        if (role == null || (!role.equalsIgnoreCase("ADMIN") && !role.equalsIgnoreCase("USER"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role");
+        }
+
+        User target = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String newRole = role.toUpperCase();
+
+        boolean isSelf = currentUserId.equals(targetUserId);
+        boolean isDemotingToUser = newRole.equals("USER");
+        boolean isCurrentlyAdmin = target.getRole() != null && target.getRole().name().equals("ADMIN");
+
+        if (isSelf && isCurrentlyAdmin && isDemotingToUser) {
+            long adminsCount = userRepository.countByRole(User.Role.ADMIN);
+            if (adminsCount <= 1) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are the last admin");
+            }
+        }
+
+        // set role (adjust enum type based on your model)
+        target.setRole(User.Role.valueOf(newRole));
+        userRepository.save(target);
+    }
+
 }

@@ -100,6 +100,10 @@
                                     Unban
                                 </button>
 
+                                <button class="ghost" (click)="toggleRole(u)">
+                                    {{ (u.role || 'USER') === 'ADMIN' ? 'Set USER' : 'Set ADMIN' }}
+                                </button>
+
                                 <button class="danger" (click)="askDeleteUser(u)">
                                     Delete
                                 </button>

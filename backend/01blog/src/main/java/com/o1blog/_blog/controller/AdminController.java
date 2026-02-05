@@ -1,24 +1,22 @@
 package com.o1blog._blog.controller;
 
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.o1blog._blog.dto.AdminReportedPostResponse;
 import com.o1blog._blog.dto.AdminReportedUsersResponse;
+import com.o1blog._blog.dto.PostsForAdmin;
 import com.o1blog._blog.dto.UsersAdminResponse;
-import com.o1blog._blog.model.Post;
-import com.o1blog._blog.model.User;
 import com.o1blog._blog.service.AdminService;
 import com.o1blog._blog.service.PostService;
 import com.o1blog._blog.service.ReportService;
@@ -66,6 +64,11 @@ public class AdminController {
         return userService.getAllUsersForAdmin();
     }
 
+    @GetMapping("/posts")
+    public List<PostsForAdmin> getAllPosts() {
+        return postService.getAllPostsForAdmin();
+    }
+
     @GetMapping("/reported-users")
     public List<AdminReportedUsersResponse> getReportedUsers() {
         return adminService.getReportedUsersForAdmin();
@@ -86,12 +89,30 @@ public class AdminController {
         postService.showPost(id);
     }
 
+    @PatchMapping("/users/{id}/role")
+    public ResponseEntity<Void> updateRole(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        String role = body.get("role");
+        Long currentUserId = getCurrentUserId();
+
+        userService.updateRole(id, role, currentUserId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/posts/{id}")
+    public ResponseEntity<PostsForAdmin> getPostForAdmin(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.getPostForAdmin(id));
+    }
+
     @DeleteMapping("/posts/{id}")
     public void deletePost(@PathVariable Long id) {
         postService.deletePost(id, getCurrentUserId());
     }
 
-    @DeleteMapping("reports/{id}")
+    @DeleteMapping("/reports/{id}")
     public void deleteReport(@PathVariable Long id) {
         reportService.deletePostReport(id);
     }

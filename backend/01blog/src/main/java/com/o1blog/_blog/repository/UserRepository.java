@@ -9,6 +9,9 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    long countByRole(User.Role role);
+
     Optional<User> findByEmail(String email);
 
     Optional<User> findByUsername(String username);
