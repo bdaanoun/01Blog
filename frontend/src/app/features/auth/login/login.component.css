@@ -47,6 +47,7 @@
     font-size: 20px;
   }
 }
+
 /* __________________________________________ */
 
 .login-container {
@@ -151,4 +152,22 @@ button:disabled {
 
 .register-link a:hover {
   text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .login-container {
+    margin: 20px 12px;
+    padding: 20px 16px;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px;
+  }
 }

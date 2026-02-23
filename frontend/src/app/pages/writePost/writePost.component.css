@@ -11,7 +11,8 @@
   font-weight: bold;
 }
 
-input[type="text"], input[type="file"] {
+input[type="text"],
+input[type="file"] {
   padding: 8px;
   font-size: 30px;
   /* border-radius: 5px; */
@@ -80,7 +81,7 @@ input[type="text"], input[type="file"] {
   border-radius: 5px;
   min-width: 120px;
   z-index: 1000;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .slash-item {
@@ -104,3 +105,46 @@ input[type="text"], input[type="file"] {
   font-weight: 500;
 }
 
+/* Tablet */
+@media (max-width: 768px) {
+  .editor-wrapper {
+    padding: 16px 12px;
+    margin: 12px auto;
+  }
+
+  input[type="text"],
+  input[type="file"] {
+    font-size: 22px;
+  }
+
+  .image-upload-box {
+    height: 160px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .editor-wrapper {
+    padding: 12px 8px;
+    margin: 8px auto;
+  }
+
+  input[type="text"],
+  input[type="file"] {
+    font-size: 18px;
+    padding: 6px;
+  }
+
+  .image-upload-box {
+    height: 130px;
+  }
+
+  .placeholder-text {
+    font-size: 14px;
+  }
+
+  .btn-save {
+    width: 100%;
+    padding: 10px;
+  }
+}

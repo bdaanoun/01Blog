@@ -236,3 +236,35 @@ button:disabled {
 .login-link a:hover {
   text-decoration: underline;
 }
+
+/* Mobile */
+@media (max-width: 480px) {
+  .register-container {
+    margin: 60px 12px 30px;
+    padding: 50px 16px 20px;
+  }
+
+  .avatar-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+  }
+
+  .avatar-float {
+    top: -35px;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
