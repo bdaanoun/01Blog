@@ -105,9 +105,6 @@ export class ProfileComponent implements OnInit {
 
   checkIfOwnProfile(): void {
     const currentUserId = this.getCurrentUserId();
-    // console.log("checker:  ", currentUserId, "  ", this.user?.id);
-    // console.log("t or f:  ", this.isOwnProfile);
-
     if (currentUserId && this.user) {
       this.isOwnProfile = currentUserId === this.user.id;
     }
@@ -121,7 +118,6 @@ export class ProfileComponent implements OnInit {
     try {
       const payload = token.split('.')[1];
       const decodedPayload = JSON.parse(atob(payload));
-      // console.log("t oken:  ", decodedPayload);
       return decodedPayload.id ?? null;
     } catch (e) {
       console.error('Invalid token', e);
@@ -137,7 +133,6 @@ export class ProfileComponent implements OnInit {
       next: (response) => {
 
         if (this.user) {
-          // console.log("response:  ", this.user);
           this.user.isFollowing = response.isFollowing;
           if (this.user.followersCount !== undefined) {
             this.user.followersCount = response.isFollowing
