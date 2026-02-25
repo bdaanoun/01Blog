@@ -79,22 +79,6 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
-    // Mark all as read
-    @PatchMapping("/read-all")
-    public ResponseEntity<Void> markAllAsRead() {
-        Long currentUserId = getCurrentUserId();
-        if (currentUserId == null)
-            throw new RuntimeException("User not authenticated");
-
-        List<Notification> unread = notificationRepository
-                .findByReceiverIdAndStatus(currentUserId, Notification.NotificationStatus.UNREAD);
-
-        unread.forEach(n -> n.setStatus(Notification.NotificationStatus.READ));
-        notificationRepository.saveAll(unread);
-
-        return ResponseEntity.noContent().build();
-    }
-
     private Long getCurrentUserId() {
         var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated())
