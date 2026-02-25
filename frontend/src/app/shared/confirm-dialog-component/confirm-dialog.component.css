@@ -1,6 +1,6 @@
  .confirm-dialog {
      padding: 16px;
-     min-width: min(320px, 90vw);
+     min-width: 320px;
      border-radius: 8px;
  }
 

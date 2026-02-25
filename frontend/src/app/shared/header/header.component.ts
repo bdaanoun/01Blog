@@ -64,14 +64,8 @@ export class HeaderComponent {
 
   ngOnInit(): void {
     this.isLoggedIn$.subscribe(isLogged => {
-      if (isLogged) {
-        this.refreshUnreadCount();
-      } else {
-        this.unreadCount = 0;
-        this.notifications = [];
-        this.showNotifications = false;
-        this.showProfileDropdown = false;
-      }
+      if (isLogged) this.refreshUnreadCount();
+      else this.unreadCount = 0;
     });
   }
 
