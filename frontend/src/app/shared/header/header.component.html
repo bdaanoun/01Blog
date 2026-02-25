@@ -8,7 +8,7 @@
       <!-- Buttons when logged in -->
       <ng-container *ngIf="isLoggedIn$ | async; else loggedOut">
         <div class="nav-buttons" style="display: flex; align-items: center; gap: 12px;">
-          <button class="btn btn-outline" routerLink="/writePost">Write Post</button>
+          <button class="btn btn-outline" routerLink="/writePost">Write</button>
 
           <!-- Notifications -->
           <div class="notifications-wrapper" #notifBox>

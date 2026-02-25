@@ -2,11 +2,9 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
-  const authService = inject(AuthService);
 
   const token = localStorage.getItem('authToken');
 
@@ -21,7 +19,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
 
-      if (error.status === 403 && error.error?.message === 'Your account has been banned.') {        
+      if (error.status === 403 && error.error?.message === 'Your account has been banned.') {
         localStorage.removeItem('authToken');
         router.navigate(['/login']);
       }
