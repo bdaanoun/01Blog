@@ -44,7 +44,6 @@ public class UserController {
     @GetMapping("/{id}")
     public UserProfileResponse getUserById(@PathVariable Long id) {
         Long currentUserId = getCurrentUserId();
-        System.out.println();
         return userService.getUserProfile(id, currentUserId);
     }
 

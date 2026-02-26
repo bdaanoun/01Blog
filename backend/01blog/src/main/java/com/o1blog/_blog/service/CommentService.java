@@ -35,8 +35,6 @@ public class CommentService {
     }
 
     public CommentResponse addComment(Long postId, CommentRequest request, Long userId) {
-        // System.out.println("comm=> " + request.getContent());
-        // System.out.println("user=> " + userId);
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));

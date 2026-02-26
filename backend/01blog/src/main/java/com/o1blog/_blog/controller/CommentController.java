@@ -30,7 +30,6 @@ public class CommentController {
             @PathVariable Long postId,
             @Valid @RequestBody CommentRequest request,
             @AuthenticationPrincipal CustomUserDetails user) {
-        // System.out.println("===> " + request);
         Long userId = user.getId();
         return ResponseEntity.ok(commentService.addComment(postId, request, userId));
     }

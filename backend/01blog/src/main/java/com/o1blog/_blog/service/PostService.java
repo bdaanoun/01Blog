@@ -53,9 +53,7 @@ public class PostService {
 
             String bannerPath = null;
             if (banner != null && !banner.isEmpty()) {
-                System.out.println("Saving banner...");
                 bannerPath = fileStorageService.save(banner);
-                System.out.println("Banner saved: " + bannerPath);
             }
 
             Post post = Post.builder()
@@ -120,20 +118,16 @@ public class PostService {
         try {
 
             if (content == null || content.trim().isEmpty()) {
-                System.out.println("Content is empty");
                 return content;
             }
 
             JsonNode root = objectMapper.readTree(content);
-            System.out.println("JSON parsed successfully");
 
             JsonNode blocks = root.get("blocks");
             if (blocks == null || !blocks.isArray()) {
-                System.out.println("No blocks array found");
                 return content;
             }
 
-            // System.out.println("Processing " + blocks.size() + " blocks");
 
             for (int i = 0; i < blocks.size(); i++) {
                 JsonNode block = blocks.get(i);
@@ -144,17 +138,14 @@ public class PostService {
                         JsonNode fileNode = data.get("file");
                         if (fileNode.has("url")) {
                             String url = fileNode.get("url").asText();
-                            System.out.println("Found image URL: " + url);
 
                             if (url.contains("/temp/")) {
                                 String filename = url.substring(url.lastIndexOf("/") + 1);
-                                System.out.println("Moving temp file: " + filename);
 
                                 String newPath = fileStorageService.moveTempToPermanent(filename);
                                 String newUrl = "http://localhost:8080/uploads/" + newPath;
 
                                 ((ObjectNode) fileNode).put("url", newUrl);
-                                System.out.println("Updated to: " + newUrl);
                             }
                         }
                     }
@@ -163,18 +154,14 @@ public class PostService {
                     JsonNode data = block.get("data");
                     if (data != null && data.has("url")) {
                         String url = data.get("url").asText();
-                        System.out.println("Found video URL: " + url);
 
                         if (url.contains("/temp/")) {
                             String filename = url.substring(url.lastIndexOf("/") + 1);
-                            System.out.println("Moving temp video file: " + filename);
 
                             String newPath = fileStorageService.moveTempToPermanent(filename);
-                            System.out.println("New video path: " + newPath);
                             String newUrl = "http://localhost:8080/uploads/" + newPath;
 
                             ((ObjectNode) data).put("url", newUrl);
-                            System.out.println("Updated video to: " + newUrl);
                         }
                     }
                 }
@@ -182,14 +169,9 @@ public class PostService {
             }
 
             String result = objectMapper.writeValueAsString(root);
-            System.out.println("=== PROCESS IMAGES END ===");
             return result;
 
         } catch (Exception e) {
-            System.err.println("=== ERROR IN PROCESS IMAGES ===");
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
-            // Return original content if processing fails
             return content;
         }
     }

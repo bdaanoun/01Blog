@@ -2,7 +2,6 @@ package com.o1blog._blog;
 
 import java.time.Instant;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponseException;
@@ -18,7 +17,6 @@ import com.o1blog._blog.exeption.PostNotFoundException;
 import com.o1blog._blog.exeption.UserNotFoundException;
 import com.o1blog._blog.exeption.UsernameAlreadyTakenException;
 
-import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

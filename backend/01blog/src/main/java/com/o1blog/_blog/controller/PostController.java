@@ -33,9 +33,7 @@ public class PostController {
             @RequestParam("image") MultipartFile image) {
 
         try {
-            System.out.println("Uploading temp image: " + image.getOriginalFilename());
             String imagePath = fileStorageService.saveTemp(image);
-            System.out.println("Temp image saved: " + imagePath);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", 1);
@@ -44,9 +42,6 @@ public class PostController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("Error uploading temp image: " + e.getMessage());
-            e.printStackTrace();
-
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", 0);
             errorResponse.put("message", "Upload failed: " + e.getMessage());
@@ -60,9 +55,7 @@ public class PostController {
             @RequestParam("video") MultipartFile video) {
 
         try {
-            System.out.println("Uploading temp image: " + video.getOriginalFilename());
             String videoPath = fileStorageService.saveTemp(video);
-            System.out.println("Temp video saved: " + videoPath);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", 1);
@@ -71,9 +64,6 @@ public class PostController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("Error uploading temp video: " + e.getMessage());
-            e.printStackTrace();
-
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", 0);
             errorResponse.put("message", "Upload failed: " + e.getMessage());
@@ -134,15 +124,12 @@ public class PostController {
     @GetMapping("/following")
     public ResponseEntity<List<PostResponse>> getFollowingPosts() {
         Long currentUserId = getCurrentUserId();
-        // System.out.println("id: " + currentUserId);
 
         List<Post> posts = postService.getFollowingPosts(currentUserId);
-        // System.out.println("posts: " + posts);
 
         List<PostResponse> response = posts.stream()
                 .map(post -> mapToResponse(post, currentUserId))
                 .toList();
-        // System.out.println("response: " + response);
 
         return ResponseEntity.ok(response);
     }
