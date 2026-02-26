@@ -1,9 +1,253 @@
-# 🚀 Project Architecture Deep Dive: From Startup to Runtime
+# 01Blog — Full-Stack Social Blogging Platform
+
+A full-stack blogging platform built with **Angular 20** and **Spring Boot 4**, featuring rich text editing, social interactions (likes, follows, comments), notifications, a reporting system, and an admin dashboard.
+
+---
 
 ## Table of Contents
-1. [Backend Architecture (Spring Boot)](#backend-architecture-spring-boot)
-2. [Frontend Architecture (Angular)](#frontend-architecture-angular)
-3. [Complete Application Lifecycle](#complete-application-lifecycle)
+
+1. [Tech Stack](#tech-stack)
+2. [Features](#features)
+3. [Project Structure](#project-structure)
+4. [Getting Started](#getting-started)
+5. [API Endpoints](#api-endpoints)
+6. [Backend Architecture (Spring Boot)](#backend-architecture-spring-boot)
+7. [Frontend Architecture (Angular)](#frontend-architecture-angular)
+8. [Complete Application Lifecycle](#complete-application-lifecycle)
+
+---
+
+## Tech Stack
+
+| Layer        | Technology                                                        |
+| ------------ | ----------------------------------------------------------------- |
+| **Frontend** | Angular 20, Angular Material, Tiptap / EditorJS, SSR              |
+| **Backend**  | Spring Boot 4, Java 21, Spring Security, Spring Data JPA, Lombok  |
+| **Database** | PostgreSQL 15 (via Docker)                                        |
+| **Auth**     | JWT, BCrypt password hashing                                      |
+| **API Docs** | SpringDoc OpenAPI (Swagger UI)                                    |
+
+---
+
+## Features
+
+### Authentication & Users
+- Register with username, email, password, optional bio & avatar
+- Login with JWT-based authentication
+- Profile pages with avatar, bio, post history
+- Edit profile (username, email, bio, avatar)
+- User roles: `USER` and `ADMIN`
+- User status: `ACTIVE` and `BANNED`
+
+### Blog Posts
+- Create posts with a rich text editor (Tiptap) and banner image
+- Upload images and videos inline while writing
+- Edit and delete your own posts
+- View all posts on the home feed
+- View posts from followed users only
+- Post statuses: `PUBLISHED` and `HIDDEN`
+
+### Social Features
+- **Like / Unlike** posts
+- **Follow / Unfollow** users
+- **Comment** on posts
+- **Notifications** (like, follow, comment) with read/unread status
+
+### Reporting System
+- Report posts with a reason
+- Report users with a reason
+- Admins can review and act on reports
+
+### Admin Dashboard
+- View all users and posts
+- Ban / Unban users
+- Hide / Show posts
+- Change user roles
+- View & manage reported users and posts
+- Delete users, posts, and reports
+
+---
+
+## Project Structure
+
+```
+01blog/
+├── backend/01blog/                  # Spring Boot API
+│   ├── src/main/java/com/o1blog/_blog/
+│   │   ├── controller/              # REST controllers (7)
+│   │   │   ├── AuthController       # Register & Login
+│   │   │   ├── PostController       # CRUD posts, likes, media uploads
+│   │   │   ├── UserController       # User profiles & updates
+│   │   │   ├── CommentController    # Post comments
+│   │   │   ├── FollowController     # Follow/Unfollow
+│   │   │   ├── NotificationController # Notifications
+│   │   │   ├── ReportController     # Report posts & users
+│   │   │   └── AdminController      # Admin operations
+│   │   ├── service/                 # Business logic (9 services)
+│   │   ├── repository/              # JPA repositories (8)
+│   │   ├── model/                   # Entity classes (8)
+│   │   │   ├── User (Role, Status)
+│   │   │   ├── Post (PostStatus)
+│   │   │   ├── Comment, Like, Follow
+│   │   │   ├── Notification
+│   │   │   └── PostReport, UserReport
+│   │   ├── dto/                     # Request/Response DTOs (16)
+│   │   ├── security/               # JWT filter, util, user details, admin seeder
+│   │   ├── config/                  # SecurityConfig, WebConfig, JacksonConfig
+│   │   └── exeption/                # Custom exceptions
+│   └── src/main/resources/
+│       └── application.properties
+│
+├── frontend/                        # Angular SPA
+│   └── src/app/
+│       ├── pages/                   # Landing, Home, Post Detail, Write Post,
+│       │                            # Profile, Settings, Admin, Report
+│       ├── features/auth/           # Login & Register components
+│       ├── services/                # Auth, Post, Comment, Notification, Admin
+│       ├── shared/                  # Header, Toast, Confirm Dialog
+│       ├── guards/                  # Auth guard, Guest guard
+│       ├── interceptors/            # JWT auth interceptor
+│       └── app.routes.ts            # Route definitions
+│
+└── docker-compose.yaml              # PostgreSQL container
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **Java 21**
+- **Node.js** (v20+) and **npm**
+- **Docker** & **Docker Compose** (for PostgreSQL)
+
+### 1. Start the Database
+
+```bash
+docker compose up -d
+```
+
+This starts a PostgreSQL 15 container (`blog_postgres`) on port **5432** with database `01blog_db`.
+
+### 2. Run the Backend
+
+```bash
+cd backend/01blog
+./mvnw spring-boot:run
+```
+
+The API starts at `http://localhost:8080`.
+
+> **Swagger UI** is available at `http://localhost:8080/swagger-ui.html`
+
+### 3. Run the Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+The app starts at `http://localhost:4200`.
+
+---
+
+## API Endpoints
+
+### Auth
+| Method | Endpoint          | Description          |
+| ------ | ----------------- | -------------------- |
+| POST   | `/api/register`   | Register a new user  |
+| POST   | `/api/login`      | Login & get JWT      |
+
+### Posts
+| Method | Endpoint                    | Description                   |
+| ------ | --------------------------- | ----------------------------- |
+| GET    | `/api/posts`                | Get all posts                 |
+| GET    | `/api/posts/{id}`           | Get single post               |
+| POST   | `/api/posts`                | Create a post                 |
+| PATCH  | `/api/posts/{id}`           | Update a post                 |
+| DELETE | `/api/posts/{id}`           | Delete a post                 |
+| POST   | `/api/posts/{id}/like`      | Toggle like on a post         |
+| GET    | `/api/posts/following`      | Get posts from followed users |
+| POST   | `/api/posts/images/temp`    | Upload temp image             |
+| POST   | `/api/posts/video/temp`     | Upload temp video             |
+
+### Users
+| Method | Endpoint                        | Description    |
+| ------ | ------------------------------- | -------------- |
+| GET    | `/api/users`                    | Get all users  |
+| GET    | `/api/users/{id}`               | Get profile    |
+| PATCH  | `/api/users/updateprofile/{id}` | Update profile |
+| GET    | `/api/users/{id}/posts`         | Get user posts |
+| POST   | `/api/users/follow/{id}`        | Toggle follow  |
+
+### Comments
+| Method | Endpoint                       | Description       |
+| ------ | ------------------------------ | ----------------- |
+| GET    | `/api/posts/{postId}/comments` | Get post comments |
+| POST   | `/api/posts/{postId}/comments` | Add a comment     |
+
+### Notifications
+| Method | Endpoint                          | Description      |
+| ------ | --------------------------------- | ---------------- |
+| GET    | `/api/notifications`              | Get notifications |
+| GET    | `/api/notifications/unread-count` | Get unread count  |
+| PATCH  | `/api/notifications/{id}/read`    | Mark as read      |
+| PATCH  | `/api/notifications/{id}/unread`  | Mark as unread    |
+
+### Reports
+| Method | Endpoint                     | Description   |
+| ------ | ---------------------------- | ------------- |
+| POST   | `/api/report/posts/{postId}` | Report a post |
+| POST   | `/api/report/users/{userId}` | Report a user |
+
+### Admin (`ADMIN` role required)
+| Method | Endpoint                     | Description        |
+| ------ | ---------------------------- | ------------------ |
+| GET    | `/api/admin/users`           | Get all users      |
+| GET    | `/api/admin/posts`           | Get all posts      |
+| GET    | `/api/admin/posts/{id}`      | Get post details   |
+| GET    | `/api/admin/reported-users`  | Get reported users |
+| GET    | `/api/admin/reported-posts`  | Get reported posts |
+| PATCH  | `/api/admin/users/{id}/ban`  | Ban a user         |
+| PATCH  | `/api/admin/users/{id}/unban`| Unban a user       |
+| PATCH  | `/api/admin/users/{id}/role` | Update user role   |
+| PATCH  | `/api/admin/posts/{id}/hide` | Hide a post        |
+| PATCH  | `/api/admin/posts/{id}/show` | Show a post        |
+| DELETE | `/api/admin/users/{id}`      | Delete a user      |
+| DELETE | `/api/admin/posts/{id}`      | Delete a post      |
+| DELETE | `/api/admin/reports/{id}`    | Delete a report    |
+
+---
+
+## Environment Configuration
+
+### Backend (`application.properties`)
+
+| Property                                 | Default          | Description           |
+| ---------------------------------------- | ---------------- | --------------------- |
+| `spring.jpa.hibernate.ddl-auto`          | `update`         | Auto-update DB schema |
+| `spring.jpa.show-sql`                    | `true`           | Log SQL queries       |
+| `spring.servlet.multipart.max-file-size` | `50MB`           | Max upload file size  |
+| `jwt.expiration`                         | `86400000` (24h) | JWT token duration    |
+
+### Docker Compose
+
+| Variable            | Default        |
+| ------------------- | -------------- |
+| `POSTGRES_DB`       | `01blog_db`    |
+| `POSTGRES_USER`     | `root`         |
+| `POSTGRES_PASSWORD` | `yourpassword` |
+
+---
+
+---
+
+# 🚀 Architecture Deep Dive: From Startup to Runtime
+
+The sections below explain how every layer of 01Blog works under the hood, using actual code from this project.
 
 ---
 
@@ -13,7 +257,7 @@
 
 ### 1. **JVM Bootstrap (Java Virtual Machine)**
 
-When you run `./mvnw spring-boot:run` or `java -jar blog.jar`, here's what happens:
+When you run `./mvnw spring-boot:run` , here's what happens:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -24,22 +268,23 @@ When you run `./mvnw spring-boot:run` or `java -jar blog.jar`, here's what happe
 └─────────────────────────────────────────────────────────────┘
            ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 2. Finds main() method in BlogApplication.java             │
+│ 2. Finds main() method in Application.java                  │
 │    → Entry point: public static void main(String[] args)   │
 └─────────────────────────────────────────────────────────────┘
            ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 3. SpringApplication.run(BlogApplication.class, args)      │
+│ 3. SpringApplication.run(Application.class, args)           │
 │    → Spring Boot takes control                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 **Your Main Class:**
 ```java
+// com.o1blog._blog.Application
 @SpringBootApplication
-public class BlogApplication {
+public class Application {
     public static void main(String[] args) {
-        SpringApplication.run(BlogApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 }
 ```
@@ -58,7 +303,7 @@ This single annotation is a combination of three powerful annotations:
 **What happens:**
 1. **@Configuration**: Tells Spring this class contains bean definitions
 2. **@EnableAutoConfiguration**: Spring Boot automatically configures beans based on classpath dependencies
-3. **@ComponentScan**: Scans `com.zerooneblog.blog` and all sub-packages for components
+3. **@ComponentScan**: Scans `com.o1blog._blog` and all sub-packages for components
 
 ---
 
@@ -82,7 +327,7 @@ This single annotation is a combination of three powerful annotations:
 │    → TomcatServletWebServerFactory instantiated             │
 ├─────────────────────────────────────────────────────────────┤
 │ 4. Embedded Tomcat Container initialized                    │
-│    → Port: 8080 (default) or from application.yaml          │
+│    → Port: 8080 (default)                                   │
 │    → Context path: /                                        │
 │    → Connectors configured                                  │
 ├─────────────────────────────────────────────────────────────┤
@@ -91,11 +336,10 @@ This single annotation is a combination of three powerful annotations:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Configuration from your application.yaml:**
-```yaml
-server:
-  tomcat:
-    max-swallow-size: 100MB  # Max size for request body
+**Configuration from your application.properties:**
+```properties
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
 ```
 
 ---
@@ -113,19 +357,21 @@ public class PostService {
 }
 ```
 
-**Spring IoC:**
+**Spring IoC (how 01Blog does it):**
 ```java
 // SPRING creates and injects dependencies
 @Service
+@RequiredArgsConstructor
 public class PostService {
-    private final PostRepository repository;  // ✅ Loose coupling
-    private final UserService userService;
+    private final PostRepository postRepository;   // ✅ Loose coupling
+    private final UserRepository userRepository;
+    private final FollowRepository followRepository;
+    private final FileStorageService fileStorageService;
+    private final LikeRepository likeRepository;
+    private final NotificationRepository notificationRepository;
     
-    // Constructor Injection - Spring provides instances
-    public PostService(PostRepository repository, UserService userService) {
-        this.repository = repository;
-        this.userService = userService;
-    }
+    // Lombok's @RequiredArgsConstructor generates the constructor
+    // Spring automatically injects all dependencies at startup
 }
 ```
 
@@ -140,7 +386,7 @@ public class PostService {
            ↓
 ┌──────────────────────────────────────────────────────────────┐
 │ 2. Component Scanning                                        │
-│    → Scans com.zerooneblog.blog package                      │
+│    → Scans com.o1blog._blog package                          │
 │    → Finds classes with:                                     │
 │      • @Component                                            │
 │      • @Service                                              │
@@ -178,45 +424,98 @@ public class PostService {
 
 ## 💉 Dependency Injection (DI)
 
-### Types of DI in Your Project
+### Types of DI in This Project
 
-#### 1. **Constructor Injection** (Recommended ✅)
+#### 1. **Constructor Injection via Lombok** (Most common in 01Blog ✅)
 ```java
-@Service
-public class PostService {
-    private final PostRepository postRepository;
-    private final UserService userService;
-    
-    // Spring automatically injects dependencies
-    public PostService(PostRepository postRepository, UserService userService) {
-        this.postRepository = postRepository;
-        this.userService = userService;
+@RestController
+@RequestMapping("/api/posts")
+@RequiredArgsConstructor  // Lombok generates constructor
+public class PostController {
+    private final PostService postService;
+    private final FileStorageService fileStorageService;
+    private final LikeRepository likeRepository;
+    // All three are automatically injected by Spring
+}
+```
+
+#### 2. **Manual Constructor Injection**
+```java
+@RestController
+@RequestMapping("/api")
+public class AuthController {
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 }
 ```
 
-**Why Constructor Injection is Best:**
-- ✅ Immutable (final fields)
-- ✅ Testable (can pass mock dependencies)
-- ✅ Required dependencies are explicit
-- ✅ No need for @Autowired annotation (since Spring 4.3)
-
-#### 2. **Field Injection** (Not recommended ⚠️)
+#### 3. **Field Injection** (used in SecurityConfig ⚠️)
 ```java
-@Service
-public class SomeService {
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
     @Autowired  // Injected via reflection
-    private PostRepository postRepository;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 }
 ```
 
 ---
 
-## 🫘 Spring Beans Deep Dive
+## 🫘 Spring Beans in 01Blog
 
 ### What is a Bean?
 
 **A bean is simply an object managed by the Spring IoC container.**
+
+### All Beans in This Project
+
+```
+ApplicationContext (IoC Container)
+├── Controllers (@RestController)
+│   ├── AuthController          → /api (register, login)
+│   ├── PostController          → /api/posts
+│   ├── UserController          → /api/users
+│   ├── CommentController       → /api/posts/{postId}/comments
+│   ├── FollowController        → /api/users/follow
+│   ├── NotificationController  → /api/notifications
+│   ├── ReportController        → /api/report
+│   └── AdminController         → /api/admin
+│
+├── Services (@Service)
+│   ├── AuthService
+│   ├── PostService
+│   ├── UserService
+│   ├── CommentService
+│   ├── FollowService
+│   ├── AdminService
+│   ├── ReportService
+│   ├── FileStorageService
+│   └── CustomUserDetailsService
+│
+├── Repositories (@Repository / JpaRepository)
+│   ├── PostRepository
+│   ├── UserRepository
+│   ├── CommentRepository
+│   ├── LikeRepository
+│   ├── FollowRepository
+│   ├── NotificationRepository
+│   ├── PostReportRepository
+│   └── UserReportRepository
+│
+├── Security Components
+│   ├── JwtAuthenticationFilter (@Component) → Validates JWT on every request
+│   ├── JwtUtil                              → Generates & parses JWT tokens
+│   ├── CustomUserDetails                    → Wraps User entity for Spring Security
+│   └── AdminSeeder (@Component)             → Seeds default admin user on startup
+│
+└── Configuration Beans (@Configuration)
+    ├── SecurityConfig   → Security filter chain, CORS, BCrypt, AuthManager
+    ├── WebConfig        → Static resource serving (/uploads/**)
+    └── JacksonConfig    → JSON serialization settings
+```
 
 ### Bean Lifecycle
 
@@ -234,30 +533,8 @@ public class SomeService {
 └────────────────────────────────────────────────────────────────┘
            ↓
 ┌────────────────────────────────────────────────────────────────┐
-│ 3. BEAN NAME AWARE                                             │
-│    → setBeanName() if implements BeanNameAware                │
-└────────────────────────────────────────────────────────────────┘
-           ↓
-┌────────────────────────────────────────────────────────────────┐
-│ 4. BEAN FACTORY AWARE                                          │
-│    → setBeanFactory() if implements BeanFactoryAware          │
-└────────────────────────────────────────────────────────────────┘
-           ↓
-┌────────────────────────────────────────────────────────────────┐
-│ 5. PRE-INITIALIZATION                                          │
-│    → BeanPostProcessor.postProcessBeforeInitialization()      │
-└────────────────────────────────────────────────────────────────┘
-           ↓
-┌────────────────────────────────────────────────────────────────┐
-│ 6. INITIALIZATION                                              │
+│ 3. INITIALIZATION                                              │
 │    → @PostConstruct method called                              │
-│    → afterPropertiesSet() if implements InitializingBean      │
-│    → Custom init method (if defined)                           │
-└────────────────────────────────────────────────────────────────┘
-           ↓
-┌────────────────────────────────────────────────────────────────┐
-│ 7. POST-INITIALIZATION                                         │
-│    → BeanPostProcessor.postProcessAfterInitialization()       │
 │    → Bean is ready to use! 🎉                                  │
 └────────────────────────────────────────────────────────────────┘
            ↓
@@ -267,67 +544,10 @@ public class SomeService {
 └────────────────────────────────────────────────────────────────┘
            ↓
 ┌────────────────────────────────────────────────────────────────┐
-│ 8. DESTRUCTION (Application Shutdown)                          │
+│ 4. DESTRUCTION (Application Shutdown)                          │
 │    → @PreDestroy method called                                 │
-│    → destroy() if implements DisposableBean                    │
-│    → Custom destroy method (if defined)                        │
+│    → Cleanup resources                                         │
 └────────────────────────────────────────────────────────────────┘
-```
-
-### Bean Scopes
-
-```java
-@Service  // Default: Singleton scope
-public class PostService { }
-
-// Available scopes:
-// @Scope("singleton")    - One instance per container (DEFAULT)
-// @Scope("prototype")    - New instance every time
-// @Scope("request")      - One instance per HTTP request
-// @Scope("session")      - One instance per HTTP session
-// @Scope("application")  - One instance per ServletContext
-```
-
-### Your Beans in the Project
-
-```
-ApplicationContext (IoC Container)
-├── Controllers (@RestController)
-│   ├── PostController
-│   ├── UserController
-│   ├── AuthController
-│   ├── CommentController
-│   ├── LikeController
-│   ├── NotificationController
-│   ├── ReportController
-│   ├── AdminController
-│   └── UploadController
-│
-├── Services (@Service)
-│   ├── PostService
-│   ├── UserService
-│   ├── CommentService
-│   ├── LikeService
-│   ├── ReportService
-│   ├── FileStorageService
-│   └── CustomUserDetailsService
-│
-├── Repositories (@Repository)
-│   ├── PostRepository (extends JpaRepository)
-│   ├── UserRepository
-│   ├── CommentRepository
-│   ├── LikeRepository
-│   ├── ReportRepository
-│   └── SubscriptionRepository
-│
-├── Components (@Component)
-│   ├── AdminInitializer
-│   └── StartupInfo
-│
-└── Configuration Beans (@Configuration, @Bean)
-    ├── SecurityConfig
-    ├── JwtUtil
-    └── Other config beans
 ```
 
 ---
@@ -336,12 +556,11 @@ ApplicationContext (IoC Container)
 
 ### What is JPA?
 
-**JPA is a specification (interface) for object-relational mapping (ORM).**
+**JPA is a specification for object-relational mapping (ORM).**
 - It defines HOW to map Java objects to database tables
-- It's NOT an implementation, just a specification
-- Hibernate is the implementation you're using
+- Hibernate is the implementation 01Blog uses
 
-### How JPA Works
+### How JPA Works in 01Blog
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -380,73 +599,82 @@ ApplicationContext (IoC Container)
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### Entity Mapping Example
+### Entity Mapping — Post Entity
 
 ```java
-@Entity  // Marks class as JPA entity
-@Table(name = "posts")  // Maps to 'posts' table
+@Entity
+@Table(name = "posts")
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Post {
-    
-    @Id  // Primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Auto-increment
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable = false, length = 500)  // Maps to 'title' column
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column
+    private String banner;
+
+    @Column(nullable = false)
     private String title;
-    
-    @Lob  // Large object (TEXT/BLOB)
+
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
-    
-    @ManyToOne  // Many posts belong to one user
-    @JoinColumn(name = "user_id")  // Foreign key column
-    private User author;
-    
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Comment> comments;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PostStatus status = PostStatus.PUBLISHED;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Like> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<PostReport> reports = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public enum PostStatus { PUBLISHED, HIDDEN }
 }
 ```
 
-### JPA Repository Magic
+### JPA Repository — Derived Query Methods
 
 ```java
-@Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    // Spring Data JPA automatically implements these methods!
-    // No need to write SQL or implementation
-    
-    // Derived query methods (parsed from method name)
-    List<Post> findByAuthorId(Long authorId);
-    List<Post> findByTitleContaining(String keyword);
-    
-    // Custom query
-    @Query("SELECT p FROM Post p WHERE p.published = true ORDER BY p.createdAt DESC")
-    List<Post> findPublishedPosts();
-}
-```
+    // Spring Data JPA automatically implements these from the method name!
+    List<Post> findByUserId(Long userId);
+    List<Post> findByUserIdInOrderByCreatedAtDesc(List<Long> userIds);
+    List<Post> findAllByUserIn(List<User> authors);
 
-**Spring Data JPA Auto-Implementation:**
-```
-┌──────────────────────────────────────────────────────────────┐
-│ 1. Spring scans @Repository interfaces                       │
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ 2. Creates proxy implementation at runtime                   │
-│    → Uses JDK Dynamic Proxy or CGLIB                         │
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ 3. Registers as Spring Bean                                  │
-│    → You can inject it like any other bean                   │
-└──────────────────────────────────────────────────────────────┘
+    // Filtered by post status (PUBLISHED / HIDDEN)
+    List<Post> findByUserIdAndStatus(Long userId, PostStatus status);
+    List<Post> findByUserIdInAndStatusOrderByCreatedAtDesc(List<Long> userIds, PostStatus status);
+    List<Post> findAllByStatusOrderByCreatedAtDesc(PostStatus status);
+}
 ```
 
 **Provided methods (from JpaRepository):**
-- `save(entity)` - INSERT or UPDATE
-- `findById(id)` - SELECT by primary key
-- `findAll()` - SELECT all
-- `deleteById(id)` - DELETE by primary key
-- `count()` - COUNT(*)
+- `save(entity)` — INSERT or UPDATE
+- `findById(id)` — SELECT by primary key
+- `findAll()` — SELECT all
+- `deleteById(id)` — DELETE by primary key
+- `count()` — COUNT(*)
 - And many more...
 
 ---
@@ -461,44 +689,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 3. Generates SQL queries automatically
 4. Manages database connections
 5. Tracks entity state changes
-6. Provides caching mechanisms
-
-### Hibernate Architecture in Your App
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│ SessionFactory (Created at startup)                          │
-│                                                               │
-│ • One per application                                        │
-│ • Thread-safe                                                │
-│ • Heavy object (expensive to create)                         │
-│ • Caches metadata (entity mappings, SQL generators)          │
-└──────────────────────────────────────────────────────────────┘
-           ↓ (creates)
-┌──────────────────────────────────────────────────────────────┐
-│ EntityManager / Session (per request/transaction)            │
-│                                                               │
-│ • One per request (in web apps)                              │
-│ • NOT thread-safe                                            │
-│ • Manages Persistence Context                                │
-└──────────────────────────────────────────────────────────────┘
-           ↓ (uses)
-┌──────────────────────────────────────────────────────────────┐
-│ Persistence Context (First-Level Cache)                      │
-│                                                               │
-│ • Cache of entities within a transaction                     │
-│ • Tracks entity state (new, managed, detached, removed)     │
-│ • Automatic dirty checking                                   │
-└──────────────────────────────────────────────────────────────┘
-           ↓ (generates)
-┌──────────────────────────────────────────────────────────────┐
-│ SQL Query Generator                                          │
-│                                                               │
-│ • HQL → SQL translation                                      │
-│ • Criteria API → SQL                                         │
-│ • Dialect-specific SQL (PostgreSQL dialect)                  │
-└──────────────────────────────────────────────────────────────┘
-```
 
 ### Entity States in Hibernate
 
@@ -510,7 +700,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
        ↓ (save/persist)
 ┌──────────────┐
 │   MANAGED    │  Associated with persistence context
-│ (Persistent) │  entityManager.persist(post);
+│ (Persistent) │  postRepository.save(post);
 └──────────────┘  Changes are automatically detected!
        ↓ (transaction ends)
 ┌──────────────┐
@@ -524,43 +714,43 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 └──────────────┘
 ```
 
-### Configuration from application.yaml
+### Configuration from application.properties
 
-```yaml
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: update  # Automatically update database schema
-      # Options:
-      # - create: Drop and recreate tables
-      # - create-drop: Create tables, drop on shutdown
-      # - update: Update schema (safe for production)
-      # - validate: Only validate schema
-      # - none: Do nothing
-    show-sql: true  # Print SQL queries to console
+```properties
+# Hibernate auto-updates the database schema on startup
+spring.jpa.hibernate.ddl-auto=update
+# Options:
+# - create:      Drop and recreate tables
+# - create-drop: Create tables, drop on shutdown
+# - update:      Update schema (adds new columns/tables)
+# - validate:    Only validate schema
+# - none:        Do nothing
+
+# Print SQL queries to console for debugging
+spring.jpa.show-sql=true
 ```
 
-### Lazy vs Eager Loading
+### Lazy vs Eager Loading (used in 01Blog)
 
 ```java
 @Entity
 public class Post {
-    @ManyToOne(fetch = FetchType.LAZY)  // Default for @ManyToOne
-    private User author;  // Not loaded until accessed
+    @ManyToOne(fetch = FetchType.LAZY)  // Post → User
+    private User user;  // Not loaded until accessed
     
-    @OneToMany(fetch = FetchType.LAZY)  // Default for @OneToMany
-    private List<Comment> comments;  // Not loaded until accessed
+    @OneToMany(mappedBy = "post")       // Post → Comments
+    private List<Comment> comments;     // Not loaded until accessed
 }
 
 // When you do:
 Post post = postRepository.findById(1L);
 // SQL: SELECT * FROM posts WHERE id = 1
-// Does NOT fetch author or comments yet!
+// Does NOT fetch user or comments yet!
 
 // When you access:
-String authorName = post.getAuthor().getName();
+String authorName = post.getUser().getUsername();
 // SQL: SELECT * FROM users WHERE id = post.user_id
-// NOW it fetches the author!
+// NOW it fetches the user!
 ```
 
 ---
@@ -574,7 +764,7 @@ String authorName = post.getAuthor().getName();
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ JDBC API (java.sql package)                                  │
-│                                                               │
+│                                                              │
 │ • DriverManager: Manages database drivers                    │
 │ • Connection: Represents database connection                 │
 │ • Statement/PreparedStatement: Executes SQL                  │
@@ -583,49 +773,95 @@ String authorName = post.getAuthor().getName();
            ↓
 ┌──────────────────────────────────────────────────────────────┐
 │ JDBC Driver (PostgreSQL Driver)                              │
-│                                                               │
+│                                                              │
 │ • Vendor-specific implementation                             │
 │ • Translates JDBC calls to database protocol                 │
 │ • From pom.xml: org.postgresql:postgresql                    │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### Configuration
-
-```yaml
-# Your application.yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/blog_db
-    #    └─┬─┘ └────────┬──────┘  └──┬──┘ └──┬──┘
-    #   Protocol   Driver Type   Host:Port  DB Name
-    username: ZAKRI
-    password: 'jw52U[6^K/8v'
-```
-
-**What happens:**
-1. Spring Boot auto-configures HikariCP connection pool
-2. Creates database connections on startup
-3. Hibernate uses these connections via JDBC
-4. Connections are pooled and reused (efficient!)
-
 ### Connection Pool (HikariCP)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ HikariCP Connection Pool (Fast & Lightweight)                │
-│                                                               │
-│ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐               │
-│ │ DB   │ │ DB   │ │ DB   │ │ DB   │ │ DB   │               │
-│ │Conn 1│ │Conn 2│ │Conn 3│ │Conn 4│ │Conn 5│               │
-│ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘               │
+│                                                              │
+│ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐                 │
+│ │ DB   │ │ DB   │ │ DB   │ │ DB   │ │ DB   │                 │
+│ │Conn 1│ │Conn 2│ │Conn 3│ │Conn 4│ │Conn 5│                 │
+│ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘                 │
 │   ✓Free   In-Use   ✓Free   In-Use   ✓Free                  │
-│                                                               │
-│ Benefits:                                                     │
+│                                                              │
+│ Benefits:                                                    │
 │ • Reuses connections (fast!)                                 │
 │ • Manages connection lifecycle                               │
 │ • Handles connection timeouts                                │
 │ • Optimal pool size based on CPU cores                       │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Spring Boot auto-configures HikariCP. Connections are pooled and reused.
+
+---
+
+## 🔐 Security Architecture
+
+### Security Filter Chain
+
+01Blog uses **stateless JWT authentication** with Spring Security:
+
+```java
+// SecurityConfig.java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/register", "/api/login").permitAll()
+                .requestMatchers("/api/posts/**").authenticated()
+                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated())
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+}
+```
+
+### JWT Authentication Flow
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ 1. User sends POST /api/login { email, password }            │
+└──────────────────────────────────────────────────────────────┘
+           ↓
+┌──────────────────────────────────────────────────────────────┐
+│ 2. AuthService validates credentials with BCrypt             │
+│    → JwtUtil generates JWT token (24h expiry)                │
+│    → Returns token + user data                               │
+└──────────────────────────────────────────────────────────────┘
+           ↓
+┌──────────────────────────────────────────────────────────────┐
+│ 3. Frontend stores token in localStorage                     │
+└──────────────────────────────────────────────────────────────┘
+           ↓
+┌──────────────────────────────────────────────────────────────┐
+│ 4. Every subsequent request:                                 │
+│    → Auth interceptor adds "Authorization: Bearer <token>"   │
+│    → JwtAuthenticationFilter validates token                 │
+│    → Sets SecurityContext with CustomUserDetails             │
+│    → Controller can access current user via SecurityContext  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -639,7 +875,8 @@ spring:
 ┌──────────────────────────────────────────────────────────────┐
 │ 1. HTTP REQUEST                                              │
 │    POST /api/posts                                           │
-│    { "title": "My Post", "content": "..." }                  │
+│    Authorization: Bearer eyJhbGci...                         │
+│    Body: { title, content, banner }                          │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
@@ -649,70 +886,56 @@ spring:
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 3. DISPATCHER SERVLET (Front Controller)                     │
+│ 3. SECURITY FILTER CHAIN                                     │
+│    • JwtAuthenticationFilter extracts & validates JWT        │
+│    • Sets CustomUserDetails in SecurityContext               │
+└──────────────────────────────────────────────────────────────┘
+           ↓
+┌──────────────────────────────────────────────────────────────┐
+│ 4. DISPATCHER SERVLET (Front Controller)                     │
 │    • Central entry point for all requests                    │
-│    • Finds appropriate handler (controller method)           │
+│    • Maps /api/posts → PostController.createPost()           │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 4. HANDLER MAPPING                                           │
-│    • Maps /api/posts → PostController.createPost()          │
+│ 5. CONTROLLER                                                │
+│    PostController.createPost() →                             │
+│    Gets current user from SecurityContext                    │
+│    Calls postService.createPost(...)                         │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 5. INTERCEPTORS (if any)                                     │
-│    • Security checks (JWT validation)                        │
-│    • Logging, authentication, etc.                           │
+│ 6. SERVICE LAYER (Business Logic)                            │
+│    PostService.createPost() →                                │
+│    Processes EditorJS images, saves banner,                  │
+│    builds Post entity                                        │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 6. CONTROLLER                                                │
-│    @RestController                                           │
-│    public class PostController {                             │
-│        @PostMapping("/api/posts")                            │
-│        public Post create(@RequestBody Post post) {          │
-│            return postService.save(post);                    │
-│        }                                                      │
-│    }                                                          │
+│ 7. REPOSITORY (Data Access)                                  │
+│    postRepository.save(post) → JpaRepository                 │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 7. SERVICE LAYER (Business Logic)                           │
-│    @Service                                                  │
-│    public class PostService {                                │
-│        public Post save(Post post) {                         │
-│            // Business logic here                            │
-│            return postRepository.save(post);                 │
-│        }                                                      │
-│    }                                                          │
+│ 8. HIBERNATE/JPA                                             │
+│    • Translates to SQL                                       │
+│    • INSERT INTO posts (title, content, ...) VALUES (?, ?)   │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 8. REPOSITORY (Data Access)                                  │
-│    @Repository                                               │
-│    interface PostRepository extends JpaRepository<Post,Long> │
+│ 9. JDBC → PostgreSQL                                         │
+│    • Executes SQL via HikariCP connection pool               │
+│    • Returns result                                          │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 9. HIBERNATE/JPA                                             │
-│    • Translates Java method to SQL                           │
-│    • INSERT INTO posts (title, content) VALUES (?, ?)        │
+│ 10. RESPONSE FLOWS BACK UP                                   │
+│     DB → JDBC → Hibernate → Repository → Service             │
+│     → Controller → Jackson → Tomcat → HTTP Response          │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 10. JDBC / DATABASE                                          │
-│     • Executes SQL via connection pool                       │
-│     • Returns result                                         │
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ 11. RESPONSE FLOWS BACK UP                                   │
-│     Database → JDBC → Hibernate → Repository → Service       │
-│     → Controller → DispatcherServlet → Tomcat → HTTP Response│
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ 12. HTTP RESPONSE                                            │
+│ 11. HTTP RESPONSE                                            │
 │     Status: 200 OK                                           │
 │     Content-Type: application/json                           │
 │     Body: { "id": 1, "title": "My Post", ... }               │
@@ -721,46 +944,58 @@ spring:
 
 ---
 
-## 📦 Spring Dependencies from pom.xml
+## 📦 Spring Dependencies (pom.xml)
 
 ```xml
 <dependencies>
-    <!-- Web: Tomcat, Spring MVC, REST -->
+    <!-- Web: Embedded Tomcat, Spring MVC, REST, Jackson -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
-        ➜ Includes: Tomcat, Jackson, Spring MVC
     </dependency>
     
-    <!-- JPA: Hibernate, Transaction Management -->
+    <!-- JPA: Hibernate ORM, Spring Data JPA -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-data-jpa</artifactId>
-        ➜ Includes: Hibernate, JPA API, Spring Data JPA
     </dependency>
     
-    <!-- Security: Authentication, Authorization -->
+    <!-- Security: Authentication, Authorization, BCrypt -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-security</artifactId>
-        ➜ Includes: Spring Security Core
+    </dependency>
+    
+    <!-- JWT: Token generation & validation -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>0.12.3</version>
     </dependency>
     
     <!-- PostgreSQL JDBC Driver -->
     <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        ➜ Database driver for PostgreSQL
     </dependency>
     
-    <!-- Validation: @Valid, @NotNull, etc. -->
+    <!-- Lombok: Reduces boilerplate (@Data, @Builder, @RequiredArgsConstructor) -->
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-validation</artifactId>
-        ➜ Includes: Hibernate Validator
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    
+    <!-- SpringDoc OpenAPI: Swagger UI for API docs -->
+    <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        <version>2.6.0</version>
     </dependency>
 </dependencies>
 ```
+
+---
 
 ---
 
@@ -768,7 +1003,7 @@ spring:
 
 ## 🏁 Angular Application Bootstrap
 
-### 1. **Application Startup Process**
+### Application Startup Process
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -782,74 +1017,68 @@ spring:
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 3. bootstrapApplication() called                             │
-│    • Creates Angular platform (Zone.js initialized)          │
+│ 3. bootstrapApplication(AppComponent, appConfig)             │
+│    • Creates Angular platform                                │
+│    • Zone.js initialized (event coalescing enabled)          │
 │    • Creates root injector (DI container)                    │
 │    • Registers all providers                                 │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 4. App Component created                                     │
-│    @Component({ selector: 'app-root', ... })                 │
-│    • Component instance created                              │
-│    • Dependencies injected                                   │
+│ 4. AppComponent created                                      │
+│    @Component({ selector: 'app-root', standalone: true })    │
+│    • Imports: CommonModule, RouterOutlet, HeaderComponent    │
+│    • Renders <app-header> + <router-outlet>                  │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 5. Change Detection runs                                     │
-│    • Renders component template                              │
-│    • Replaces <app-root> with actual content                 │
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ 6. Router initialized                                        │
+│ 5. Router initialized                                        │
 │    • Reads current URL                                       │
-│    • Matches route                                           │
-│    • Loads corresponding component                           │
+│    • Matches route from app.routes.ts                        │
+│    • Loads corresponding component (lazy-loaded)             │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ APPLICATION READY! 🎉                                         │
+│ APPLICATION READY! 🎉                                        │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### Your main.ts Breakdown
+### Your Actual main.ts
 
 ```typescript
 import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { appConfig } from './app/app.config';
+
+bootstrapApplication(AppComponent, appConfig)
+  .catch(err => console.error(err));
+```
+
+### Your Actual app.config.ts
+
+```typescript
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { routes } from './app.routes';
+import { authInterceptor } from './interceptors/auth.interceptor';
 
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
-  template: '<router-outlet></router-outlet>'
-})
-export class App {}
-
-bootstrapApplication(App, {
+export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),              // Routing configuration
-    provideHttpClient(                  // HTTP client with interceptors
-      withInterceptors([
-        authInterceptor,                // Adds JWT token to requests
-        errorInterceptor                // Handles HTTP errors
-      ])
-    ),
-    provideAnimations()                 // Angular Material animations
+    provideZoneChangeDetection({ eventCoalescing: true }),  // Optimized change detection
+    provideRouter(routes),                                  // Route configuration
+    provideHttpClient(withInterceptors([authInterceptor]))  // HTTP + JWT interceptor
   ]
-}).catch(err => console.error(err));
+};
 ```
 
 ---
 
-## 🌊 Zone.js - The Magic Behind Change Detection
+## 🌊 Zone.js — The Magic Behind Change Detection
 
 ### What is Zone.js?
 
-**Zone.js is a library that intercepts ALL asynchronous operations in JavaScript.**
+**Zone.js is a library that intercepts ALL asynchronous operations in JavaScript.** 01Blog uses it with event coalescing enabled for better performance.
 
 ```javascript
 // Zone.js patches these APIs:
@@ -866,156 +1095,65 @@ XMLHttpRequest      // AJAX calls
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ Original JavaScript (without Zone.js)                        │
-│                                                               │
+│                                                              │
 │ button.addEventListener('click', () => {                     │
 │   this.count++;  // Value changes                            │
 │   // 😞 View NOT automatically updated                       │
-│ });                                                           │
+│ });                                                          │
 └──────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────┐
 │ With Zone.js (Angular uses this)                             │
-│                                                               │
+│                                                              │
 │ button.addEventListener('click', () => {                     │
 │   // Zone.js wraps this callback!                            │
 │   this.count++;  // Value changes                            │
 │   // 🎉 Zone.js notifies Angular                             │
 │   // → Angular runs change detection                         │
 │   // → View automatically updated!                           │
-│ });                                                           │
+│ });                                                          │
 └──────────────────────────────────────────────────────────────┘
-```
-
-### Zone.js Execution Context
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ NgZone (Angular's Zone)                                     │
-│                                                             │
-│ ┌─────────────────────────────────────────────────────────┐│
-│ │ Task 1: User clicks button                              ││
-│ │   → Execute event handler                               ││
-│ │   → Run change detection when done                      ││
-│ └─────────────────────────────────────────────────────────┘│
-│                                                             │
-│ ┌─────────────────────────────────────────────────────────┐│
-│ │ Task 2: HTTP request completes                          ││
-│ │   → Execute observable callback                         ││
-│ │   → Run change detection when done                      ││
-│ └─────────────────────────────────────────────────────────┘│
-│                                                             │
-│ ┌─────────────────────────────────────────────────────────┐│
-│ │ Task 3: setTimeout fires                                ││
-│ │   → Execute timeout callback                            ││
-│ │   → Run change detection when done                      ││
-│ └─────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────┘
 ```
 
 **Key Points:**
 - Every async operation runs inside a Zone
 - When async operation completes, Zone.js notifies Angular
 - Angular runs change detection to update the view
-- You don't need to manually trigger updates!
+- **Event coalescing** (enabled in 01Blog) batches multiple events into a single change detection cycle
 
 ---
 
-## 🔄 Change Detection
-
-### What is Change Detection?
-
-**The process of synchronizing the component's data model with the view (DOM).**
-
-```typescript
-@Component({
-  template: '<h1>Count: {{ count }}</h1>'  // View
-})
-export class CounterComponent {
-  count = 0;  // Model
-  
-  increment() {
-    this.count++;  // Model changes
-    // Change detection runs automatically
-    // View updates to show new count
-  }
-}
-```
-
-### Change Detection Strategies
-
-```typescript
-// Default Strategy
-@Component({
-  selector: 'app-post',
-  changeDetection: ChangeDetectionStrategy.Default  // Check every time
-})
-
-// OnPush Strategy (Optimized)
-@Component({
-  selector: 'app-post',
-  changeDetection: ChangeDetectionStrategy.OnPush  // Check only when:
-  // 1. @Input() reference changes
-  // 2. Event fired from component
-  // 3. Async pipe emits new value
-  // 4. Manually triggered
-})
-```
-
-### Change Detection Tree
-
-```
-          App Component
-           /          \
-          /            \
-    Header           Feed Component (OnPush)
-                      /           \
-                     /             \
-              Post List        Sidebar
-              /      \
-             /        \
-        Post Card   Post Card
-```
-
-**When change detection runs:**
-1. Starts from root component
-2. Checks component + all children (unless OnPush)
-3. Updates DOM if changes detected
-
----
-
-## 📡 RxJS - Reactive Programming
+## 📡 RxJS — Reactive Programming
 
 ### What is RxJS?
 
-**RxJS (Reactive Extensions for JavaScript) is a library for reactive programming using Observables.**
+**RxJS (Reactive Extensions for JavaScript) is the library Angular uses for handling async data streams.** 01Blog uses it for all HTTP communication and the auth interceptor.
 
-### Observable Pattern
+### How 01Blog Uses RxJS
 
 ```typescript
-// Traditional (Promises)
-fetch('/api/posts')
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error(error));
-// ✅ Handles ONE value
-// ❌ Can't cancel
-// ❌ Can't retry easily
+// auth.interceptor.ts — Real code from this project
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
+  const token = localStorage.getItem('authToken');
 
-// RxJS (Observables)
-http.get('/api/posts')
-  .pipe(
-    retry(3),              // Retry on error
-    timeout(5000),         // Cancel after 5s
-    catchError(handleError)
-  )
-  .subscribe({
-    next: data => console.log(data),
-    error: err => console.error(err),
-    complete: () => console.log('Done')
-  });
-// ✅ Handles MULTIPLE values
-// ✅ Can cancel
-// ✅ Rich operators (map, filter, retry, etc.)
+  if (token) {
+    req = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  return next(req).pipe(                            // Observable pipeline
+    catchError((error: HttpErrorResponse) => {      // RxJS operator
+      if (error.status === 403 &&
+          error.error?.message === 'Your account has been banned.') {
+        localStorage.removeItem('authToken');
+        router.navigate(['/login']);
+      }
+      return throwError(() => error);
+    })
+  );
+};
 ```
 
 ### Observable Lifecycle
@@ -1024,7 +1162,7 @@ http.get('/api/posts')
 ┌──────────────────────────────────────────────────────────────┐
 │ 1. CREATION                                                  │
 │    const obs$ = http.get('/api/posts');                      │
-│    → Observable created (COLD - not executing yet)           │
+│    → Observable created (COLD — not executing yet)           │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
@@ -1047,154 +1185,27 @@ http.get('/api/posts')
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### Common RxJS Operators in Your Project
-
-```typescript
-// Service example
-@Injectable()
-export class PostService {
-  private http = inject(HttpClient);
-  
-  getPosts(): Observable<Post[]> {
-    return this.http.get<Post[]>('/api/posts').pipe(
-      map(response => response.data),        // Transform data
-      tap(posts => console.log(posts)),      // Side effect (logging)
-      catchError(error => {                  // Error handling
-        console.error(error);
-        return of([]);  // Return empty array
-      }),
-      shareReplay(1)                         // Cache result
-    );
-  }
-  
-  searchPosts(term: string): Observable<Post[]> {
-    return this.searchTerm$.pipe(
-      debounceTime(300),        // Wait 300ms after user stops typing
-      distinctUntilChanged(),   // Only if term changed
-      switchMap(term =>         // Cancel previous request
-        this.http.get(`/api/posts/search?q=${term}`)
-      )
-    );
-  }
-}
-```
-
-### Hot vs Cold Observables
-
-```typescript
-// COLD Observable (most HTTP requests)
-const cold$ = http.get('/api/posts');
-cold$.subscribe(data => console.log('Sub 1:', data));
-cold$.subscribe(data => console.log('Sub 2:', data));
-// → Makes 2 separate HTTP requests (one per subscription)
-
-// HOT Observable (shared)
-const hot$ = http.get('/api/posts').pipe(shareReplay(1));
-hot$.subscribe(data => console.log('Sub 1:', data));
-hot$.subscribe(data => console.log('Sub 2:', data));
-// → Makes only 1 HTTP request (shared between subscriptions)
-```
-
----
-
-## 🎯 Signals (Angular 16+)
-
-### What are Signals?
-
-**Signals are a new reactive primitive in Angular for managing state with fine-grained reactivity.**
-
-### Signals vs RxJS
-
-```typescript
-// Traditional (RxJS)
-export class PostComponent {
-  private postsSubject = new BehaviorSubject<Post[]>([]);
-  posts$ = this.postsSubject.asObservable();
-  
-  loadPosts() {
-    this.http.get<Post[]>('/api/posts')
-      .subscribe(posts => this.postsSubject.next(posts));
-  }
-}
-// Template: posts$ | async
-
-// Modern (Signals)
-export class PostComponent {
-  posts = signal<Post[]>([]);  // Writable signal
-  
-  loadPosts() {
-    this.http.get<Post[]>('/api/posts')
-      .subscribe(posts => this.posts.set(posts));
-  }
-}
-// Template: posts()  (no async pipe needed!)
-```
-
-### Signal Types
-
-```typescript
-// 1. Writable Signal
-count = signal(0);              // Create
-count.set(5);                   // Set value
-count.update(c => c + 1);       // Update based on current
-
-// 2. Computed Signal (readonly, derived)
-doubled = computed(() => this.count() * 2);
-// Automatically updates when count changes!
-
-// 3. Effect (side effects)
-effect(() => {
-  console.log('Count changed:', this.count());
-  // Runs automatically when count changes
-});
-```
-
-### Signal Benefits
-
-```
-RxJS Observables                    Signals
-├─ Need subscribe/unsubscribe      ├─ No subscription needed
-├─ Async pipe in templates         ├─ Direct value access
-├─ Memory leak risk                ├─ No memory leaks
-├─ Complex for simple state        ├─ Simple and intuitive
-├─ Great for async/events          ├─ Great for sync state
-└─ Need shareReplay for caching    └─ Automatically cached
-```
-
-**When to use what:**
-- **Signals**: Component state, derived values, simple reactivity
-- **RxJS**: HTTP requests, complex async flows, event streams
-
 ---
 
 ## 🔌 Dependency Injection (DI) in Angular
 
-### How DI Works
+### How DI Works in 01Blog
 
 ```typescript
-// Service
-@Injectable({
-  providedIn: 'root'  // Singleton across app
-})
+// Service (providedIn: 'root' = singleton across app)
+@Injectable({ providedIn: 'root' })
 export class PostService {
-  private http = inject(HttpClient);  // Modern inject()
-  
+  private http = inject(HttpClient);  // Modern inject() API
+
   getPosts() {
     return this.http.get('/api/posts');
   }
 }
 
-// Component (OLD way)
+// Component uses constructor injection
 @Component({...})
-export class PostListComponent {
-  constructor(private postService: PostService) {}
-  // Angular injects PostService instance
-}
-
-// Component (NEW way - recommended)
-@Component({...})
-export class PostListComponent {
-  private postService = inject(PostService);  // Cleaner!
+export class AppComponent {
+  constructor(private router: Router) {}
 }
 ```
 
@@ -1205,18 +1216,7 @@ export class PostListComponent {
 │ Root Injector (providedIn: 'root')                          │
 │ • Services live here by default                             │
 │ • Singleton across entire application                        │
-│ • Examples: HttpClient, Router, PostService                  │
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ Platform Injector                                            │
-│ • Platform-level services                                    │
-│ • Rarely used directly                                       │
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ Module Injector (if using NgModules)                         │
-│ • Module-level services                                      │
+│ • Examples: HttpClient, Router, PostService, AuthService     │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
@@ -1230,39 +1230,11 @@ export class PostListComponent {
 
 ## 🌐 HTTP Communication
 
-### HTTP Client with Interceptors
+### Auth Interceptor Flow
 
-```typescript
-// Your HTTP setup in main.ts
-provideHttpClient(
-  withInterceptors([
-    authInterceptor,      // Adds JWT token
-    errorInterceptor      // Handles errors
-  ])
-)
-```
-
-### Auth Interceptor Example
-
-```typescript
-// Intercepts ALL HTTP requests
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('jwt_token');
-  
-  if (token) {
-    // Clone request and add Authorization header
-    req = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
-  
-  return next(req);  // Pass to next interceptor or HttpClient
-};
-```
-
-### HTTP Request Flow
+01Blog has a single interceptor (`authInterceptor`) that:
+1. Adds the JWT token to every outgoing request
+2. Catches 403 errors for banned users and auto-redirects to login
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -1274,27 +1246,25 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ Auth Interceptor: Adds JWT token                             │
+│ Auth Interceptor:                                            │
+│   → Adds "Authorization: Bearer <token>" header              │
+│   → Wraps response with banned-user error handling           │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ Error Interceptor: Wraps with error handling                 │
+│ HttpClient: Makes actual HTTP request to localhost:8080      │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ HttpClient: Makes actual HTTP request                        │
+│ Spring Boot Backend: Processes request                       │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ Backend Server: Processes request                            │
+│ Response flows back through interceptor                     │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ Response flows back through interceptors                     │
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ Component receives data (via Observable)                     │
+│ Component receives data (via Observable subscription)        │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -1302,75 +1272,74 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
 ## 🧩 Angular Component Architecture
 
-### Component Structure
+### Standalone Components (used throughout 01Blog)
 
 ```typescript
+// Real AppComponent from 01Blog
 @Component({
-  selector: 'app-post-card',           // <app-post-card>
-  standalone: true,                    // No NgModule needed
-  imports: [CommonModule, RouterLink], // Dependencies
-  templateUrl: './post-card.component.html',
-  styleUrl: './post-card.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-root',
+  standalone: true,                            // No NgModule needed
+  imports: [CommonModule, RouterOutlet, HeaderComponent],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
-export class PostCardComponent {
-  // Input (data from parent)
-  @Input() post!: Post;
-  
-  // Output (events to parent)
-  @Output() liked = new EventEmitter<void>();
-  
-  // Dependency injection
-  private router = inject(Router);
-  
-  // Lifecycle hooks
-  ngOnInit() {
-    console.log('Component initialized');
-  }
-  
-  ngOnDestroy() {
-    console.log('Component destroyed');
-  }
-  
-  // Methods
-  onLike() {
-    this.liked.emit();
-  }
+export class AppComponent {
+  showHeader = true;
+  constructor(private router: Router) {}
 }
 ```
+
+### Route Configuration with Lazy Loading
+
+```typescript
+// app.routes.ts — 01Blog uses lazy loading for most pages
+export const routes: Routes = [
+  { path: '',         component: LandingComponent, canActivate: [guestGuard] },
+  { path: 'login',    loadComponent: () => import('./features/auth/login/login.component')
+                        .then(m => m.LoginComponent), canActivate: [guestGuard] },
+  { path: 'register', loadComponent: () => import('./features/auth/register/register.component')
+                        .then(m => m.RegisterComponent), canActivate: [guestGuard] },
+  { path: 'home',     loadComponent: () => import('./pages/home/home.component')
+                        .then(m => m.Home), canActivate: [authGuard] },
+  { path: 'post/:id', loadComponent: () => import('./pages/post-detail/post-detail.component')
+                        .then(m => m.PostDetailComponent), canActivate: [authGuard] },
+  { path: 'writePost',loadComponent: () => import('./pages/writePost/writePost.component')
+                        .then(m => m.WritePostComponent), canActivate: [authGuard] },
+  { path: 'admin',    loadComponent: () => import('./pages/admin/admin.component')
+                        .then(m => m.AdminComponent), canActivate: [authGuard] },
+  { path: 'profile/:id', component: ProfileComponent },
+  { path: 'settings', component: SettingsComponent },
+  { path: '**',       redirectTo: '' }
+];
+```
+
+### Route Guards
+
+- **`authGuard`** — Redirects unauthenticated users to login
+- **`guestGuard`** — Redirects authenticated users away from login/register/landing
 
 ### Component Lifecycle Hooks
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ 1. constructor()                                             │
-│    → TypeScript class instantiation                          │
 │    → DI happens here                                         │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
 │ 2. ngOnChanges()                                             │
 │    → When @Input() properties change                         │
-│    → Can be called multiple times                            │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
 │ 3. ngOnInit()                                                │
-│    → Component initialized                                   │
-│    → Called ONCE                                             │
+│    → Component initialized (called ONCE)                     │
 │    → Best place for initialization logic                     │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 4. ngDoCheck()                                               │
-│    → Every change detection cycle                            │
-│    → Expensive, use carefully                                │
-└──────────────────────────────────────────────────────────────┘
-           ↓
-┌──────────────────────────────────────────────────────────────┐
-│ 5. ngAfterViewInit()                                         │
+│ 4. ngAfterViewInit()                                         │
 │    → After component view initialized                        │
-│    → Can access ViewChild elements                           │
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
@@ -1378,11 +1347,13 @@ export class PostCardComponent {
 └──────────────────────────────────────────────────────────────┘
            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ 6. ngOnDestroy()                                             │
+│ 5. ngOnDestroy()                                             │
 │    → Before component destroyed                              │
 │    → Cleanup: unsubscribe, clear timers                      │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+---
 
 ---
 
@@ -1397,44 +1368,40 @@ export class PostCardComponent {
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ ANGULAR FRONTEND (localhost:4200)                               │
-│                                                                  │
+│                                                                 │
 │ 1. Zone.js detects click event                                  │
 │ 2. Component method executed: createPost()                      │
 │ 3. PostService.create() called                                  │
-│ 4. HttpClient.post('/api/posts', data) - Observable created    │
+│ 4. HttpClient.post('/api/posts', data) — Observable created     │
 │ 5. Auth Interceptor adds JWT token                              │
-│ 6. Error Interceptor wraps request                              │
-│ 7. HTTP request sent to backend                                 │
+│ 6. HTTP request sent to backend                                 │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ SPRING BOOT BACKEND (localhost:8080)                            │
-│                                                                  │
+│                                                                 │
 │ 1. Tomcat receives HTTP request on port 8080                    │
-│ 2. DispatcherServlet processes request                          │
-│ 3. Security Filter Chain validates JWT token                    │
-│ 4. Handler Mapping routes to PostController.create()            │
-│ 5. PostController (Bean) method executed                        │
-│ 6. Dependencies injected (PostService, UserService)             │
-│ 7. Business logic in PostService                                │
-│ 8. PostRepository.save() called                                 │
-│ 9. Spring Data JPA generates implementation                     │
-│ 10. Hibernate translates to SQL                                 │
-│ 11. JDBC executes: INSERT INTO posts...                         │
-│ 12. PostgreSQL stores data                                      │
-│ 13. Result flows back through layers                            │
-│ 14. JSON response sent to frontend                              │
+│ 2. JwtAuthenticationFilter validates JWT token                  │
+│ 3. DispatcherServlet routes to PostController.createPost()      │
+│ 4. PostController gets current user from SecurityContext        │
+│ 5. PostService processes content (EditorJS images)              │
+│ 6. FileStorageService saves banner image                        │
+│ 7. PostRepository.save() called                                 │
+│ 8. Hibernate translates to SQL                                  │
+│ 9. JDBC executes: INSERT INTO posts...                          │
+│ 10. PostgreSQL stores data                                      │
+│ 11. JSON response sent back                                     │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ ANGULAR FRONTEND RECEIVES RESPONSE                              │
-│                                                                  │
+│                                                                 │
 │ 1. HttpClient Observable emits response                         │
 │ 2. subscribe() callback executed                                │
-│ 3. Component updates state (signal/property)                    │
+│ 3. Component updates state                                      │
 │ 4. Zone.js triggers change detection                            │
 │ 5. View updated with new post                                   │
-│ 6. User sees success message                                    │
+│ 6. User sees success                                            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1454,6 +1421,8 @@ export class PostCardComponent {
 | **JDBC** | Low-level API for database communication |
 | **Embedded Tomcat** | Built-in web server (no external server needed) |
 | **DispatcherServlet** | Front controller that routes HTTP requests |
+| **Spring Security** | Authentication & authorization framework |
+| **JWT** | Stateless token-based authentication |
 
 ### Frontend (Angular)
 
@@ -1462,68 +1431,23 @@ export class PostCardComponent {
 | **Zone.js** | Intercepts async operations for change detection |
 | **Change Detection** | Synchronizes model with view (DOM) |
 | **RxJS/Observables** | Reactive programming for async data streams |
-| **Signals** | New reactive primitive for fine-grained reactivity |
 | **Dependency Injection** | Provides services to components |
 | **Interceptors** | Modify HTTP requests/responses globally |
-| **Components** | Building blocks of UI (template + logic) |
+| **Standalone Components** | Self-contained UI building blocks (no NgModules) |
 | **Services** | Reusable business logic and data management |
+| **Route Guards** | Control access to routes based on auth state |
+| **Lazy Loading** | Load components on demand for better performance |
 
 ---
 
 ## 📚 Additional Resources
 
-### Backend Learning Path
-1. **Java Fundamentals** → **Spring Core (IoC, DI)** → **Spring Boot** → **Spring Data JPA** → **Spring Security**
-
-### Frontend Learning Path
-1. **TypeScript** → **Angular Basics** → **RxJS** → **Signals** → **Angular Advanced**
-
-### Recommended Reading
-- Spring Documentation: https://spring.io/projects/spring-boot
-- Angular Documentation: https://angular.dev
-- RxJS Documentation: https://rxjs.dev
-- Hibernate Documentation: https://hibernate.org
+- Spring Boot: https://spring.io/projects/spring-boot
+- Angular: https://angular.dev
+- RxJS: https://rxjs.dev
+- Hibernate: https://hibernate.org
 
 ---
 
-## 🎯 Quick Reference
-
-### Start Backend
-```bash
-cd backend
-./mvnw spring-boot:run
-# → Starts on http://localhost:8080
-```
-
-### Start Frontend
-```bash
-cd frontend
-npm start
-# → Starts on http://localhost:4200
-```
-
-### What Happens on Startup
-
-**Backend:**
-1. JVM starts
-2. Spring Boot auto-configuration
-3. IoC container created
-4. All beans instantiated and configured
-5. Embedded Tomcat starts
-6. Database connection established
-7. Application ready!
-
-**Frontend:**
-1. Browser loads index.html
-2. Loads bundled JavaScript (main.ts)
-3. Angular platform created
-4. Zone.js initialized
-5. Root component bootstrapped
-6. Router initializes
-7. Application ready!
-
----
-
-**Created:** January 2026  
-**Project:** ZeroOneBlog - Social Blogging Platform  
-**Tech Stack:** Spring Boot 3.5.7 + Angular 20 + PostgreSQL
+**Project:** 01Blog — Social Blogging Platform  
+**Tech Stack:** Spring Boot 4.0 + Angular 20 + PostgreSQL 15
