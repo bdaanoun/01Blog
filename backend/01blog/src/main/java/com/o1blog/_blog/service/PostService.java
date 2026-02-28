@@ -22,6 +22,8 @@ import com.o1blog._blog.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -127,7 +129,6 @@ public class PostService {
             if (blocks == null || !blocks.isArray()) {
                 return content;
             }
-
 
             for (int i = 0; i < blocks.size(); i++) {
                 JsonNode block = blocks.get(i);
@@ -290,7 +291,13 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
-        if (!post.getUser().getId().equals(currentUserId)) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        boolean isOwner = currentUserId != null && post.getUser().getId().equals(currentUserId);
+
+        if (!isOwner && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own post");
         }
 

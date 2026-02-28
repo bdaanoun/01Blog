@@ -9,11 +9,11 @@ export class AdminService {
     constructor(private http: HttpClient) { }
 
     deletePostReport(reportId: number): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl}/reports/${reportId}`);
+        return this.http.delete<void>(`${this.baseUrl}/post-reports/${reportId}`);
     }
 
     deleteUserReport(reportId: number): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl}/reports/${reportId}`);
+        return this.http.delete<void>(`${this.baseUrl}/user-reports/${reportId}`);
     }
 
     updateUserRole(userId: number, role: string) {

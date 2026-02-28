@@ -108,14 +108,16 @@ public class AdminController {
         return ResponseEntity.ok(postService.getPostForAdmin(id));
     }
 
-    @DeleteMapping("/posts/{id}")
-    public void deletePost(@PathVariable Long id) {
-        postService.deletePost(id, getCurrentUserId());
+    @DeleteMapping("/post-reports/{id}")
+    public ResponseEntity<Void> deletePostReport(@PathVariable Long id) {
+        reportService.deletePostReport(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/reports/{id}")
-    public void deleteReport(@PathVariable Long id) {
-        reportService.deletePostReport(id);
+    @DeleteMapping("/user-reports/{id}")
+    public ResponseEntity<Void> deleteUserReport(@PathVariable Long id) {
+        reportService.deleteUserReport(id);
+        return ResponseEntity.noContent().build();
     }
 
     private Long getCurrentUserId() {
